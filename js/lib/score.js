@@ -281,7 +281,7 @@ Chorprobe.score = (function () {
         for (const n of events) {
           keys(
             n,
-            ["at", "duration", "pitch", "lyric", "tie", "fermata", "confidence", "comment"],
+            ["at", "duration", "pitch", "lyric", "tie", "slur", "fermata", "confidence", "comment"],
             `${loc}, ${id}`,
           );
           text(n, "comment", loc);
@@ -306,6 +306,10 @@ Chorprobe.score = (function () {
           if (n.tie !== undefined && typeof n.tie !== "boolean")
             fail(`${loc}: tie muss true oder false sein.`);
           if (n.tie && n.pitch === null) fail(`${loc}: Eine Pause kann nicht gebunden werden.`);
+          if (n.slur !== undefined && n.slur !== "start" && n.slur !== "end")
+            fail(`${loc}, ${id}: slur muss "start" oder "end" sein.`);
+          if (n.slur && n.pitch === null)
+            fail(`${loc}, ${id}: Eine Pause kann keinen Bogen beginnen oder beenden.`);
           if (Array.isArray(n.lyric)) {
             if (!verseCount) fail(`${loc}, ${id}: lyric als Liste setzt Strophen (verses) voraus.`);
             if (n.lyric.length !== verseCount)
@@ -342,14 +346,33 @@ Chorprobe.score = (function () {
       }
     }
     // A tie always extends to the immediately following same-pitch event, including a barline.
+    // Slurs (phrasing) pair start/end per voice, without nesting, across barlines as well.
     for (const v of input.voices) {
       keys(v, ["id", "name", "short", "clef", "displayOctave", "comment"], "Stimme");
       text(v, "short", "Stimme", 12);
       text(v, "comment", "Stimme");
       let prev = null;
       let offset = 0;
-      for (const m of input.measures) {
+      let slurFrom = null;
+      for (const [i, m] of input.measures.entries()) {
+        const loc = `Takt ${i + 1}, ${v.name}`;
+        const unison = input.sections.find((s) => s.id === m.section)?.unison || {};
+        // The voice has no notes of its own here; its slur could not be drawn or closed.
+        if (slurFrom && Object.hasOwn(unison, v.id))
+          fail(
+            `${loc}: Der Bogen aus Takt ${slurFrom} reicht in einen Abschnitt, in dem die Stimme über unison mitgeführt wird. Bogen vorher beenden.`,
+          );
         for (const n of m.voices[v.id] || []) {
+          if (n.slur === "start") {
+            if (slurFrom)
+              fail(
+                `${loc}: Neuer Bogen, bevor der Bogen aus Takt ${slurFrom} endet. Bögen einer Stimme dürfen nicht verschachtelt werden.`,
+              );
+            slurFrom = i + 1;
+          } else if (n.slur === "end") {
+            if (!slurFrom) fail(`${loc}: Bogenende (slur: "end") ohne Bogenanfang.`);
+            slurFrom = null;
+          }
           const start = offset + n.at;
           if (prev?.tie && (prev.end !== start || prev.pitch !== n.pitch))
             fail(
@@ -360,6 +383,10 @@ Chorprobe.score = (function () {
         offset += m.lengthTicks ?? (input.ppq * m.meter[0] * 4) / m.meter[1];
       }
       if (prev?.tie) fail(`Offener Haltebogen am Ende von ${v.name}.`);
+      if (slurFrom)
+        fail(
+          `Takt ${slurFrom}, ${v.name}: Der Bogen wird bis zum Ende der Partitur nicht beendet.`,
+        );
     }
     validateLayout(input.layout, input);
     return structuredClone(input);
@@ -416,6 +443,26 @@ Chorprobe.score = (function () {
       }
     }
     events.sort((a, b) => a.start - b.start);
+    // Slurs per voice with all their notes (rests included); each touched bar lists the slurs
+    // that pass through it, so the renderer can draw the piece of that bar.
+    const slurs = [];
+    for (const v of score.voices) {
+      let open = null;
+      for (const n of byVoice[v.id]) {
+        if (n.slur === "start") open = { voice: v.id, notes: [] };
+        open?.notes.push(n);
+        if (n.slur === "end" && open) {
+          slurs.push(open);
+          open = null;
+        }
+      }
+    }
+    for (const slur of slurs) {
+      slur.first = slur.notes[0].measureIndex;
+      slur.last = slur.notes.at(-1).measureIndex;
+      for (let i = slur.first; i <= slur.last; i++)
+        ((measures[i].slurs ??= {})[slur.voice] ??= []).push(slur);
+    }
     // Dynamics and directions on the absolute timeline; verse-specific marks keep their IDs.
     const dynamics = measures
       .flatMap((m) =>
@@ -438,6 +485,7 @@ Chorprobe.score = (function () {
       measures,
       events,
       byVoice,
+      slurs,
       total: tick,
       verses: score.verses || [],
       dynamics,

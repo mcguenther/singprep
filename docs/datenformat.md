@@ -4,7 +4,7 @@ Dieses Dokument kann einer KI zusammen mit einem Notenfoto oder einer Partitur g
 
 ## Auftrag an eine transkribierende KI
 
-Lies alle Stimmen sorgfältig. Erzeuge ausschließlich eine gültige JSON-Datei im Format `chorprobe/v1` gemäß `score.schema.json`. Verwende klingende Tonhöhen, korrekte Oktaven, vollständig aufgelöste Vorzeichen und exakte Dauern. Übernimm Liedtext und Quellenhinweise. Bei mehreren Strophen lege `verses` an und trage an jeder Note alle Silben als Liste in Strophenreihenfolge ein (`null`, wo eine Strophe keine Silbe hat); die Musik wird nicht pro Strophe wiederholt. Übernimm Dynamik (`pp` bis `ff`, `fp`, `sfz`, Gabeln als `cresc`/`dim` mit Dauer) und Vortragsangaben wie „Ruhig“ oder „Andante“ an der genauen Taktposition. Erfinde keine fehlenden Takte. Kennzeichne unsichere Lesarten mit `confidence: "uncertain"` und `comment`. Weise im Kommentar der Partitur auf fehlende Seiten und nicht übertragbare Angaben (Artikulation, Bindebögen, Tempowechsel) hin. Prüfe jede Stimme auf Taktlängen, Pausen und Haltebögen. Stimme die Daten bei unklaren Stellen mit einer höher aufgelösten Vorlage ab.
+Lies alle Stimmen sorgfältig. Erzeuge ausschließlich eine gültige JSON-Datei im Format `chorprobe/v1` gemäß `score.schema.json`. Verwende klingende Tonhöhen, korrekte Oktaven, vollständig aufgelöste Vorzeichen und exakte Dauern. Übernimm Liedtext und Quellenhinweise. Bei mehreren Strophen lege `verses` an und trage an jeder Note alle Silben als Liste in Strophenreihenfolge ein (`null`, wo eine Strophe keine Silbe hat); die Musik wird nicht pro Strophe wiederholt. Übernimm Dynamik (`pp` bis `ff`, `fp`, `sfz`, Gabeln als `cresc`/`dim` mit Dauer) und Vortragsangaben wie „Ruhig“ oder „Andante“ an der genauen Taktposition. Übernimm Bögen über Melismen und Phrasen mit `slur: "start"` an der ersten und `slur: "end"` an der letzten Note des Bogens, je Stimme. Unterscheide dabei genau: Ein Bogen zwischen zwei **gleich hohen**, direkt aufeinanderfolgenden Noten ist ein Haltebogen (`tie`), ein Bogen über **verschiedene** Töne oder mehrere Noten ist ein Bogen (`slur`); beides zugleich an einer Note ist möglich. Erfinde keine fehlenden Takte. Kennzeichne unsichere Lesarten mit `confidence: "uncertain"` und `comment`. Weise im Kommentar der Partitur auf fehlende Seiten und nicht übertragbare Angaben (Artikulation, Tempowechsel) hin. Prüfe jede Stimme auf Taktlängen, Pausen, Haltebögen und paarweise geschlossene Bögen. Stimme die Daten bei unklaren Stellen mit einer höher aufgelösten Vorlage ab.
 
 ## Grundstruktur
 
@@ -52,10 +52,16 @@ Stimmen haben einen `clef`: `treble` (Violin), `bass`, `alto` (C-Schlüssel auf 
 
 Jede Stimme ist monophon. Für gleichzeitig unterschiedliche Töne innerhalb eines Registers bitte getrennte Stimmen anlegen. Unterstützt werden 1–16 Stimmen und bis zu 1000 Takte.
 
-## Haltebögen, Text und Kommentare
+## Haltebögen, Bögen, Text und Kommentare
 
 - `tie: true` bindet die Note an den unmittelbar folgenden gleich hohen Ton derselben Stimme, auch über einen Taktstrich hinweg. Der nächste Ton muss ohne Pause anschließen. `tie` steht am **ersten** Teil, bei längeren Ketten an allen Teilen außer dem letzten. In der Wiedergabe erfolgt kein erneuter Anschlag.
-- Bindebögen zwischen unterschiedlichen Tönen sind **keine** Haltebögen. Sie werden in v1 bei Bedarf als Kommentar beschrieben.
+- Bögen (Legato- oder Phrasierungsbögen, z. B. über Melismen) zwischen unterschiedlichen Tönen sind **keine** Haltebögen. `slur: "start"` beginnt einen Bogen an dieser Note, `slur: "end"` beendet ihn an einer späteren Note derselben Stimme. Dazwischen dürfen beliebig viele Noten und auch Taktstriche liegen:
+  ```json
+  {"at": 0, "duration": 480, "pitch": "C5", "lyric": "La-", "slur": "start"},
+  {"at": 480, "duration": 240, "pitch": "A4", "slur": "end"}
+  ```
+  Regeln: Bögen einer Stimme werden nicht verschachtelt, auf ein `start` folgt also erst ein `end`, bevor ein neues `start` kommt. Ein `end` ohne vorheriges `start` und ein am Partiturende offener Bogen sind Fehler. Pausen tragen weder `start` noch `end`. In Abschnitten mit `unison` stehen Bögen an den Noten der Zielstimme; ein Bogen darf nicht in einen Abschnitt hineinreichen, in dem seine Stimme über `unison` mitgeführt wird. `slur` und `tie` sind unabhängig und dürfen an derselben Note stehen. Bögen ändern die Wiedergabe nicht.
+  Darstellung: Der Bogen steht auf der Seite der Notenköpfe, gegenüber den Hälsen, also unter den Noten, wenn alle Hälse nach oben zeigen (und darunter Platz bis zum Liedtext bleibt), sonst über den Noten. Über einen Taktstrich oder Systemumbruch hinweg wird er in Teilstücken gezeichnet. In der Sammelzeile entfallen Bögen.
 - `lyric` enthält die Silbe unter der Note, bei Melismen nur auf dem ersten Ton. Trennstriche gehören zum Text. Bei Liedern mit Strophen (siehe unten) ist `lyric` alternativ eine Liste mit einem Eintrag je Strophe.
 - `comment` ist auf Partitur-, Abschnitts-, Stimmen-, Takt- und Notenebene möglich. Kommentare verändern die Wiedergabe nicht. Notenkommentare erscheinen beim Anklicken; Unsicherheiten zusätzlich als gelbe Markierung. Taktkommentare erscheinen unter dem Takt; übergeordnete Hinweise in den Anmerkungen.
 - `confidence: "uncertain"` bedeutet eine vorläufige Lesart. Ohne dieses Feld wird keine besondere Sicherheit behauptet.
@@ -87,7 +93,7 @@ Rubato, Artikulationen und Tempowechsel innerhalb des Stücks sind in v1 Komment
 
 ## Validierung und Portabilität
 
-Die App prüft Syntax, Version, Pflichtfelder, Tonhöhen, Stimmen- und Abschnittsverweise, Taktgrenzen, Überlappungen, Haltebögen und Abschnittsreihenfolge. Grenzen: 5 MB pro Datei, 50.000 Ereignisse. Fehler lassen das bisher geöffnete Lied unverändert. Eine syntaktische Prüfung ersetzt keine musikalische Korrektur gegen die Vorlage.
+Die App prüft Syntax, Version, Pflichtfelder, Tonhöhen, Stimmen- und Abschnittsverweise, Taktgrenzen, Überlappungen, Haltebögen, Bögen und Abschnittsreihenfolge. Grenzen: 5 MB pro Datei, 50.000 Ereignisse. Fehler lassen das bisher geöffnete Lied unverändert. Eine syntaktische Prüfung ersetzt keine musikalische Korrektur gegen die Vorlage.
 
 Der Import erfolgt lokal im Browser. Es gibt keinen Upload und keine dauerhafte Speicherung importierter Lieder. Die Funktion „Aktuelle Partitur als JSON“ speichert die Daten für eine spätere Sitzung. Mitgelieferte Lieder liegen im Ordner `scores/` als `Chorprobe.registerScore({ … });`; zwischen den Klammern steht genau dieses JSON-Format. Das zuletzt angemeldete Lied wird beim Start geöffnet. Das Datenformat ist davon unabhängig.
 

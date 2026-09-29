@@ -4,7 +4,7 @@
   "composer": "Übungsbeispiel",
   "tempo": 80,
   "ppq": 480,
-  "comment": "Ein neutrales Beispiel mit zwei Stimmen, zwei Strophen, etwas Dynamik und einem Haltebogen über die Taktgrenze.",
+  "comment": "Ein neutrales Beispiel mit zwei Stimmen, zwei Strophen, etwas Dynamik, einem Haltebogen über die Taktgrenze und einem Bogen in der tiefen Stimme.",
   "voices": [
     {
       "id": "hoch",
@@ -157,12 +157,14 @@
           {
             "at": 0,
             "duration": 960,
-            "pitch": "G2"
+            "pitch": "G2",
+            "slur": "start"
           },
           {
             "at": 960,
             "duration": 480,
-            "pitch": "C3"
+            "pitch": "C3",
+            "slur": "end"
           }
         ]
       }

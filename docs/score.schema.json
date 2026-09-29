@@ -384,7 +384,15 @@
           ]
         },
         "tie": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Haltebogen: bindet die Note an den unmittelbar folgenden gleich hohen Ton derselben Stimme."
+        },
+        "slur": {
+          "enum": [
+            "start",
+            "end"
+          ],
+          "description": "Bogen (Legato-/Phrasierungsbogen) zwischen beliebigen Tönen derselben Stimme: \"start\" an der ersten, \"end\" an der letzten Note. Auch über Taktstriche; nicht verschachtelt, nicht an Pausen, unabhängig von tie. Ohne Einfluss auf die Wiedergabe."
         },
         "confidence": {
           "enum": [

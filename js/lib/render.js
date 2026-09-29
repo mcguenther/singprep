@@ -153,6 +153,169 @@ Chorprobe.render = (function () {
       minWidth: inset + gaps.reduce((a, b) => a + b, 0) + rightPad,
     };
   }
+  // Ties and slurs are filled outlines that taper towards their ends, as in engraved scores.
+  // The centre line is a cubic Bezier p0–c1–c2–p3; `dir` is -1 for above, 1 for below the notes.
+  // An open end (a slur piece continuing into the neighbouring bar) keeps the full thickness, so
+  // the pieces of adjacent bars join at the barline.
+  const CURVE_THICKNESS = 2.2;
+  function curvePath({ p0, c1, c2, p3, dir, openStart = false, openEnd = false }) {
+    const half = (dir * CURVE_THICKNESS) / 2,
+      shift = (p, d) => [p[0], p[1] + d],
+      f = (p) => `${+p[0].toFixed(2)} ${+p[1].toFixed(2)}`;
+    const outer = [openStart ? shift(p0, half) : p0, shift(c1, half), shift(c2, half)],
+      inner = [openStart ? shift(p0, -half) : p0, shift(c1, -half), shift(c2, -half)],
+      end = [openEnd ? shift(p3, half) : p3, openEnd ? shift(p3, -half) : p3];
+    return (
+      `M${f(outer[0])} C${f(outer[1])} ${f(outer[2])} ${f(end[0])} ` +
+      `L${f(end[1])} C${f(inner[2])} ${f(inner[1])} ${f(inner[0])} Z`
+    );
+  }
+  // Symmetric arc between two points whose middle lies `height` away from the chord.
+  function arcCurve(p0, p3, height, dir) {
+    const c = (dir * height * 4) / 3,
+      at = (t) => [p0[0] + (p3[0] - p0[0]) * t, p0[1] + (p3[1] - p0[1]) * t + c];
+    return { p0, c1: at(0.25), c2: at(0.75), p3, dir };
+  }
+  function bezierPoint({ p0, c1, c2, p3 }, t) {
+    const u = 1 - t,
+      k = [u * u * u, 3 * u * u * t, 3 * u * t * t, t * t * t];
+    return [0, 1].map((i) => k[0] * p0[i] + k[1] * c1[i] + k[2] * c2[i] + k[3] * p3[i]);
+  }
+  // Largest distance by which the curve's inner edge lies on the wrong side of an obstacle
+  // point (x, y), with the x position as a fraction of the curve's width.
+  function curveDeficit(curve, obstacles) {
+    const samples = Array.from({ length: 33 }, (_, i) => bezierPoint(curve, i / 32));
+    let worst = { amount: 0, t: 0.5 };
+    for (const [x, y] of obstacles) {
+      const i = samples.findIndex((p) => p[0] >= x);
+      if (i <= 0) continue;
+      const [a, b] = [samples[i - 1], samples[i]],
+        cy = a[1] + ((x - a[0]) / (b[0] - a[0] || 1)) * (b[1] - a[1]),
+        amount = CURVE_THICKNESS / 2 + 0.5 - curve.dir * (cy - y);
+      if (amount > worst.amount)
+        worst = { amount, t: (x - curve.p0[0]) / (curve.p3[0] - curve.p0[0] || 1) };
+    }
+    return worst;
+  }
+  // One piece of a slur within a bar. `from`/`to` are attachment points [x, y] next to the first
+  // and last notehead (or stem end); null means the slur enters at `left` (height `levels[0]`)
+  // or continues past `right` (height `levels[1]`); the neighbouring bar uses the same height at
+  // that barline. `obstacles` are points of inner notes that the curve must clear. `limit` is the
+  // outermost usable y (top or bottom of the reserved space).
+  function slurPiece({ from, to, left, right, levels = [], dir, obstacles = [], limit }) {
+    const x0 = from ? from[0] : left,
+      x3 = to ? to[0] : right,
+      w = Math.max(1, x3 - x0),
+      [levelIn, levelOut] = levels;
+    let p0 = from || [left, levelIn],
+      p3 = to || [right, levelOut],
+      height = Math.min(9, Math.max(3.5, 2.5 + w * 0.06));
+    const build = () => {
+      if (from && to) return arcCurve(p0, p3, height, dir);
+      if (!from && !to)
+        return { p0, c1: [x0 + w / 3, levelIn], c2: [x0 + (2 * w) / 3, levelOut], p3, dir };
+      // Half piece: leaves the notehead and flattens out towards the barline, or the reverse.
+      return from
+        ? { p0, c1: [x0 + w * 0.3, levelOut], c2: [x0 + w * 0.65, levelOut], p3, dir }
+        : { p0, c1: [x3 - w * 0.65, levelIn], c2: [x3 - w * 0.3, levelIn], p3, dir };
+    };
+    let curve = build();
+    for (let round = 0; round < 4; round++) {
+      const { amount, t } = curveDeficit(curve, obstacles);
+      if (amount <= 0.01) break;
+      if (from && to) {
+        // Rounder first (up to a height of 12), then move the whole slur away from the notes.
+        const k = Math.max(0.35, 4 * t * (1 - t)),
+          grow = Math.min(12 - height, amount / k),
+          rest = amount - grow * k;
+        height += grow;
+        if (rest > 0.01) {
+          p0 = [p0[0], p0[1] + dir * rest];
+          p3 = [p3[0], p3[1] + dir * rest];
+        }
+      } else if (from) p0 = [p0[0], p0[1] + (dir * amount) / Math.max(0.3, 1 - t)];
+      else if (to) p3 = [p3[0], p3[1] + (dir * amount) / Math.max(0.3, t)];
+      else break;
+      curve = build();
+    }
+    // Stay inside the reserved space: flatten towards the limit instead of leaving the staff box.
+    if (limit !== undefined)
+      for (const key of ["p0", "c1", "c2", "p3"])
+        if (dir * curve[key][1] + CURVE_THICKNESS / 2 > dir * limit)
+          curve[key] = [curve[key][0], limit - (dir * CURVE_THICKNESS) / 2];
+    return { ...curve, openStart: !from, openEnd: !to };
+  }
+  // Height of a slur where it crosses the barline at `tick`: an arc over the whole slur in tick
+  // space (bars have different widths), kept clear of the notes on both sides of the barline.
+  // `heights` are the attachment heights of `notes`. Both bars compute the same value.
+  function slurLevel(notes, heights, dir, tick) {
+    const s0 = notes[0].start,
+      span = Math.max(1, notes.at(-1).start - s0),
+      frac = (t) => Math.min(1, Math.max(0, (t - s0) / span)),
+      base = (t) => heights[0] + (heights.at(-1) - heights[0]) * t,
+      bulge = (t) => 4 * t * (1 - t);
+    let height = 7;
+    notes.forEach((n, i) => {
+      const t = frac(n.start);
+      if (bulge(t) > 0.3) height = Math.max(height, (dir * (heights[i] - base(t)) + 3) / bulge(t));
+    });
+    height = Math.min(height, 14);
+    let level = base(frac(tick)) + dir * height * bulge(frac(tick));
+    const before = notes.findLast((n) => n.start < tick),
+      after = notes.find((n) => n.start >= tick);
+    for (const n of [before, after]) {
+      const clear = n && heights[notes.indexOf(n)] + dir * 3;
+      if (n && dir * (clear - level) > 0) level = clear;
+    }
+    return level;
+  }
+  // Lowest possible start of the lyric line for a clef: a slur below the notes must end above it
+  // in every system, so all pieces of a slur choose the same side.
+  function lyricTop(voice, dense, lyricSize = 12) {
+    const base = voice.clef === "treble" ? (voice.displayOctave ? 73 : 66) : 58;
+    return Math.max(dense ? 68 : 79, base + (dense ? 10 : 15)) - lyricSize * 0.8;
+  }
+  // Side of a slur, as usual on the side of the noteheads opposite the stems: below only if every
+  // stem points up, no tie runs below and the curve stays clear of the lyrics; otherwise above.
+  function slurSide(notes, voice, { stemUp, dense = false, lyricSize = 12 } = {}) {
+    const ys = notes.filter((n) => n.pitch !== null).map((n) => [n, pitchY(n.pitch, voice)]);
+    if (!ys.length) return -1;
+    const below =
+      ys.every(([, y]) => stemUp ?? y >= 37) &&
+      !ys.some(([n]) => n.tie) &&
+      Math.max(...ys.map(([, y]) => y)) + 5.5 + 8 <= lyricTop(voice, dense, lyricSize);
+    return below ? 1 : -1;
+  }
+  // Where a slur meets a note: next to the notehead, or at the stem end if the stem points to the
+  // slur's side (mixed stems with the slur above).
+  function slurAttach(n, x, voice, dir, { stemUp, ppq }) {
+    if (n.pitch === null) return [x, dir < 0 ? 22 : 52];
+    const y = pitchY(n.pitch, voice),
+      up = stemUp ?? y >= 37,
+      stem = rhythm(n.duration, ppq).base < 4;
+    if (dir < 0 && up && stem) return [x + 4.5, y - 27.5];
+    return [x, y + dir * 5.5];
+  }
+  // Notes of this row that lie under a slur, from the slur marks in the row's events: a slur may
+  // begin before or end after the row. Used to reserve space above the staff for every bar.
+  function slurRowSpans(events) {
+    const spans = [];
+    let current = null,
+      seen = false;
+    for (const n of events) {
+      if (n.slur === "start") current = [];
+      else if (n.slur === "end" && !seen && !current)
+        current = [...events.slice(0, events.indexOf(n))];
+      if (n.slur) seen = true;
+      current?.push(n);
+      if (n.slur === "end" && current) {
+        spans.push(current);
+        current = null;
+      }
+    }
+    if (current) spans.push(current);
+    return spans;
+  }
   function fermataY(n, voice, stemUp) {
     const y = n.pitch === null ? 37 : pitchY(n.pitch, voice);
     return Math.min(13, y - ((stemUp ?? y >= 37) ? 35 : 13));
@@ -175,10 +338,24 @@ Chorprobe.render = (function () {
       .filter((n) => n.fermata)
       .map((n) => fermataY(n, displayVoice, options.combined ? true : options.stemUp) - 11);
     const noteTops = options.dense ? stemBounds.map((b) => b[0]) : ys.map((y) => y - 29);
-    let top = Math.min(options.dense ? 3 : 0, ...noteTops, ...fermataTop);
+    // Room for slurs above the notes, from the whole row so that every bar has the same height.
+    const slurOptions = {
+      stemUp: options.stemUp,
+      dense: options.dense,
+      lyricSize: options.lyricSize || 12,
+      ppq,
+    };
+    const slurTops = options.combined
+      ? []
+      : slurRowSpans(rangeEvents).flatMap((span) =>
+          slurSide(span, displayVoice, slurOptions) < 0
+            ? span.map((n) => slurAttach(n, 0, displayVoice, -1, slurOptions)[1] - 10)
+            : [],
+        );
+    let top = Math.min(options.dense ? 3 : 0, ...noteTops, ...fermataTop, ...slurTops);
     // Choir staves carry dynamics above the staff (lyrics are below), directions above those.
     // The reserve flags are set per system row, so all bars of a row keep the same height.
-    const markTop = Math.min(19, ...noteTops, ...fermataTop),
+    const markTop = Math.min(19, ...noteTops, ...fermataTop, ...slurTops),
       dynamicY = markTop - 3,
       directionY = options.reserveDynamics ? dynamicY - 16 : markTop - 3;
     if (options.reserveDynamics) top = Math.min(top, dynamicY - 12);
@@ -390,7 +567,8 @@ Chorprobe.render = (function () {
       showClef,
       connected: options.connected,
     });
-    const accState = {};
+    const accState = {},
+      accidentalAt = new Set();
     events.forEach((n, i) => {
       if (options.suppressRests && n.pitch === null) return;
       const x = xFor(n.at) + (options.offsetFor?.(n) || 0),
@@ -458,6 +636,7 @@ Chorprobe.render = (function () {
         // Show all chromatic alterations, including key-signature tones, because no key glyphs are
         // drawn.
         const acc = accidental(n.pitch, 0, accState);
+        if (acc) accidentalAt.add(n.at);
         if (acc)
           g.append(
             el("path", {
@@ -503,10 +682,9 @@ Chorprobe.render = (function () {
           const end = Math.min(right, xFor(n.at + n.duration));
           g.append(
             el("path", {
-              d: `M${x + 4} ${y + 9} Q${(x + end) / 2} ${y + 21} ${end - 4} ${y + 9}`,
-              stroke: "currentColor",
-              fill: "none",
-              "stroke-width": 1.2,
+              d: curvePath(arcCurve([x + 4, y + 9], [end - 4, y + 9], 5.5, 1)),
+              fill: "currentColor",
+              class: "tie",
             }),
           );
         }
@@ -555,6 +733,51 @@ Chorprobe.render = (function () {
       });
       svg.append(g);
     });
+    // Slurs: one piece per bar. A slur that begins or ends in another bar runs to or from the
+    // barline at a common height, so the pieces of a system join up.
+    for (const slur of options.combined ? [] : measure.slurs?.[voice.id] || []) {
+      const dir = slurSide(slur.notes, displayVoice, slurOptions),
+        attach = (n, x = xFor(n.at)) => slurAttach(n, x, displayVoice, dir, slurOptions),
+        heights = slur.notes.map((n) => attach(n, 0)[1]),
+        here = slur.notes.filter((n) => n.measureIndex === measure.index),
+        first = slur.notes[0],
+        last = slur.notes.at(-1);
+      const obstacles = [
+        ...here.filter((n) => n !== first && n !== last).map((n) => attach(n)),
+        ...here
+          .filter((n) => n !== first && n.pitch !== null && accidentalAt.has(n.at))
+          .map((n) => [xFor(n.at) - 13, pitchY(n.pitch, displayVoice) + dir * 11.5]),
+      ];
+      const piece = slurPiece({
+        from: first.measureIndex === measure.index ? attach(first) : null,
+        to: last.measureIndex === measure.index ? attach(last) : null,
+        // After the clef (and time signature) of a new system, or at the barline.
+        left: showClef
+          ? Math.max(inset - 18, showMeter ? 62 : 36)
+          : options.connected
+            ? 0
+            : inset - 12,
+        right: options.connected ? width : right + 8,
+        levels: [measure.start, measure.end].map((t) => slurLevel(slur.notes, heights, dir, t)),
+        dir,
+        obstacles,
+        limit: dir < 0 ? top + 0.5 : lyricY - lyricSize * 0.8,
+      });
+      svg.append(
+        el("path", {
+          d: curvePath(piece),
+          class: "slur",
+          fill: "currentColor",
+          stroke: "currentColor",
+          "stroke-width": 0.3,
+          "stroke-linejoin": "round",
+          "pointer-events": "none",
+          "aria-hidden": "true",
+          style: `color:${options.voiceColors ? color : "#252f42"}`,
+          "data-slur": `${first.id}-${last.id}`,
+        }),
+      );
+    }
     if (!events.length && !options.hideEmpty)
       svg.append(
         el(
@@ -877,10 +1100,9 @@ Chorprobe.render = (function () {
             const end = xFor(Math.min(measure.length, at + n.duration));
             g.append(
               el("path", {
-                d: `M${x + 4} ${y + 8} Q${(x + end) / 2} ${y + 19} ${end - 4} ${y + 8}`,
-                stroke: "currentColor",
-                fill: "none",
-                "stroke-width": 1.1,
+                d: curvePath(arcCurve([x + 4, y + 8], [end - 4, y + 8], 5.5, 1)),
+                fill: "currentColor",
+                class: "tie",
               }),
             );
           }
@@ -938,5 +1160,10 @@ Chorprobe.render = (function () {
     chordClef,
     noteLabel,
     noteTitle,
+    curvePath,
+    slurPiece,
+    slurLevel,
+    slurSide,
+    slurRowSpans,
   };
 })();

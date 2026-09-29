@@ -104,8 +104,8 @@ Chorprobe.registerScore({
       "keyFifths": 1,
       "voices": {
         "s": [
-          {"at": 0, "duration": 480, "pitch": "C5", "lyric": ["Grun-", "spro-", "rei-", "flie-", "ge-"]},
-          {"at": 480, "duration": 240, "pitch": "A4"},
+          {"at": 0, "duration": 480, "pitch": "C5", "lyric": ["Grun-", "spro-", "rei-", "flie-", "ge-"], "slur": "start"},
+          {"at": 480, "duration": 240, "pitch": "A4", "slur": "end"},
           {"at": 720, "duration": 480, "pitch": "F#4", "lyric": ["de", "chen,", "sen", "gen", "hen,"]},
           {"at": 1200, "duration": 240, "pitch": "D4", "lyric": ["da", "gab", "weit", "wohl", "ich"]}
         ],
@@ -242,14 +242,14 @@ Chorprobe.registerScore({
           {"at": 1200, "duration": 240, "pitch": "A4", "lyric": ["das", "das", "und", "im", "da"]}
         ],
         "a": [
-          {"at": 0, "duration": 480, "pitch": "F#4", "lyric": ["schwun-", "bro-", "Wei-", "lie-", "ster-"]},
-          {"at": 480, "duration": 240, "pitch": "F4"},
+          {"at": 0, "duration": 480, "pitch": "F#4", "lyric": ["schwun-", "bro-", "Wei-", "lie-", "ster-"], "slur": "start"},
+          {"at": 480, "duration": 240, "pitch": "F4", "slur": "end"},
           {"at": 720, "duration": 480, "pitch": "E4", "lyric": ["den,", "chen,", "sen", "gen", "ben,"]},
           {"at": 1200, "duration": 240, "pitch": "E4", "lyric": ["das", "das", "und", "im", "da"]}
         ],
         "t": [
-          {"at": 0, "duration": 480, "pitch": "A3", "lyric": ["schwun-", "bro-", "Wei-", "lie-", "ster-"]},
-          {"at": 480, "duration": 240, "pitch": "Ab3"},
+          {"at": 0, "duration": 480, "pitch": "A3", "lyric": ["schwun-", "bro-", "Wei-", "lie-", "ster-"], "slur": "start"},
+          {"at": 480, "duration": 240, "pitch": "Ab3", "slur": "end"},
           {"at": 720, "duration": 480, "pitch": "G3", "lyric": ["den,", "chen,", "sen", "gen", "ben,"]},
           {"at": 1200, "duration": 240, "pitch": "C4", "lyric": ["das", "das", "und", "im", "da"]}
         ],
@@ -379,15 +379,15 @@ Chorprobe.registerScore({
       "keyFifths": 1,
       "voices": {
         "s": [
-          {"at": 0, "duration": 480, "pitch": "D5", "lyric": ["schwun-", "bro-", "Wei-", "lie-", "ster-"]},
-          {"at": 480, "duration": 240, "pitch": "G5"},
+          {"at": 0, "duration": 480, "pitch": "D5", "lyric": ["schwun-", "bro-", "Wei-", "lie-", "ster-"], "slur": "start"},
+          {"at": 480, "duration": 240, "pitch": "G5", "slur": "end"},
           {"at": 720, "duration": 240, "pitch": "E5", "lyric": ["den,", "chen,", "sen", "gen", "ben,"]},
           {"at": 960, "duration": 240, "pitch": "C5"},
           {"at": 1200, "duration": 240, "pitch": "A4", "lyric": ["das", "das", "und", "im", "da"]}
         ],
         "a": [
-          {"at": 0, "duration": 240, "pitch": "F#4", "lyric": ["schwun-", "bro-", "Wei-", "lie-", "ster-"]},
-          {"at": 240, "duration": 480, "pitch": "G4"},
+          {"at": 0, "duration": 240, "pitch": "F#4", "lyric": ["schwun-", "bro-", "Wei-", "lie-", "ster-"], "slur": "start"},
+          {"at": 240, "duration": 480, "pitch": "G4", "slur": "end"},
           {"at": 720, "duration": 480, "pitch": "G4", "lyric": ["den,", "chen,", "sen", "gen", "ben,"]},
           {"at": 1200, "duration": 240, "pitch": "E4", "lyric": ["das", "das", "und", "im", "da"]}
         ],
