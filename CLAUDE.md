@@ -50,8 +50,10 @@ als `.js`-Dateien statt `.json`. Das bitte nicht „modernisieren“, ohne dass 
 ### js/lib/
 
 - `score.js`: Validierung (`validateScore`) und Kompilierung des Formats `chorprobe/v1`, Tonhöhen,
-  Stimmenmischung, Einsatztöne, Tempo-Schätzung.
+  Strophentexte (`lyricFor`), Stimmenmischung, Einsatztöne, Tempo-Schätzung.
+- `dynamics.js`: Dynamikzeichen und Pegel je Note und Strophe (`noteLevels`), vor `score.js` geladen.
 - `original.js`: optionale Originalseiten (Fotos mit anklickbaren Taktbereichen), `validateLayout`.
+  Seitenbilder sind data:-URIs oder relative Pfade (`scores/lied.webp`); der Build bettet Pfade ein.
 - `render.js` + `glyphs.js`: SVG-Notensatz. Glyphen sind Bravura-Umrisse (SIL OFL,
   `assets/Bravura-LICENSE.txt`).
 - `audio.js`: WebAudio-Synthese, Zeitachse mit Fermaten.
@@ -70,6 +72,8 @@ Tests in `tests/`.
 - Zwei Dateien dürfen keinen gleichen Top-Level-Namen haben. `eslint.config.js` sammelt die
   Top-Level-Namen aller `js/app/`-Dateien, damit `no-undef`/`no-redeclare` dateiübergreifend greifen.
 - Neue Datei: in `index.html` vor `main.js` eintragen, Kopfkommentar mit Zweck schreiben.
+- `verses.js`: Strophenwahl/-durchlauf und Hervorhebung ohne Neuaufbau (`paintVerse`), Dynamik je
+  Notenzeile und die Pegel für `audio.play` (`dynamicLevels`).
 
 ### CSS
 

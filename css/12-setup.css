@@ -619,3 +619,36 @@ h1 {
 .controls #displayVoicePicker .field-help {
   margin-top: 10px;
 }
+
+/* Abschnitt und Strophe untereinander; Strophen auf schmalen Bildschirmen als Nummern. */
+.toolbar-pickers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.section-tabs .verse-short {
+  display: none;
+}
+.section-tabs button.verse-now:not([aria-pressed="true"]) {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+.lyric-options {
+  margin: 4px 0 16px;
+}
+.dynamics-toggle {
+  padding: 16px 0 0;
+}
+@media (max-width: 600px) {
+  .section-tabs .verse-long {
+    display: none;
+  }
+  .section-tabs .verse-short {
+    display: inline;
+  }
+}
+@media (max-width: 540px) {
+  .toolbar-pickers {
+    width: 100%;
+  }
+}

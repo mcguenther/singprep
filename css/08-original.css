@@ -43,6 +43,23 @@
   width: 100%;
   height: auto;
 }
+/* Seitenbild fehlt (z. B. Pfad in einer importierten Datei): Hinweis statt kaputtem Bild. */
+.original-sheet.image-missing {
+  background: #f6f7fa;
+}
+.original-missing {
+  margin: 0;
+  padding: 18px;
+  color: #8a3b1c;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.original-sheet .original-missing {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  pointer-events: none;
+}
 .original-measure {
   position: absolute;
   border: 2px solid transparent;

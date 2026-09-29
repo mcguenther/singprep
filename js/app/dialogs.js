@@ -6,12 +6,7 @@ function showSources() {
   for (const page of score.layout?.pages || []) {
     const figure = escText("figure", "", "source-figure");
     const caption = escText("figcaption", page.label);
-    const img = document.createElement("img");
-    img.src = page.image;
-    img.alt = `${score.title}, ${page.label}`;
-    img.width = page.width;
-    img.height = page.height;
-    figure.append(caption, img);
+    figure.append(caption, pageImage(page, `${score.title}, ${page.label}`));
     gallery.append(figure);
   }
   $("sourceDialog").showModal();

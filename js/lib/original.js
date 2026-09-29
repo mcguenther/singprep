@@ -2,6 +2,39 @@
 // Originalseiten: Validierung des optionalen layout-Felds und Darstellung der Fotos mit
 // anklickbaren Taktbereichen.
 Chorprobe.original = (function () {
+  // Page images: an embedded data: URI or a relative path next to index.html (e.g. scores/x.webp).
+  const DATA_IMAGE = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+  const IMAGE_PATH = /^(?!\/)(?!.*\.\.)[A-Za-z0-9._/-]+\.(?:jpe?g|png|webp)$/;
+  function isImagePath(image) {
+    return typeof image === "string" && IMAGE_PATH.test(image);
+  }
+  function imageError(page) {
+    return isImagePath(page.image)
+      ? `Das Seitenbild „${page.image}“ konnte nicht geladen werden. Der Pfad gilt relativ zu index.html. In importierten JSON-Dateien bitte das Bild als data:-URI einbetten.`
+      : "Das eingebettete Seitenbild konnte nicht geladen werden.";
+  }
+  // <img> for a page; a failing path shows a readable message instead of a broken image.
+  function pageImage(page, alt, onError) {
+    const img = document.createElement("img");
+    img.alt = alt;
+    img.width = page.width;
+    img.height = page.height;
+    img.draggable = false;
+    img.addEventListener(
+      "error",
+      () => {
+        const note = document.createElement("p");
+        note.className = "original-missing";
+        note.setAttribute("role", "alert");
+        note.textContent = imageError(page);
+        img.replaceWith(note);
+        onError?.(note);
+      },
+      { once: true },
+    );
+    img.src = page.image;
+    return img;
+  }
   // Original pages and musical measures are separate: a measure can span pages.
   function regionRange(region, length) {
     return [region.fromTick ?? 0, region.toTick ?? length];
@@ -38,10 +71,12 @@ Chorprobe.original = (function () {
         fail("Ungültige Seitengröße.");
       if (
         typeof p.image !== "string" ||
-        !/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(p.image) ||
+        !(DATA_IMAGE.test(p.image) || IMAGE_PATH.test(p.image)) ||
         p.image.length > 7000000
       )
-        fail("Seitenbilder müssen als JPEG, PNG oder WebP eingebettet sein.");
+        fail(
+          `Seite ${p.id}: Seitenbilder müssen JPEG, PNG oder WebP sein, eingebettet als data:-URI oder als relativer Pfad wie scores/lied.webp.`,
+        );
       if (!Array.isArray(p.measures) || !p.measures.length)
         fail("Anklickbare Taktbereiche fehlen.");
       for (const r of p.measures) {
@@ -128,13 +163,11 @@ Chorprobe.original = (function () {
       const sheet = document.createElement("div");
       sheet.className = "original-sheet";
       sheet.style.aspectRatio = `${page.width} / ${page.height}`;
-      const img = document.createElement("img");
-      img.src = page.image;
-      img.alt = `${compiled.score.title}, ${page.label}`;
-      img.width = page.width;
-      img.height = page.height;
-      img.draggable = false;
-      sheet.append(img);
+      sheet.append(
+        pageImage(page, `${compiled.score.title}, ${page.label}`, () =>
+          sheet.classList.add("image-missing"),
+        ),
+      );
       const overlay = document.createElementNS(ns, "svg");
       overlay.setAttribute("viewBox", `0 0 ${page.width} ${page.height}`);
       overlay.setAttribute("aria-hidden", "true");
@@ -211,5 +244,14 @@ Chorprobe.original = (function () {
     }
   }
 
-  return { regionRange, validateLayout, originalX, drawOriginalPages, paintOriginal };
+  return {
+    regionRange,
+    validateLayout,
+    isImagePath,
+    imageError,
+    pageImage,
+    originalX,
+    drawOriginalPages,
+    paintOriginal,
+  };
 })();

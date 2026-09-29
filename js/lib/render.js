@@ -1,7 +1,8 @@
 "use strict";
-// SVG-Notensatz der Übeansicht: Einzelstimmen und Sammelzeile.
+// SVG-Notensatz der Übeansicht: Einzelstimmen und Sammelzeile, Strophentexte, Dynamik und
+// Vortragsangaben.
 Chorprobe.render = (function () {
-  const { noteName, midi } = Chorprobe.score;
+  const { noteName, midi, lyricFor, lyricTexts } = Chorprobe.score;
   const { CLEFS } = Chorprobe.glyphs;
   const COLORS = [
     "#6256db",
@@ -59,9 +60,33 @@ Chorprobe.render = (function () {
   // Canvas for lyric widths, created on first use so the module also loads without a DOM.
   let lyricCanvas = null;
   const lyricContext = () => (lyricCanvas ??= document.createElement("canvas").getContext("2d"));
+  // Accessible name and tooltip of a note; the syllable is that of the given verse.
+  function noteLabel(voice, n, ppq, verseIndex = 0, voiceNames = false) {
+    const lyric = lyricFor(n, verseIndex);
+    return `${voiceNames ? voice.name + ": " : ""}${noteName(n.pitch)}, ${n.duration / ppq} Viertel${lyric ? ", " + lyric : ""}${n.fermata ? ", Fermate" : ""}${n.comment ? ". " + n.comment : ""}`;
+  }
+  function noteTitle(voice, n, verseIndex = 0, voiceNames = false) {
+    return [
+      voiceNames ? voice.name : null,
+      noteName(n.pitch),
+      lyricFor(n, verseIndex),
+      n.fermata ? "Fermate" : null,
+      n.comment,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  }
   function measureSpacing(
     measure,
-    { showClef = true, showMeter = false, compact = false, lyricSize = 12, chordVoices = [] } = {},
+    {
+      showClef = true,
+      showMeter = false,
+      compact = false,
+      lyricSize = 12,
+      chordVoices = [],
+      verseLabels = false,
+      boldLyrics = false,
+    } = {},
   ) {
     const times = [
       ...new Set([
@@ -72,13 +97,15 @@ Chorprobe.render = (function () {
     ].sort((a, b) => a - b);
     const events = Object.values(measure.voices).flat();
     const lyricMeasure = lyricContext();
-    lyricMeasure.font = `${lyricSize}px Inter, ui-sans-serif, system-ui, sans-serif`;
+    // With verses, the highlighted (bolder) verse must fit as well.
+    lyricMeasure.font = `${boldLyrics ? "650 " : ""}${lyricSize}px Inter, ui-sans-serif, system-ui, sans-serif`;
     const half = times.map((t) =>
       Math.max(
         0,
         ...events
-          .filter((n) => n.at === t && n.lyric)
-          .map((n) => lyricMeasure.measureText(n.lyric).width / 2),
+          .filter((n) => n.at === t)
+          .flatMap(lyricTexts)
+          .map((text) => lyricMeasure.measureText(text).width / 2),
       ),
     );
     const chordAt = chordEvents(chordVoices, measure),
@@ -105,7 +132,7 @@ Chorprobe.render = (function () {
     }
     const inset = Math.max(
       showClef ? (showMeter ? 73 : 47) : showMeter ? 38 : 22,
-      half[0] + 6,
+      half[0] + (verseLabels && showClef ? 17 : 6),
       (extents.get(0)?.left || 0) + 3,
     );
     const gaps = times
@@ -147,11 +174,15 @@ Chorprobe.render = (function () {
     const fermataTop = rangeEvents
       .filter((n) => n.fermata)
       .map((n) => fermataY(n, displayVoice, options.combined ? true : options.stemUp) - 11);
-    const top = Math.min(
-      options.dense ? 3 : 0,
-      ...(options.dense ? stemBounds.map((b) => b[0]) : ys.map((y) => y - 29)),
-      ...fermataTop,
-    );
+    const noteTops = options.dense ? stemBounds.map((b) => b[0]) : ys.map((y) => y - 29);
+    let top = Math.min(options.dense ? 3 : 0, ...noteTops, ...fermataTop);
+    // Choir staves carry dynamics above the staff (lyrics are below), directions above those.
+    // The reserve flags are set per system row, so all bars of a row keep the same height.
+    const markTop = Math.min(19, ...noteTops, ...fermataTop),
+      dynamicY = markTop - 3,
+      directionY = options.reserveDynamics ? dynamicY - 16 : markTop - 3;
+    if (options.reserveDynamics) top = Math.min(top, dynamicY - 12);
+    if (options.reserveDirections) top = Math.min(top, directionY - 12);
     const noteBottom = Math.max(
       displayVoice.clef === "treble" ? (displayVoice.displayOctave ? 73 : 66) : 58,
       ...stemBounds.map((b) => b[1]),
@@ -291,6 +322,74 @@ Chorprobe.render = (function () {
           ),
         );
       }
+    const lyricSize = options.lyricSize || 12,
+      verseCount = options.verseCount || 0,
+      currentVerse = options.verseIndex ?? 0,
+      stacked = (options.lyricRows || 1) > 1,
+      laneY = (lane) => lyricY + ((options.lyricLane || 0) + lane) * lyricSize * 1.15;
+    // Verse texts: stacked as in print, or all on one lane (only the current one visible via CSS).
+    // A plain string applies to every verse and is repeated in each stacked line.
+    const verseText = (text, x, verse) =>
+      el(
+        "text",
+        {
+          x,
+          y: laneY(stacked && verse !== "all" ? verse : 0),
+          "font-size": lyricSize,
+          "text-anchor": "middle",
+          class: `lyric verse-lyric${verse === "all" || verse === currentVerse ? " current-verse" : ""}`,
+          "data-verse": verse,
+        },
+        text,
+      );
+    function lyricElements(n, x) {
+      if (!verseCount)
+        return n.lyric
+          ? [
+              el(
+                "text",
+                {
+                  x,
+                  y: laneY(0),
+                  "font-size": lyricSize,
+                  "text-anchor": "middle",
+                  class: "lyric",
+                },
+                n.lyric,
+              ),
+            ]
+          : [];
+      if (Array.isArray(n.lyric))
+        return n.lyric.flatMap((text, k) => (text ? [verseText(text, x, k)] : []));
+      if (!n.lyric) return [];
+      return stacked
+        ? Array.from({ length: verseCount }, (_, k) => verseText(n.lyric, x, k))
+        : [verseText(n.lyric, x, "all")];
+    }
+    if (verseCount && options.verseLabels && showClef && !options.hideLyrics)
+      for (let k = 0; k < verseCount; k++)
+        svg.append(
+          el(
+            "text",
+            {
+              x: 3,
+              y: laneY(stacked ? k : 0),
+              "font-size": lyricSize - 1,
+              class: `verse-number${k === currentVerse ? " current-verse" : ""}`,
+              "data-verse": k,
+            },
+            `${k + 1}.`,
+          ),
+        );
+    drawMarks(svg, measure, options.dynamics || [], options.directions || [], {
+      xFor,
+      width,
+      right,
+      dynamicY,
+      directionY,
+      showClef,
+      connected: options.connected,
+    });
     const accState = {};
     events.forEach((n, i) => {
       if (options.suppressRests && n.pitch === null) return;
@@ -301,27 +400,15 @@ Chorprobe.render = (function () {
         class: `score-note${n.confidence === "uncertain" ? " uncertain" : ""}`,
         tabindex: 0,
         role: "button",
-        "aria-label": `${options.voiceNames ? voice.name + ": " : ""}${noteName(n.pitch)}, ${n.duration / ppq} Viertel${n.lyric ? ", " + n.lyric : ""}${n.fermata ? ", Fermate" : ""}${n.comment ? ". " + n.comment : ""}`,
+        "aria-label": noteLabel(voice, n, ppq, currentVerse, options.voiceNames),
         "data-note-id": `${measure.index}:${voice.id}:${i}`,
         "data-at": measure.start + n.at,
         "data-end": measure.start + n.at + n.duration,
         "data-voice": voice.id,
         style: `--voice:${color};color:${options.voiceColors ? color : "#252f42"}`,
       });
-      const title = el(
-        "title",
-        {},
-        [
-          options.voiceNames ? voice.name : null,
-          noteName(n.pitch),
-          n.lyric,
-          n.fermata ? "Fermate" : null,
-          n.comment,
-        ]
-          .filter(Boolean)
-          .join(" · "),
-      );
-      g.append(title);
+      if (options.voiceNames) g.dataset.voiceNames = "1";
+      g.append(el("title", {}, noteTitle(voice, n, currentVerse, options.voiceNames)));
       const h = xFor(n.at + n.duration) - xFor(n.at);
       g.append(
         el("rect", {
@@ -454,20 +541,7 @@ Chorprobe.render = (function () {
         );
         g.append(mark);
       }
-      if (n.lyric && !options.hideLyrics)
-        g.append(
-          el(
-            "text",
-            {
-              x: xFor(n.at),
-              y: lyricY + (options.lyricLane || 0) * (options.lyricSize || 12) * 1.15,
-              "font-size": options.lyricSize || 12,
-              "text-anchor": "middle",
-              class: "lyric",
-            },
-            n.lyric,
-          ),
-        );
+      if (!options.hideLyrics) for (const text of lyricElements(n, xFor(n.at))) g.append(text);
       if (n.confidence === "uncertain")
         g.append(el("circle", { cx: x + 10, cy: y - 12, r: 3, fill: "#d08d20" }));
       const select = () => onSelect(measure.start + n.at, n, voice, measure);
@@ -545,6 +619,73 @@ Chorprobe.render = (function () {
     return svg;
   }
 
+  // Dynamics (serif bold italic, hairpins as wedges) and directions of one bar. Marks are relative
+  // to the bar; a hairpin may begin before (at < 0) or end after the bar and is drawn in parts.
+  function drawMarks(svg, measure, dynamics, directions, geo) {
+    const { xFor, width, right, dynamicY, directionY, showClef, connected } = geo;
+    for (const d of directions)
+      svg.append(
+        el(
+          "text",
+          {
+            x: d.at === 0 ? (showClef ? 6 : 4) : xFor(d.at) - 4,
+            y: directionY,
+            "font-size": 12.5,
+            "font-weight": 700,
+            class: "direction-text",
+          },
+          d.text,
+        ),
+      );
+    const onsets = new Set(dynamics.filter((d) => !d.hairpin).map((d) => d.at));
+    for (const d of dynamics) {
+      const g = el("g", {
+        class: `dynamic${d.verses ? " verse-only" : ""}`,
+        "data-mark": d.mark,
+        "aria-hidden": "true",
+      });
+      if (d.verses) g.dataset.dynamicVerses = d.verses.join(" ");
+      if (d.hairpin) {
+        const from = Math.max(0, d.at),
+          to = Math.min(measure.length, d.end),
+          span = d.end - d.at,
+          open = (t) => 4.5 * (d.mark === "cresc" ? (t - d.at) / span : 1 - (t - d.at) / span);
+        const x1 =
+            d.at < 0 ? (connected ? 0 : xFor(0) - 8) : xFor(from) + (onsets.has(d.at) ? 12 : 0),
+          x2 =
+            d.end > measure.length
+              ? connected
+                ? width
+                : right + 8
+              : xFor(to) - (onsets.has(d.end) ? 10 : 0),
+          y = dynamicY - 4;
+        if (x2 - x1 < 2) continue;
+        for (const sign of [-1, 1])
+          line(g, x1, y + sign * open(from), x2, y + sign * open(to), {
+            "stroke-width": 1.2,
+            "stroke-linecap": "round",
+          });
+      } else {
+        const text = el(
+          "text",
+          {
+            x: xFor(d.at),
+            y: dynamicY,
+            "font-size": 14,
+            "text-anchor": "middle",
+            class: "dynamic-mark",
+          },
+          d.mark,
+        );
+        if (d.label) {
+          const small = el("tspan", { class: "dynamic-verses", "font-size": 9 }, ` ${d.label}`);
+          text.append(small);
+        }
+        g.append(text);
+      }
+      svg.append(g);
+    }
+  }
   function chordEvents(voices, measure) {
     const merged = new Map();
     for (const v of voices)
@@ -788,5 +929,14 @@ Chorprobe.render = (function () {
     return svg;
   }
 
-  return { COLORS, drawStaff, drawCombinedStaff, measureSpacing, chordEvents, chordClef };
+  return {
+    COLORS,
+    drawStaff,
+    drawCombinedStaff,
+    measureSpacing,
+    chordEvents,
+    chordClef,
+    noteLabel,
+    noteTitle,
+  };
 })();

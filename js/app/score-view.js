@@ -1,6 +1,6 @@
 "use strict";
-// Partituransicht: Notensysteme aufbauen, Kopfbereich/Klang/Stimmenknöpfe füllen, Ansicht wechseln
-// (Zustände: viewMode, currentMeasure).
+// Partituransicht: Notensysteme aufbauen (mit Strophentexten, Dynamik und Vortragsangaben),
+// Kopfbereich/Klang/Stimmenknöpfe füllen, Ansicht wechseln (Zustände: viewMode, currentMeasure).
 function renderScore() {
   const container = $("score");
   container.replaceChildren();
@@ -9,6 +9,9 @@ function renderScore() {
     dense = !$("showCounts").checked,
     setting = $("measuresPerRow").value;
   const columns = measureColumns(container.clientWidth, setting, mobile);
+  const verseCount = score.verses?.length || 0,
+    lyricsAll = lyricDisplay() === "all";
+  container.classList.toggle("lyrics-current", verseCount > 0 && !lyricsAll);
   for (const option of $("measuresPerRow").options)
     option.disabled = mobile && Number(option.value) > 3;
   $("showCounts").disabled = viewMode === "original";
@@ -25,7 +28,7 @@ function renderScore() {
   $("layoutSummary").textContent =
     viewMode === "original"
       ? "Originalseiten"
-      : `${displayMode === "all" ? "Alle Stimmen" : displayMode === "selected" ? "Nur Auswahl" : "Mit Sammelzeile"} · ${columns} ${columns === 1 ? "Takt" : "Takte"}${dense ? "" : " · Zählzeiten"}`;
+      : `${displayMode === "all" ? "Alle Stimmen" : displayMode === "selected" ? "Nur Auswahl" : "Mit Sammelzeile"} · ${columns} ${columns === 1 ? "Takt" : "Takte"}${dense ? "" : " · Zählzeiten"}${verseCount ? (lyricsAll ? " · alle Strophen" : " · eine Strophe") : ""}`;
   if (viewMode === "original" && score.layout) {
     drawOriginalPages(container, compiled, section, selectPosition);
     currentMeasure = -1;
@@ -60,6 +63,8 @@ function renderScore() {
         showMeter,
         lyricSize,
         chordVoices: system.voices.combined,
+        verseLabels: verseCount > 0,
+        boldLyrics: verseCount > 0,
       });
     });
     const minimum = spacings.reduce((n, s) => n + s.minWidth, 0),
@@ -80,14 +85,23 @@ function renderScore() {
     const extra = Math.max(0, targetWidth / scale - minimum) / system.measures.length;
     const widths = spacings.map((s) => s.minWidth + extra);
     outer.style.gridTemplateColumns = `${gutter}px ${widths.map((w) => `${w}fr`).join(" ")}`;
-    const rowPlans = rows.map((row) => {
+    const hasDirections = system.measures.some((m) => m.directions?.length);
+    const rowPlans = rows.map((row, index) => {
       const rangeEvents = system.measures.flatMap((m) =>
         row.kind === "chord" ? chordEvents(row.voices, m) : m.voices[row.voices[0].id] || [],
       );
+      // Per system row: the same number of text lines and the same space for marks in every bar.
+      const verseLyrics =
+        row.kind === "voice" && verseCount > 0 && rangeEvents.some((n) => Array.isArray(n.lyric));
       return {
         ...row,
         rangeEvents,
         chordClef: row.kind === "chord" ? chordClef(rangeEvents) : null,
+        lyricRows: verseLyrics && lyricsAll ? verseCount : 1,
+        verseLabels: verseLyrics,
+        reserveDynamics: system.measures.some((m) => measureDynamics(m, row.voices).length),
+        reserveDirections: index === 0 && hasDirections,
+        top: index === 0,
       };
     });
     rowPlans.forEach((row, index) => {
@@ -139,8 +153,18 @@ function renderScore() {
           dense,
           lyricSize,
           spacing: spacings[column],
+          verseCount,
+          verseIndex,
         };
       for (const rowPlan of rowPlans) {
+        const marks = {
+          lyricRows: rowPlan.lyricRows,
+          verseLabels: rowPlan.verseLabels,
+          reserveDynamics: rowPlan.reserveDynamics,
+          reserveDirections: rowPlan.reserveDirections,
+          dynamics: rowPlan.reserveDynamics ? measureDynamics(m, rowPlan.voices) : [],
+          directions: rowPlan.top ? m.directions || [] : [],
+        };
         const row = escText(
             "div",
             "",
@@ -154,6 +178,7 @@ function renderScore() {
           row.append(
             drawCombinedStaff(rowPlan.voices, m, score.ppq, width, selectPosition, color, {
               ...shared,
+              ...marks,
               rangeEvents: rowPlan.rangeEvents,
               chordClef: rowPlan.chordClef,
             }),
@@ -163,6 +188,7 @@ function renderScore() {
           row.append(
             drawStaff(v, m, m.voices[v.id] || [], score.ppq, width, selectPosition, color(v.id), {
               ...shared,
+              ...marks,
               rangeEvents: rowPlan.rangeEvents,
             }),
           );
@@ -185,6 +211,7 @@ function renderScore() {
     }
   }
   updateMix();
+  paintVerse();
   currentMeasure = -1;
   lastRangeMix = null;
   onTick(cursor, false);
@@ -242,6 +269,7 @@ function renderChrome() {
   comments.replaceChildren();
   for (const group of [...score.sections, ...score.voices])
     if (group.comment) comments.append(escText("p", `${group.name}: ${group.comment}`));
+  renderVerseControls();
   const vs = $("voices");
   vs.replaceChildren();
   for (const v of score.voices) {
@@ -302,6 +330,7 @@ function renderChrome() {
       : repeatEnds === 1
         ? "Ende der Partitur · Die notierte Wiederholung wird einmal gespielt."
         : "Ende der Partitur · Notierte Wiederholungen werden je einmal gespielt.";
+  if (score.verses) $("endLabel").textContent += ` · ${score.verses.length} Strophen`;
   updateViewControls();
 }
 function updateViewControls() {

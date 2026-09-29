@@ -12,12 +12,29 @@ const {
   displayRows,
   groupScoreSystems,
 } = Chorprobe.practice;
-const { validateScore, compileScore, cueNotes, noteName, estimateTempo, smoothTempo, voiceMix } =
-  Chorprobe.score;
+const {
+  validateScore,
+  compileScore,
+  cueNotes,
+  noteName,
+  estimateTempo,
+  smoothTempo,
+  voiceMix,
+  lyricFor,
+} = Chorprobe.score;
+const { noteLevels, appliesTo } = Chorprobe.dynamics;
 const { ChoirAudio, VOICE_SOUNDS } = Chorprobe.audio;
-const { drawStaff, drawCombinedStaff, COLORS, measureSpacing, chordEvents, chordClef } =
-  Chorprobe.render;
-const { drawOriginalPages, paintOriginal } = Chorprobe.original;
+const {
+  drawStaff,
+  drawCombinedStaff,
+  COLORS,
+  measureSpacing,
+  chordEvents,
+  chordClef,
+  noteLabel,
+  noteTitle,
+} = Chorprobe.render;
+const { drawOriginalPages, paintOriginal, pageImage } = Chorprobe.original;
 let score,
   compiled,
   section = "all",
@@ -67,6 +84,15 @@ let range = null,
   rangeDrag = null,
   rangeIgnoreClickUntil = 0,
   lastRangeTarget = null;
+// Strophen: verseChoice ist "all" (alle nacheinander) oder eine Strophen-ID, verseIndex die gerade
+// gespielte/hervorgehobene Strophe (Index in score.verses). lyricMode "all"/"current" für den
+// Liedtext, null = automatisch (schmale Bildschirme nur aktuelle Strophe). dynamicLevels: Pegel je
+// Note für die aktuelle Strophe (null = Dynamik aus oder keine Angaben).
+let verseChoice = "all",
+  verseIndex = 0,
+  lyricMode = null,
+  playDynamics = true,
+  dynamicLevels = null;
 // Liedauswahl: geöffnetes Lied als Index in Chorprobe.scores oder "file" für die zuletzt geladene
 // JSON-Datei (importedScore). defaultScore oben ist true für angemeldete Lieder, false für Dateien.
 let currentSong = null,

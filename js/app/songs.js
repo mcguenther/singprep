@@ -1,7 +1,8 @@
 "use strict";
 // Lieder: öffnen, zwischen angemeldeten Liedern wechseln, aus JSON-Datei laden, als JSON
 // exportieren
-// (Zustände: score, compiled, defaultScore, currentSong, importedScore).
+// (Zustände: score, compiled, defaultScore, currentSong, importedScore; setzt Strophe und Dynamik
+// zurück).
 function loadScore(data, isDefault) {
   const checked = validateScore(data);
   const c = compileScore(checked);
@@ -27,6 +28,9 @@ function loadScore(data, isDefault) {
   mixMode = "all";
   if (!score.layout) viewMode = "practice";
   bpm = score.tempo;
+  verseChoice = "all";
+  verseIndex = 0;
+  refreshDynamics();
   taps = [];
   tapNext = null;
   audio.setScore(c);

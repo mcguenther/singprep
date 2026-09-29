@@ -303,6 +303,50 @@
 .staff .lyric {
   fill: currentColor;
 }
+/* Strophen: alle untereinander, die aktuelle kräftig, die übrigen gedämpft. */
+.staff .verse-lyric {
+  fill: #98a0ae;
+}
+.staff .verse-lyric.current-verse {
+  fill: #2a2380;
+  font-weight: 650;
+}
+.staff .verse-number {
+  fill: #a2a9b6;
+  font-weight: 600;
+}
+.staff .verse-number.current-verse {
+  fill: var(--accent);
+}
+.lyrics-current .staff .verse-lyric:not(.current-verse),
+.lyrics-current .staff .verse-number:not(.current-verse) {
+  display: none;
+}
+/* Dynamik und Vortragsangaben über dem System. */
+.staff .dynamic,
+.staff .direction-text {
+  pointer-events: none;
+}
+.staff .dynamic {
+  color: #3a4357;
+}
+.staff .dynamic-mark {
+  font-family: "Times New Roman", Times, Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  fill: currentColor;
+}
+.staff .dynamic-verses {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+}
+.staff .dynamic.inactive-verse {
+  opacity: 0.3;
+}
+.staff .direction-text {
+  fill: #2c3548;
+}
 .staff .fermata {
   pointer-events: none;
 }

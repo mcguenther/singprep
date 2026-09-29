@@ -4,7 +4,7 @@ import { runInThisContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 
 export const root = fileURLToPath(new URL("../../", import.meta.url));
-export const LIBS = ["original", "score", "practice", "glyphs", "render", "audio"];
+export const LIBS = ["original", "dynamics", "score", "practice", "glyphs", "render", "audio"];
 
 export function loadFile(relative) {
   runInThisContext(readFileSync(root + relative, "utf8"), { filename: relative });

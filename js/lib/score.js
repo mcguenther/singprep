@@ -1,8 +1,9 @@
 "use strict";
-// Partiturdaten: Tonhöhen, Validierung (chorprobe/v1), Kompilierung zur Zeitachse, Einsatztöne,
-// Tempo und Stimmenmischung.
+// Partiturdaten: Tonhöhen, Validierung (chorprobe/v1), Kompilierung zur Zeitachse, Strophentexte,
+// Einsatztöne, Tempo und Stimmenmischung.
 Chorprobe.score = (function () {
   const { validateLayout } = Chorprobe.original;
+  const { MARKS, HAIRPINS } = Chorprobe.dynamics;
   const FORMAT = "chorprobe/v1";
   function midi(pitch) {
     if (pitch === null) return null;
@@ -51,6 +52,7 @@ Chorprobe.score = (function () {
         "voices",
         "measures",
         "layout",
+        "verses",
       ],
       "Partitur",
     );
@@ -99,6 +101,32 @@ Chorprobe.score = (function () {
       )
         fail("displayOctave muss zwischen -2 und 2 liegen.");
     }
+    const verseIds = new Set();
+    if (input.verses !== undefined) {
+      if (!Array.isArray(input.verses) || input.verses.length < 2 || input.verses.length > 20)
+        fail("verses muss 2 bis 20 Strophen enthalten.");
+      for (const [i, v] of input.verses.entries()) {
+        keys(v, ["id", "name"], `Strophe ${i + 1}`);
+        if (typeof v.id !== "string" || !v.id || v.id.length > 20 || verseIds.has(v.id))
+          fail(`Strophe ${i + 1}: eindeutige ID mit höchstens 20 Zeichen erforderlich.`);
+        verseIds.add(v.id);
+        if (typeof v.name !== "string" || !v.name.trim() || v.name.length > 80)
+          fail(`Strophe ${i + 1}: Name fehlt oder ist länger als 80 Zeichen.`);
+      }
+    }
+    const verseCount = verseIds.size;
+    // voices/verses lists of dynamics: unique known IDs, at least one.
+    const idList = (list, known, loc, what) => {
+      if (
+        !Array.isArray(list) ||
+        !list.length ||
+        new Set(list).size !== list.length ||
+        !list.every((id) => known.has(id))
+      )
+        fail(`${loc}: ${what} muss eine Liste eindeutiger, bekannter IDs sein.`);
+    };
+    const hairpins = [];
+    let offset = 0;
     if (!Array.isArray(input.sections) || !input.sections.length || input.sections.length > 100)
       fail("Mindestens ein Abschnitt ist erforderlich.");
     const sections = new Set();
@@ -145,6 +173,8 @@ Chorprobe.score = (function () {
           "voiceLabels",
           "comment",
           "barlines",
+          "dynamics",
+          "directions",
         ],
         loc,
       );
@@ -191,6 +221,44 @@ Chorprobe.score = (function () {
             fail(`${loc}: ungültiges Wiederholungszeichen.`);
         }
       }
+      if (m.dynamics !== undefined) {
+        if (!Array.isArray(m.dynamics) || m.dynamics.length > 32)
+          fail(`${loc}: dynamics muss eine Liste mit höchstens 32 Angaben sein.`);
+        for (const d of m.dynamics) {
+          keys(d, ["at", "mark", "duration", "voices", "verses"], `${loc}, Dynamik`);
+          if (!Number.isInteger(d.at) || d.at < 0 || d.at >= len)
+            fail(
+              `${loc}: Dynamik braucht eine Position at innerhalb des Takts (0 bis ${len - 1}).`,
+            );
+          if (![...MARKS, ...HAIRPINS].includes(d.mark))
+            fail(
+              `${loc}: unbekanntes Dynamikzeichen „${d.mark}“. Erlaubt: ${[...MARKS, ...HAIRPINS].join(", ")}.`,
+            );
+          if (HAIRPINS.includes(d.mark)) {
+            if (!Number.isInteger(d.duration) || d.duration <= 0)
+              fail(`${loc}: ${d.mark} braucht eine positive ganzzahlige duration in Ticks.`);
+            hairpins.push({ loc, end: offset + d.at + d.duration });
+          } else if (d.duration !== undefined)
+            fail(`${loc}: duration ist nur bei cresc und dim erlaubt.`);
+          if (d.voices !== undefined) idList(d.voices, ids, `${loc}, Dynamik`, "voices");
+          if (d.verses !== undefined) {
+            if (!verseCount) fail(`${loc}: Dynamik mit verses setzt Strophen (verses) voraus.`);
+            idList(d.verses, verseIds, `${loc}, Dynamik`, "verses");
+          }
+        }
+      }
+      if (m.directions !== undefined) {
+        if (!Array.isArray(m.directions) || m.directions.length > 16)
+          fail(`${loc}: directions muss eine Liste mit höchstens 16 Angaben sein.`);
+        for (const d of m.directions) {
+          keys(d, ["at", "text"], `${loc}, Vortragsangabe`);
+          if (!Number.isInteger(d.at) || d.at < 0 || d.at >= len)
+            fail(`${loc}: Vortragsangabe braucht eine Position at innerhalb des Takts.`);
+          if (typeof d.text !== "string" || !d.text.trim() || d.text.length > 80)
+            fail(`${loc}: Vortragsangabe braucht einen Text mit höchstens 80 Zeichen.`);
+        }
+      }
+      offset += len;
       if (!m.voices || typeof m.voices !== "object" || Array.isArray(m.voices))
         fail(`${loc}: voices fehlt.`);
       if (m.voiceLabels !== undefined) {
@@ -238,7 +306,15 @@ Chorprobe.score = (function () {
           if (n.tie !== undefined && typeof n.tie !== "boolean")
             fail(`${loc}: tie muss true oder false sein.`);
           if (n.tie && n.pitch === null) fail(`${loc}: Eine Pause kann nicht gebunden werden.`);
-          if (n.lyric !== undefined && (typeof n.lyric !== "string" || n.lyric.length > 150))
+          if (Array.isArray(n.lyric)) {
+            if (!verseCount) fail(`${loc}, ${id}: lyric als Liste setzt Strophen (verses) voraus.`);
+            if (n.lyric.length !== verseCount)
+              fail(
+                `${loc}, ${id}: lyric braucht genau ${verseCount} Einträge, einen je Strophe (null für keine Silbe).`,
+              );
+            if (!n.lyric.every((t) => t === null || (typeof t === "string" && t.length <= 150)))
+              fail(`${loc}, ${id}: Jeder Strophentext muss ein kurzer Text oder null sein.`);
+          } else if (n.lyric !== undefined && (typeof n.lyric !== "string" || n.lyric.length > 150))
             fail(`${loc}: lyric muss ein kurzer Text sein.`);
           if (n.confidence !== undefined && !["clear", "uncertain"].includes(n.confidence))
             fail(`${loc}: confidence muss clear oder uncertain sein.`);
@@ -247,6 +323,9 @@ Chorprobe.score = (function () {
     }
     if (sectionOrder.size !== sections.size)
       fail("Jeder Abschnitt muss mindestens einen Takt enthalten.");
+    for (const h of hairpins)
+      if (h.end > offset)
+        fail(`${h.loc}: Die Gabel (cresc/dim) reicht über das Ende der Partitur.`);
     if (count > 50000) fail("Die Datei enthält zu viele Noten.");
     for (const s of input.sections) {
       if (s.repeatFrom !== undefined) {
@@ -337,7 +416,44 @@ Chorprobe.score = (function () {
       }
     }
     events.sort((a, b) => a.start - b.start);
-    return { score, measures, events, byVoice, total: tick };
+    // Dynamics and directions on the absolute timeline; verse-specific marks keep their IDs.
+    const dynamics = measures
+      .flatMap((m) =>
+        (m.dynamics || []).map((d, i) => ({
+          ...d,
+          id: `${m.index}:d${i}`,
+          measureIndex: m.index,
+          tick: m.start + d.at,
+          end: m.start + d.at + (d.duration || 0),
+        })),
+      )
+      .sort((a, b) => a.tick - b.tick);
+    const directions = measures.flatMap((m) =>
+      (m.directions || [])
+        .map((d) => ({ ...d, measureIndex: m.index, tick: m.start + d.at }))
+        .sort((a, b) => a.at - b.at),
+    );
+    return {
+      score,
+      measures,
+      events,
+      byVoice,
+      total: tick,
+      verses: score.verses || [],
+      dynamics,
+      directions,
+    };
+  }
+  // Syllable of a note in one verse (index into score.verses). A plain string applies to every
+  // verse; null means no syllable in that verse.
+  function lyricFor(note, verseIndex = 0) {
+    if (Array.isArray(note?.lyric)) return note.lyric[verseIndex] ?? null;
+    return note?.lyric || null;
+  }
+  // All distinct texts of a note, e.g. for spacing.
+  function lyricTexts(note) {
+    if (Array.isArray(note?.lyric)) return note.lyric.filter(Boolean);
+    return note?.lyric ? [note.lyric] : [];
   }
   function cueNotes(compiled, tick, voiceIds, end = compiled.total, mode = "next") {
     if (mode === "onset")
@@ -414,6 +530,8 @@ Chorprobe.score = (function () {
     noteName,
     validateScore,
     compileScore,
+    lyricFor,
+    lyricTexts,
     cueNotes,
     estimateTempo,
     inRangeTick,

@@ -149,6 +149,25 @@
                 </button>
               </div>
               <span id="soundStatus" class="sr-only" role="status"></span>
+              <label
+                class="compact-toggle dynamics-toggle"
+                for="playDynamics"
+                id="dynamicsOption"
+                hidden
+                ><input
+                  type="checkbox"
+                  role="switch"
+                  id="playDynamics"
+                  checked
+                  aria-describedby="dynamicsHint"
+                /><span
+                  ><strong>Dynamik abspielen</strong
+                  ><small id="dynamicsHint"
+                    >Lautstärke nach den Zeichen im Lied (pp bis ff, Gabeln). Aus: alle Noten gleich
+                    laut.</small
+                  ></span
+                ></label
+              >
             </div>
           </details>
           <details class="layout-settings setting-card">
@@ -206,6 +225,17 @@
                   </div>
                 </fieldset>
                 <p id="displayHint" class="muted"></p>
+                <div id="lyricOptions" class="field-group lyric-options" hidden>
+                  <h3>Liedtext</h3>
+                  <div class="segments lyric-modes" role="group" aria-label="Liedtext anzeigen">
+                    <button type="button" data-lyric-mode="all" aria-pressed="true">
+                      Alle Strophen</button
+                    ><button type="button" data-lyric-mode="current" aria-pressed="false">
+                      Nur aktuelle Strophe
+                    </button>
+                  </div>
+                  <p id="lyricHint" class="muted"></p>
+                </div>
                 <div class="layout-options">
                   <label for="measuresPerRow">Takte pro Zeile</label
                   ><select id="measuresPerRow">
@@ -236,15 +266,21 @@
           </details>
         </div>
       </section>
-      <section class="score-toolbar" aria-label="Abschnitt auswählen">
-        <div class="section-picker">
-          <span class="toolbar-label">Abschnitt</span>
-          <div
-            id="sections"
-            class="section-tabs segments"
-            role="group"
-            aria-label="Abschnitt"
-          ></div>
+      <section class="score-toolbar" aria-label="Abschnitt und Strophe auswählen">
+        <div class="toolbar-pickers">
+          <div class="section-picker">
+            <span class="toolbar-label">Abschnitt</span>
+            <div
+              id="sections"
+              class="section-tabs segments"
+              role="group"
+              aria-label="Abschnitt"
+            ></div>
+          </div>
+          <div id="versePicker" class="section-picker verse-picker" hidden>
+            <span class="toolbar-label">Strophe</span>
+            <div id="verses" class="section-tabs segments" role="group" aria-label="Strophe"></div>
+          </div>
         </div>
         <a class="score-jump" href="#score">Zur Partitur ↓</a>
       </section>
@@ -586,6 +622,15 @@
           Zeilen kompakt.
         </p>
         <p>
+          <strong>Strophen:</strong> Hat ein Lied mehrere Strophen, stehen sie untereinander unter
+          den Noten; die aktuelle ist hervorgehoben. „Alle nacheinander“ spielt die Partitur einmal
+          pro Strophe, mit Schleife danach wieder ab der ersten. Eine gewählte Strophe wird allein
+          gespielt. Ein markierter Übebereich bleibt in der gerade aktuellen Strophe. Unter
+          „Notenbild“ lässt sich auch nur der Text der aktuellen Strophe anzeigen.
+          <strong>Dynamik:</strong> Zeichen wie mp oder f und Gabeln stehen über den Notenzeilen und
+          steuern die Lautstärke; unter „Klang“ lässt sich das abschalten.
+        </p>
+        <p>
           <strong>Nur meine Stimmen:</strong> Nur die markierten Stimmen sind hörbar.
           <strong>Mit Begleitung:</strong> Die übrigen Stimmen kommen leiser dazu. Der Regler bietet
           im leisen Bereich besonders viel Feineinstellung: 0 % ist stumm, 100 % entspricht der
@@ -641,6 +686,7 @@
     <!-- App-Kern und Bibliotheken (ohne Seiteneffekte beim Laden). -->
     <script src="js/core.js"></script>
     <script src="js/lib/original.js"></script>
+    <script src="js/lib/dynamics.js"></script>
     <script src="js/lib/score.js"></script>
     <script src="js/lib/practice.js"></script>
     <script src="js/lib/glyphs.js"></script>
@@ -658,6 +704,7 @@
     <script src="js/app/range.js"></script>
     <script src="js/app/playback.js"></script>
     <script src="js/app/cues.js"></script>
+    <script src="js/app/verses.js"></script>
     <script src="js/app/score-view.js"></script>
     <script src="js/app/songs.js"></script>
     <script src="js/app/dialogs.js"></script>

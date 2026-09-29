@@ -1,6 +1,13 @@
 "use strict";
-// Wiedergabe mit WebAudio: Klänge, Fermaten-Zeitachse und Transport.
+// Wiedergabe mit WebAudio: Klänge, Fermaten-Zeitachse, Dynamikpegel und Transport.
 Chorprobe.audio = (function () {
+  // mf keeps the loudness of songs without dynamics; other levels scale relative to it.
+  const REFERENCE = Chorprobe.dynamics.LEVELS.mf;
+  function dynamicGain(dyn) {
+    return dyn
+      ? { sustain: dyn.level / REFERENCE, peak: (dyn.attack ?? dyn.level) / REFERENCE }
+      : { sustain: 1, peak: 1 };
+  }
   const VOICE_SOUNDS = {
     choir: {
       name: "Chor · weich",
@@ -74,7 +81,7 @@ Chorprobe.audio = (function () {
     }
     return cache.get(id);
   }
-  function createVoiceTone(ctx, destination, note, id, at, until) {
+  function createVoiceTone(ctx, destination, note, id, at, until, dyn = null) {
     const profile = VOICE_SOUNDS[id] || VOICE_SOUNDS.choir,
       osc = ctx.createOscillator(),
       gain = ctx.createGain(),
@@ -92,9 +99,10 @@ Chorprobe.audio = (function () {
     filter.frequency.setValueAtTime(cutoff, at);
     if (id === "pluck")
       filter.frequency.setTargetAtTime(Math.max(frequency * 1.3, 350), at + 0.012, 0.22);
+    const level = dynamicGain(dyn);
     gain.gain.setValueAtTime(0, at);
-    gain.gain.linearRampToValueAtTime(profile.peak, at + attack);
-    gain.gain.setTargetAtTime(profile.sustain, at + attack, profile.decay);
+    gain.gain.linearRampToValueAtTime(profile.peak * level.peak, at + attack);
+    gain.gain.setTargetAtTime(profile.sustain * level.sustain, at + attack, profile.decay);
     gain.gain.setTargetAtTime(0.0001, Math.max(at + attack, until - 0.025), 0.012);
     osc.connect(filter);
     filter.connect(gain);
@@ -123,7 +131,7 @@ Chorprobe.audio = (function () {
       graph.push(second);
     }
     osc.start(at);
-    return { osc, gain, sources, graph, profile, preset: id, until, at, note };
+    return { osc, gain, sources, graph, profile, preset: id, until, at, note, dyn, level };
   }
   function performanceTimeline(compiled) {
     const holds = compiled.measures.flatMap((m) =>
@@ -253,7 +261,7 @@ Chorprobe.audio = (function () {
           until = n.until,
           note = n.note;
         this.kill(key, 0.025);
-        if (until > at) this.tone(note, at, until, key);
+        if (until > at) this.tone(note, at, until, key, n.dyn);
       }
     }
     kill(key, fade = 0) {
@@ -277,12 +285,12 @@ Chorprobe.audio = (function () {
         setTimeout(cleanup, fade * 1000 + 10);
       } else cleanup();
     }
-    tone(note, at, until, key = note.id) {
+    tone(note, at, until, key = note.id, dyn = null) {
       const now = this.ctx.currentTime;
       let n = this.nodes.get(key);
       if (n && n.at <= now && n.until > now - 0.035 && n.preset === this.soundFor(note.voice)) {
         n.gain.gain.cancelScheduledValues(now);
-        n.gain.gain.setTargetAtTime(n.profile.sustain, now, 0.015);
+        n.gain.gain.setTargetAtTime(n.profile.sustain * n.level.sustain, now, 0.015);
         n.until = until;
         n.gain.gain.setTargetAtTime(0.0001, Math.max(now, until - 0.025), 0.012);
         return;
@@ -295,6 +303,7 @@ Chorprobe.audio = (function () {
         this.soundFor(note.voice),
         at,
         until,
+        dyn,
       );
       this.nodes.set(key, n);
     }
@@ -321,7 +330,14 @@ Chorprobe.audio = (function () {
       start,
       end,
       bpm,
-      { carry = false, fermata = true, tempoRange = null, mixAt = null, mixTicks = [] } = {},
+      {
+        carry = false,
+        fermata = true,
+        tempoRange = null,
+        mixAt = null,
+        mixTicks = [],
+        levels = null,
+      } = {},
     ) {
       const now = this.ctx.currentTime;
       clearInterval(this.timer);
@@ -375,7 +391,8 @@ Chorprobe.audio = (function () {
           const at = this.startTime + this.secondsAtScore(Math.max(n.start, start));
           if (at > time + 0.13) continue;
           const until = this.startTime + this.secondsAtScore(Math.min(n.end, end));
-          if (until > time) this.tone(n, Math.max(time + 0.001, at), until);
+          if (until > time)
+            this.tone(n, Math.max(time + 0.001, at), until, n.id, levels?.get(n.id));
           this.queued.add(n.id);
         }
         for (const [key, n] of this.nodes) if (time > n.until + 0.07) this.kill(key);
@@ -437,5 +454,5 @@ Chorprobe.audio = (function () {
     }
   }
 
-  return { ChoirAudio, performanceTimeline, VOICE_SOUNDS, createVoiceTone };
+  return { ChoirAudio, performanceTimeline, VOICE_SOUNDS, createVoiceTone, dynamicGain };
 })();

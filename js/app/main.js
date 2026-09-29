@@ -12,6 +12,7 @@ bindCues();
 bindSongControls();
 bindMixControls();
 bindLayoutControls();
+bindVerseControls();
 bindKeyboard();
 window.addEventListener("resize", () => {
   clearTimeout(resizeTimer);

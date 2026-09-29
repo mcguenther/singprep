@@ -4,7 +4,7 @@
   "composer": "Übungsbeispiel",
   "tempo": 80,
   "ppq": 480,
-  "comment": "Ein neutrales Beispiel mit zwei Stimmen und einem Haltebogen über die Taktgrenze.",
+  "comment": "Ein neutrales Beispiel mit zwei Stimmen, zwei Strophen, etwas Dynamik und einem Haltebogen über die Taktgrenze.",
   "voices": [
     {
       "id": "hoch",
@@ -25,6 +25,16 @@
       "name": "Übung"
     }
   ],
+  "verses": [
+    {
+      "id": "1",
+      "name": "1. Strophe"
+    },
+    {
+      "id": "2",
+      "name": "2. Strophe"
+    }
+  ],
   "measures": [
     {
       "id": "a1",
@@ -35,25 +45,46 @@
         4
       ],
       "keyFifths": 0,
+      "directions": [
+        {
+          "at": 0,
+          "text": "Ruhig"
+        }
+      ],
+      "dynamics": [
+        {
+          "at": 0,
+          "mark": "mp"
+        }
+      ],
       "voices": {
         "hoch": [
           {
             "at": 0,
             "duration": 480,
             "pitch": "C4",
-            "lyric": "Do"
+            "lyric": [
+              "Do",
+              "Re"
+            ]
           },
           {
             "at": 480,
             "duration": 480,
             "pitch": "E4",
-            "lyric": "Mi"
+            "lyric": [
+              "Mi",
+              "Fa"
+            ]
           },
           {
             "at": 960,
             "duration": 480,
             "pitch": "G4",
-            "lyric": "So",
+            "lyric": [
+              "So",
+              "La"
+            ],
             "tie": true
           }
         ],
@@ -76,6 +107,17 @@
         4
       ],
       "keyFifths": 0,
+      "dynamics": [
+        {
+          "at": 0,
+          "mark": "cresc",
+          "duration": 480
+        },
+        {
+          "at": 480,
+          "mark": "f"
+        }
+      ],
       "voices": {
         "hoch": [
           {
@@ -87,19 +129,28 @@
             "at": 480,
             "duration": 240,
             "pitch": "F4",
-            "lyric": "Fa"
+            "lyric": [
+              "Fa",
+              "So"
+            ]
           },
           {
             "at": 720,
             "duration": 240,
             "pitch": "E4",
-            "lyric": "Mi"
+            "lyric": [
+              "Mi",
+              null
+            ]
           },
           {
             "at": 960,
             "duration": 480,
             "pitch": "C4",
-            "lyric": "Do"
+            "lyric": [
+              "Do",
+              "Do"
+            ]
           }
         ],
         "tief": [

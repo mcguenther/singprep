@@ -1,6 +1,7 @@
 "use strict";
 // Wiedergabe: Stopp, Cursor, Abspielen, Mitlaufen, Tipp-Modus und Abschnittswahl
 // (Zustände: cursor, playing, playback, step, bpm, taps, tapNext, loop, playRun …).
+// Strophen: Am Ende eines Durchlaufs folgt bei „Alle nacheinander“ die nächste Strophe (verses.js).
 function stop({ resetTap = true } = {}) {
   playRun++;
   clearTimeout(rangeLoopTimer);
@@ -63,10 +64,13 @@ function selectPosition(t, n, v, m) {
   if (n) {
     $("selectionTitle").textContent =
       `${m.voiceLabels?.[v.id] || v.name} · ${noteName(n.pitch)} · Takt ${m.number}`;
+    const lyric = lyricFor(n, verseIndex);
     $("selectionText").textContent =
       n.comment ||
       [
-        n.lyric ? `„${n.lyric}“` : null,
+        lyric
+          ? `„${lyric}“${hasVerses() && Array.isArray(n.lyric) ? ` (${currentVerse().name})` : ""}`
+          : null,
         `${n.duration / score.ppq} Viertel`,
         "Hier starten oder Einsatztöne holen.",
       ]
@@ -85,7 +89,7 @@ function onTick(t, follow = true) {
     ? range?.mode === "isolate"
       ? "Bereich zu Ende"
       : "Abschnitt zu Ende"
-    : `Takt ${m.number}`;
+    : `Takt ${m.number}${hasVerses() ? ` · ${currentVerse().name}` : ""}`;
   $("beatLabel").textContent = ended
     ? "Bereit für eine neue Runde"
     : `Zählzeit ${Math.floor(beat) + 1}${Math.abs(beat - Math.round(beat)) > 0.4 ? " +" : ""}`;
@@ -251,6 +255,15 @@ function onEnd(end) {
     startAuto();
     return;
   }
+  // „Alle nacheinander“: dieselbe Musik mit der nächsten Strophe, notierte Wiederholungen neu.
+  if (playback === "auto" && nextVerse()) {
+    resetWrittenRepeats();
+    cursor = bounds().start;
+    currentMeasure = -1;
+    onTick(cursor);
+    startAuto();
+    return;
+  }
   playing = false;
   $("playIcon").textContent = "▶";
   $("playText").textContent = "Abspielen";
@@ -258,16 +271,19 @@ function onEnd(end) {
   onTick(end);
   if (playback === "auto" && loop) {
     resetWrittenRepeats();
+    restartVerses();
     cursor = loopStart();
     startAuto();
   } else if (playback === "tap")
     $("tapHint").textContent = repeatAt(end)
       ? "Nächster Tipp: Wiederholung."
-      : end >= bounds().end
-        ? loop
-          ? "Nächster Tipp: neue Runde."
-          : "Abschnitt beendet. Nächster Tipp: von vorn."
-        : "Wartet auf deinen nächsten Tipp.";
+      : end >= bounds().end && hasNextVerse()
+        ? `Nächster Tipp: ${score.verses[verseIndex + 1].name}.`
+        : end >= bounds().end
+          ? loop
+            ? "Nächster Tipp: neue Runde."
+            : "Abschnitt beendet. Nächster Tipp: von vorn."
+          : "Wartet auf deinen nächsten Tipp.";
 }
 async function startAuto() {
   if (rangeAnchor) finishRangePick();
@@ -297,6 +313,7 @@ async function startAuto() {
       if (!rangeRound) rangeRound = 1;
     } else if (cursor >= sectionRange.end) {
       resetWrittenRepeats();
+      restartVerses();
       cursor = sectionRange.start;
     }
     lastRangeMix = null;
@@ -320,6 +337,7 @@ async function startAuto() {
           ...compiled.measures.map((m) => m.start),
           ...(range ? [range.start, range.end] : []),
         ],
+        levels: dynamicLevels,
       },
     );
   } catch (e) {
@@ -354,14 +372,18 @@ async function tap() {
       tapNext = null;
     } else if (from >= range.end) {
       resetWrittenRepeats();
-      from = loop ? loopStart() : range.start;
+      if (nextVerse()) from = range.start;
+      else {
+        restartVerses();
+        from = loop ? loopStart() : range.start;
+      }
       tapNext = null;
     }
     const end = Math.min(range.end, from + step * score.ppq, pendingRepeat(from)?.end ?? range.end);
     tapNext = end;
     playing = true;
     audio.setMix(getMix(measureAt(from)));
-    audio.play(from, end, bpm, { carry: true, fermata: false });
+    audio.play(from, end, bpm, { carry: true, fermata: false, levels: dynamicLevels });
     setCursor(from, true);
     $("selection").hidden = true;
     $("tapHint").textContent =
@@ -398,6 +420,7 @@ function setSection(id) {
   if (cueOpen) closeCues(false);
   clearRange();
   resetWrittenRepeats();
+  restartVerses();
   section = id;
   cursor = bounds().start;
   currentMeasure = -1;
@@ -420,12 +443,14 @@ function bindTransport() {
     if (cueOpen) closeCues(false);
     stop();
     resetWrittenRepeats();
+    restartVerses();
     setCursor(bounds().start, false);
   };
   $("toStart").onclick = () => {
     if (cueOpen) closeCues(false);
     stop();
     resetWrittenRepeats();
+    restartVerses();
     setCursor(bounds().start, false);
     document
       .querySelector(".measure,.original-measure")

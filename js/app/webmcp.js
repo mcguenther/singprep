@@ -33,6 +33,10 @@ function registerTools() {
       independentDisplay,
       displaySelected: [...displaySelected],
       practiceRange: range,
+      verses: score.verses || [],
+      verseChoice,
+      currentVerse: currentVerse()?.id ?? null,
+      playDynamics,
     }),
   });
   safeRegister({
