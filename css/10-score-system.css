@@ -1,0 +1,465 @@
+/* Ergänzungsschicht: kompakte Handy-Takte, durchgehende Notensysteme, Zeilendichte und Stimmen-Spalte. */
+
+/* Two bars on a phone: smaller staff header, readable lyrics outside the stave. */
+.mobile-compact.practice-grid {
+  gap: 12px 8px;
+}
+.mobile-compact .measure {
+  border-radius: 9px;
+}
+.mobile-compact .measure-head {
+  padding: 7px 8px;
+  align-items: flex-start;
+}
+.mobile-compact .measure-title {
+  gap: 6px;
+  min-width: 0;
+  min-height: 38px;
+}
+.mobile-compact .measure-number {
+  font-size: 19px;
+  min-width: 20px;
+}
+.mobile-compact .measure-title strong {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.mobile-compact .measure-title small {
+  font-size: 11px;
+}
+.mobile-compact .measure-meta {
+  display: none;
+}
+.mobile-compact .staff-row {
+  display: block;
+  min-height: 0;
+  margin: 6px 6px 10px;
+}
+.mobile-compact .staff-label {
+  font-size: 11px;
+  padding: 0 2px 3px;
+  gap: 5px;
+}
+.mobile-compact .staff-label:before {
+  height: 11px;
+}
+.mobile-compact .staff {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+.mobile-compact .compact-lyrics {
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 1px 2px 5px;
+  overflow-wrap: anywhere;
+  color: #465168;
+}
+.mobile-compact .measure-note {
+  font-size: 12px;
+  padding: 8px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.mobile-compact .combined-legend {
+  font-size: 11px;
+  margin: 0 8px 10px;
+  gap: 4px 8px;
+}
+
+/* One shared system, with staff baselines and column widths aligned across bars. */
+.practice-grid,
+.mobile-compact.practice-grid {
+  display: block;
+}
+.score-system {
+  display: grid;
+  grid-template-columns: repeat(var(--system-columns), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--system-rows), auto);
+  gap: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  isolation: isolate;
+}
+.score-system .measure {
+  display: grid;
+  grid-row: 1 / span var(--system-rows);
+  grid-template-rows: subgrid;
+  gap: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  min-width: 0;
+  margin: 0;
+}
+.score-system .measure.current {
+  background: #6256db04;
+}
+.score-system .measure.current .measure-head {
+  background: #f2f0ff;
+}
+.score-system .measure-head {
+  padding: 8px 12px;
+  min-height: 50px;
+  margin-bottom: 3px;
+  border: 0;
+  background: #fafbfe;
+  align-items: center;
+}
+.score-system .measure-title {
+  gap: 9px;
+  min-width: 0;
+}
+.score-system .measure-title strong {
+  font-size: 13px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.score-system .staff-row,
+.score-system .measure .staff-row:first-of-type,
+.score-system .measure .staff-row:last-of-type {
+  display: block;
+  margin: 0;
+  padding: 0 0 7px;
+  min-height: 0;
+  align-self: start;
+}
+.score-system .staff-label {
+  height: 20px;
+  padding: 1px 8px 3px;
+  font-size: 12px;
+  line-height: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.score-system .continuation-label {
+  visibility: hidden;
+}
+.score-system .staff {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow: visible;
+}
+.score-system .measure-note {
+  margin: 0;
+  font-size: 12px;
+  padding: 8px 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.score-system .combined-legend {
+  margin: 0;
+  padding: 0 8px 10px;
+  gap: 4px 8px;
+  font-size: 11px;
+}
+.mobile-compact .score-system {
+  border-radius: 9px;
+  margin-bottom: 14px;
+}
+.mobile-compact .score-system .measure-head {
+  padding: 7px 8px;
+  min-height: 46px;
+}
+.mobile-compact .score-system .measure-title {
+  gap: 5px;
+}
+.mobile-compact .score-system .measure-title strong {
+  font-size: 11px;
+}
+.mobile-compact .score-system .staff-label {
+  font-size: 11px;
+  height: 18px;
+  line-height: 14px;
+  padding: 1px 6px 3px;
+}
+.mobile-compact .score-system .compact-lyrics {
+  margin: 1px 8px 6px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Vertical density is independent of columns and voice selection. */
+.compact-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 0 18px;
+  cursor: pointer;
+}
+.compact-toggle input {
+  appearance: none;
+  width: 38px;
+  height: 23px;
+  flex: 0 0 38px;
+  border-radius: 14px;
+  background: #c7ccda;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.compact-toggle input:before {
+  content: "";
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: white;
+  top: 3px;
+  left: 3px;
+  box-shadow: 0 1px 3px #0002;
+  transition: transform 0.15s;
+}
+.compact-toggle input:checked {
+  background: var(--accent);
+}
+.compact-toggle input:checked:before {
+  transform: translateX(15px);
+}
+.compact-toggle strong {
+  display: block;
+  font-size: 14px;
+}
+.compact-toggle small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 3px;
+}
+.compact-toggle:has(input:disabled) {
+  opacity: 0.5;
+}
+.score-system .combined-label {
+  gap: 9px;
+}
+.combined-label:before {
+  display: none;
+}
+.score-system .staff-label {
+  height: auto;
+  min-height: 20px;
+  white-space: normal;
+  overflow: visible;
+  flex-wrap: wrap;
+  line-height: 16px;
+}
+.score-system .staff-row {
+  align-self: stretch !important;
+  display: flex !important;
+  flex-direction: column;
+}
+.score-system .staff-label {
+  flex: 1;
+  width: 100%;
+  align-content: flex-start;
+}
+.score-system .staff {
+  flex: none;
+}
+.score-system .measure-title {
+  min-height: 30px;
+}
+.score-system .measure-head {
+  align-items: center;
+}
+.dense-score .score-system {
+  margin-bottom: 10px;
+}
+.dense-score .score-system .measure-head {
+  padding: 4px 8px;
+  min-height: 35px;
+  margin-bottom: 0;
+}
+.dense-score .score-system .measure-number {
+  font-size: 19px;
+}
+.dense-score .score-system .staff-row {
+  padding-bottom: 1px;
+}
+.dense-score .score-system .staff-label {
+  font-size: 11px;
+  min-height: 16px;
+  line-height: 14px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.dense-score .score-system .staff-label:before {
+  height: 11px;
+}
+.dense-score .score-system .measure-note {
+  padding: 5px 8px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.staff .lyric {
+  fill: currentColor;
+}
+.staff .fermata {
+  pointer-events: none;
+}
+@media (max-width: 840px) {
+  .mobile-compact .score-system .staff-label {
+    font-size: 10px;
+    line-height: 13px;
+    min-height: 16px;
+    height: auto;
+    padding: 1px 4px 2px;
+  }
+  .mobile-compact .score-system .measure-head {
+    padding: 5px;
+    min-height: 40px;
+  }
+  .mobile-compact .score-system .measure-number {
+    font-size: 17px;
+  }
+  .mobile-compact .score-system .measure-title strong {
+    font-size: 10px;
+  }
+  .mobile-compact .score-system .staff-row {
+    padding-bottom: 5px;
+  }
+  .mobile-compact.dense-score .score-system .staff-row {
+    padding-bottom: 0;
+  }
+  .mobile-compact.dense-score .score-system .measure-head {
+    min-height: 33px;
+    padding: 3px 5px;
+  }
+}
+
+.system-notes {
+  background: #fafafd;
+  border-top: 1px solid #edf0f5;
+  padding: 6px 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.system-notes p {
+  margin: 3px 0;
+}
+.system-notes summary {
+  cursor: pointer;
+  font-size: 11px;
+  padding: 4px 0;
+}
+.dense-score .system-notes {
+  padding: 2px 8px;
+}
+@media (max-width: 540px) {
+  .layout-settings .quiet-button {
+    white-space: normal;
+    text-align: left;
+  }
+  .layout-settings .segments button {
+    white-space: normal;
+    min-width: 0;
+  }
+  .score-toolbar {
+    flex-wrap: wrap;
+  }
+  .mix-modes button,
+  .rehearsal-modes button {
+    white-space: normal;
+    min-width: 0;
+  }
+}
+/* Labels occupy one shared gutter per system, rather than a line above each staff. */
+.score-system {
+  max-width: 100%;
+  justify-content: start;
+  grid-auto-flow: row;
+}
+.score-system .system-voice-label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 2px 9px 2px 4px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--voice);
+  background: #fcfcfe;
+  min-width: 0;
+  min-height: 42px;
+  text-align: right;
+  line-height: 1.3;
+  border-right: 1px solid #edf0f5;
+}
+.score-system .system-voice-label span {
+  overflow-wrap: anywhere;
+}
+.score-system .staff-row,
+.score-system .measure .staff-row:first-of-type,
+.score-system .measure .staff-row:last-of-type {
+  justify-content: center;
+  padding: 3px 0 7px;
+  margin: 0;
+  min-height: 0;
+}
+.dense-score .score-system .staff-row,
+.dense-score .score-system .measure .staff-row:first-of-type,
+.dense-score .score-system .measure .staff-row:last-of-type {
+  padding: 1px 0 2px;
+}
+.score-system .measure-head {
+  min-height: 40px;
+  padding: 5px 8px;
+}
+.dense-score .score-system .measure-head {
+  min-height: 32px;
+  padding: 2px 6px;
+}
+.score-system .measure-title {
+  min-height: 28px;
+}
+.score-system .measure-title strong {
+  font-size: 11px;
+}
+.score-system .measure-number {
+  font-size: 20px;
+}
+.combined-staff .score-note:hover .notehead {
+  stroke-width: 2.4;
+}
+.combined-staff .score-note.active .hit {
+  fill: color-mix(in srgb, var(--voice) 13%, transparent);
+}
+@media (max-width: 600px) {
+  .score-system .system-voice-label {
+    justify-content: center;
+    padding: 3px 2px;
+    font-size: 10px;
+    min-height: 43px;
+    text-align: center;
+  }
+  .score-system .system-voice-label span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+  .score-system .measure-head {
+    padding: 3px 5px;
+  }
+  .score-system .measure-title {
+    gap: 5px;
+  }
+  .score-system .measure-title strong {
+    font-size: 10px;
+  }
+  .dense-score .score-system .measure-head {
+    min-height: 30px;
+  }
+  .dense-score .score-system .measure-number {
+    font-size: 17px;
+  }
+}

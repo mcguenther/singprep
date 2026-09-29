@@ -1,0 +1,621 @@
+/* Ergänzungsschicht: Einstellungsbereich „Deine Probe“ mit aufklappbaren Karten. */
+
+/* A single setup area: voice selection, playback, then optional refinements. */
+main {
+  padding-top: 28px;
+}
+.intro {
+  margin-bottom: 8px;
+}
+h1 {
+  font-size: 36px;
+}
+.source-note {
+  color: var(--muted);
+  margin: 0 0 22px;
+  font-size: 13px;
+}
+.source-note summary {
+  padding: 5px 0;
+  min-height: 30px;
+}
+.source-note[open] {
+  padding-bottom: 8px;
+}
+.source-note .quiet-button {
+  color: var(--accent);
+}
+.controls {
+  padding: 22px 24px;
+  border-radius: 16px;
+}
+.setup-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.setup-heading h2 {
+  font-size: 18px;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.setup-heading > span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.setup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.setup-grid h3,
+.field-group h3 {
+  font-size: 14px;
+  margin: 0 0 9px;
+  font-weight: 650;
+}
+.voice-setup,
+.playback-setup {
+  min-width: 0;
+}
+.playback-setup {
+  border-left: 1px solid var(--border);
+  padding-left: 32px;
+}
+.voice-setup .muted {
+  font-size: 13px;
+  min-height: 21px;
+}
+.controls .voices {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 14px 0 0;
+  gap: 8px;
+}
+.controls .voice-button {
+  min-height: 44px;
+  padding: 8px 10px;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  opacity: 1;
+}
+.controls .voice-button .voice-mark {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  font-size: 11px;
+}
+.controls .voice-button .voice-name {
+  font-size: 13px;
+}
+.controls .voice-button[aria-pressed="true"]:after {
+  content: "✓";
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--voice);
+}
+.controls .segments {
+  background: #f1f2f7;
+  border: 1px solid #e9ebf2;
+  gap: 3px;
+  padding: 4px;
+}
+.controls .segments button {
+  font-size: 13px;
+  min-height: 40px;
+  padding: 8px 12px;
+  white-space: normal;
+  line-height: 1.35;
+}
+.controls .segments button[aria-pressed="true"] {
+  color: var(--accent);
+  background: white;
+  box-shadow: 0 1px 4px #202b4217;
+}
+.practice-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.mix-hint {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 11px 0 0;
+  min-height: 20px;
+}
+.playback-setup > .range-label {
+  margin-top: 12px;
+}
+.playback-setup .range-label {
+  display: grid;
+  grid-template-columns: 112px minmax(50px, 1fr) 42px;
+  gap: 10px;
+  font-size: 12px;
+}
+.playback-setup .range-label input {
+  width: 100%;
+  min-width: 0;
+}
+.playback-setup output {
+  text-align: right;
+}
+.sing-levels {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.controls .setting-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  font-size: 13px;
+  background: #fff;
+}
+.controls .setting-card > summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 12px;
+  align-items: center;
+  gap: 12px;
+  list-style: none;
+  padding: 14px 16px;
+  width: 100%;
+  min-height: 52px;
+  cursor: pointer;
+  font-weight: 400;
+}
+.setting-card > summary::-webkit-details-marker {
+  display: none;
+}
+.setting-card > summary:after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  transform: rotate(45deg);
+  margin-top: -4px;
+}
+.setting-card[open] > summary:after {
+  transform: rotate(225deg);
+  margin-top: 4px;
+}
+.setting-title {
+  font-weight: 650;
+}
+.setting-value {
+  color: var(--muted);
+  text-align: right;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.setting-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid #edf0f5;
+}
+.setting-card[open] > summary {
+  background: #fafbfe;
+  border-radius: 10px 10px 0 0;
+}
+.setting-body .setting-description {
+  font-size: 13px;
+  margin: 13px 0;
+}
+.sound-row {
+  gap: 8px;
+}
+.sound-row select {
+  flex: 1;
+  width: 0;
+  font-size: 13px;
+  min-height: 42px;
+}
+.sound-preview {
+  min-height: 42px;
+}
+.field-group {
+  padding-top: 16px;
+}
+.field-group h3 {
+  font-size: 13px;
+}
+.field-group .muted {
+  font-size: 12px;
+  margin: 8px 0 16px;
+}
+.view-modes {
+  width: fit-content;
+}
+.controls #displayChoices {
+  padding: 14px 0 0;
+  margin-top: 14px;
+}
+.controls #displayChoices legend {
+  font-size: 13px;
+}
+.controls .display-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+.controls .display-modes button {
+  font-size: 12px;
+  padding: 8px 5px;
+}
+.field-help {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 12px 0 0;
+}
+.display-voices {
+  gap: 6px;
+  margin: 10px 0 0;
+}
+.display-voice {
+  min-height: 36px;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+.controls .quiet-button {
+  font-size: 12px;
+  white-space: normal;
+  text-align: left;
+  min-height: 40px;
+  color: var(--accent);
+}
+.controls #displayHint {
+  font-size: 12px;
+  margin: 8px 0 16px;
+}
+.layout-options {
+  border-top: 1px solid var(--border);
+  padding: 16px 0;
+  gap: 10px;
+}
+.layout-options label {
+  font-size: 13px;
+  font-weight: 650;
+}
+.layout-options select {
+  margin-left: auto;
+  min-height: 42px;
+  font-size: 13px;
+}
+.layout-options span {
+  flex-basis: 100%;
+  font-size: 12px;
+}
+.compact-toggle {
+  padding: 0;
+  gap: 10px;
+}
+.compact-toggle strong {
+  font-size: 13px;
+}
+.compact-toggle input {
+  margin: 0;
+}
+.compact-toggle small {
+  font-size: 12px;
+}
+.controls select:focus-visible {
+  outline: 3px solid #aca5ff;
+  outline-offset: 3px;
+}
+.score-toolbar {
+  margin: 22px 0 18px;
+  gap: 12px;
+}
+.section-picker {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+.toolbar-label {
+  font-size: 13px;
+  font-weight: 650;
+}
+.section-tabs {
+  gap: 3px;
+}
+.section-tabs button {
+  font-size: 13px;
+  padding: 8px 14px;
+  min-height: 38px;
+  color: var(--muted);
+}
+.section-tabs button[aria-pressed="true"] {
+  background: #fff;
+  color: var(--accent);
+  box-shadow: 0 1px 4px #202b4217;
+}
+.score-jump {
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 12px 0;
+}
+.score-caption {
+  align-items: center;
+  font-size: 12px;
+}
+.score-caption > span:first-child {
+  letter-spacing: 0.1em;
+}
+.score-caption > span:last-child {
+  max-width: none;
+}
+#score {
+  scroll-margin-top: 18px;
+}
+@media (hover: hover) {
+  .controls button:not(:disabled):hover {
+    filter: brightness(0.97);
+  }
+  .setting-card > summary:hover {
+    background: #f6f7fb;
+    border-radius: 10px;
+  }
+  .setting-card[open] > summary:hover {
+    border-radius: 10px 10px 0 0;
+  }
+}
+@media (min-width: 1300px) {
+  .controls .voices {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .controls .voice-button {
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+  }
+  .controls .voice-button[aria-pressed="true"]:after {
+    position: absolute;
+    top: 5px;
+    right: 7px;
+  }
+  .setup-grid {
+    grid-template-columns: 1.1fr 1fr;
+  }
+  .practice-modes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .controls .practice-modes button {
+    min-height: 54px;
+    padding: 8px;
+  }
+  .voice-setup .muted {
+    min-height: 0;
+  }
+}
+@media (max-width: 760px) {
+  main {
+    padding-top: 22px;
+  }
+  .controls {
+    padding: 18px;
+  }
+  .setup-heading {
+    margin-bottom: 18px;
+  }
+  .setup-heading > span {
+    display: none;
+  }
+  .setup-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .playback-setup {
+    padding: 0;
+    border: 0;
+  }
+  .setup-grid h3 {
+    margin-bottom: 8px;
+  }
+  .controls .voices {
+    margin-top: 12px;
+  }
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 16px;
+  }
+  .controls .voice-button {
+    justify-content: center;
+  }
+  .controls .voice-button[aria-pressed="true"]:after {
+    position: absolute;
+    top: 3px;
+    right: 4px;
+    font-size: 10px;
+  }
+  .controls .setting-card > summary {
+    padding: 12px;
+    gap: 9px;
+  }
+  .setting-body {
+    padding: 0 12px 14px;
+  }
+  .score-toolbar {
+    margin: 18px 0 15px;
+  }
+  .section-picker {
+    gap: 10px;
+  }
+  .section-tabs button {
+    padding: 8px 10px;
+  }
+  .score-jump {
+    display: none;
+  }
+  .source-note {
+    margin-bottom: 16px;
+  }
+  .voice-setup .muted {
+    font-size: 12px;
+  }
+  .controls .voice-button .voice-name {
+    font-size: 12px;
+  }
+  .controls .segments button {
+    font-size: 12px;
+  }
+  .sound-row label {
+    flex-basis: auto;
+  }
+}
+@media (max-width: 540px) {
+  h1 {
+    font-size: 30px;
+  }
+  .intro {
+    margin-bottom: 5px;
+  }
+  .subline {
+    font-size: 12px;
+  }
+  .source-note {
+    font-size: 12px;
+  }
+  .controls {
+    padding: 16px 14px;
+    border-radius: 13px;
+  }
+  .setup-heading {
+    margin-bottom: 15px;
+  }
+  .setup-heading h2 {
+    font-size: 16px;
+  }
+  .controls .voice-button {
+    padding: 7px 4px;
+    gap: 6px;
+  }
+  .controls .voice-button .voice-mark {
+    width: 21px;
+    height: 21px;
+    font-size: 10px;
+  }
+  .setup-grid {
+    gap: 17px;
+  }
+  .controls .segments button {
+    padding: 8px 7px;
+  }
+  .score-caption {
+    font-size: 10px;
+    gap: 10px;
+  }
+  .score-caption > span:last-child {
+    max-width: 230px;
+    text-align: right;
+  }
+  .toolbar-label {
+    font-size: 12px;
+  }
+  .section-tabs button {
+    font-size: 12px;
+    padding: 8px;
+  }
+  .section-picker {
+    gap: 8px;
+    width: 100%;
+  }
+  .section-tabs {
+    flex: 1;
+  }
+  .section-tabs button {
+    flex: 1;
+  }
+  .setting-value {
+    font-size: 11px;
+  }
+  .controls .display-modes button {
+    font-size: 11px;
+    padding: 7px 4px;
+  }
+}
+
+@media (max-width: 760px) {
+  .setup-heading {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    margin: 0;
+    padding: 0;
+  }
+  .controls .setting-card > summary {
+    min-height: 48px;
+  }
+  .settings-grid {
+    margin-top: 15px;
+    padding-top: 13px;
+  }
+  .score-caption > span:last-child {
+    max-width: 220px;
+  }
+}
+@media (max-width: 360px) {
+  .section-picker {
+    display: block;
+  }
+  .toolbar-label {
+    display: block;
+    margin-bottom: 7px;
+  }
+  .section-tabs {
+    flex-wrap: nowrap;
+  }
+  .section-tabs button {
+    padding: 8px 5px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .voice-setup .muted {
+    font-size: 11px;
+  }
+  .controls .voice-button .voice-name {
+    font-size: 11px;
+  }
+  .controls .voice-button {
+    gap: 4px;
+  }
+  .controls .voice-button .voice-mark {
+    width: 20px;
+    height: 20px;
+  }
+}
+@media (max-width: 360px) {
+  .controls .display-modes {
+    grid-template-columns: 1fr;
+  }
+  .controls .display-modes button {
+    min-height: 40px;
+    font-size: 12px;
+  }
+}
+.display-override {
+  margin-top: 15px;
+}
+.controls #displayVoicePicker .field-help {
+  margin-top: 10px;
+}

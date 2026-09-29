@@ -1,0 +1,147 @@
+/* Partitur-Grundlagen: Takte, Notenzeilen, anklickbare Noten, Partiturende. */
+
+.score-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 13px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.score-caption > span:first-child {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+.measure {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  scroll-margin: 24px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.measure.current {
+  border-color: #9a91ed;
+  box-shadow: 0 0 0 2px #6256db0c;
+}
+.measure-head {
+  padding: 13px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eef0f4;
+  gap: 10px;
+  background: #fcfcfe;
+}
+.measure-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 0;
+  min-height: 30px;
+}
+.measure-number {
+  font-family: Georgia, serif;
+  font-size: 23px;
+  color: #969caf;
+  font-variant-numeric: tabular-nums;
+  min-width: 24px;
+}
+.measure.current .measure-number {
+  color: var(--accent);
+}
+.measure-title strong {
+  font-size: 13px;
+  font-weight: 650;
+}
+.measure-title small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+  margin-top: 3px;
+}
+.measure-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+.measure-note {
+  margin: 0;
+  padding: 10px 20px 13px;
+  background: #fafafd;
+  border-top: 1px solid #edf0f5;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.staff-row {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  align-items: center;
+  margin: 2px 18px;
+  transition: opacity 0.15s;
+}
+.staff-row.muted-voice {
+  opacity: 0.3;
+}
+.staff-label {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--voice);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.staff-label:before {
+  content: "";
+  height: 22px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--voice);
+}
+.staff {
+  display: block;
+  width: 100%;
+  height: 96px;
+  overflow: visible;
+  user-select: none;
+}
+.score-note {
+  cursor: pointer;
+}
+.score-note:hover .hit,
+.score-note:focus-visible .hit {
+  fill: color-mix(in srgb, var(--voice) 9%, transparent);
+}
+.score-note.active {
+  color: var(--voice) !important;
+}
+.score-note.active .hit {
+  fill: color-mix(in srgb, var(--voice) 12%, transparent);
+}
+.score-note.selected .hit {
+  stroke: var(--voice);
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+}
+.score-end {
+  text-align: center;
+  color: var(--muted);
+  padding: 25px 0 40px;
+}
+.score-end > span {
+  font-family: Georgia, serif;
+  font-size: 30px;
+  color: #a8afbd;
+}
+.score-end p {
+  font-size: 14px;
+}
+.loading {
+  padding: 45px;
+  text-align: center;
+}

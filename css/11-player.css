@@ -1,0 +1,255 @@
+/* Ergänzungsschicht: flachere Playerleiste und Klangauswahl. */
+
+/* Same controls in a shallower transport; wide screens use a single horizontal strip. */
+.transport-inner {
+  max-width: 1500px;
+  padding: 9px 20px 0;
+}
+.transport-main {
+  gap: 10px;
+}
+.transport .play-button {
+  min-height: 42px;
+  min-width: 124px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+.transport .cue-button {
+  min-height: 40px;
+  padding: 7px 11px;
+}
+.transport .position {
+  min-width: 98px;
+}
+.transport-settings {
+  margin: 7px 0 9px;
+  gap: 18px;
+}
+.transport .segments button {
+  min-height: 31px;
+  padding: 6px 10px;
+}
+.tap-area {
+  padding-bottom: 9px;
+}
+.tap-button {
+  min-height: 58px;
+}
+@media (min-width: 1100px) {
+  .transport-inner {
+    display: grid;
+    grid-template-columns: minmax(430px, 1fr) auto;
+    column-gap: 26px;
+    row-gap: 7px;
+    padding-top: 8px;
+  }
+  .transport-settings {
+    padding: 0;
+    margin: 0;
+    gap: 19px;
+  }
+  .transport-main {
+    min-width: 0;
+  }
+  .transport .position {
+    margin-right: auto;
+  }
+  .transport .progress-track,
+  .transport .tap-area {
+    grid-column: 1 / -1;
+  }
+  .transport .tap-area {
+    margin-left: 0;
+    justify-content: center;
+    gap: 30px;
+  }
+}
+@media (max-width: 540px) {
+  .transport-inner {
+    padding: 7px 10px 0;
+  }
+  .transport-main {
+    gap: 6px;
+  }
+  .transport .play-button {
+    min-width: 42px;
+    width: 42px;
+    padding: 0;
+    min-height: 42px;
+  }
+  .transport .position {
+    min-width: 72px;
+  }
+  .transport .position strong {
+    font-size: 13px;
+  }
+  .transport .position > span {
+    font-size: 10px;
+    margin-top: 2px;
+  }
+  .transport .cue-button {
+    min-height: 38px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  .transport-main > .icon-button {
+    min-width: 30px;
+    min-height: 38px;
+  }
+  .transport-settings {
+    margin: 5px 0 7px;
+    gap: 7px;
+  }
+  .transport .segments button {
+    min-height: 30px;
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+  .tap-area {
+    gap: 9px;
+  }
+  .tap-button {
+    min-height: 56px;
+    width: 128px;
+  }
+  .tap-button span {
+    font-size: 16px;
+  }
+  .tap-area p {
+    font-size: 11px;
+  }
+}
+
+.sound-settings {
+  margin: 15px 0;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  font-size: 13px;
+}
+.sound-settings summary {
+  cursor: pointer;
+  font-weight: 650;
+  width: fit-content;
+  padding: 5px 0;
+}
+.sound-settings p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 8px 0 12px;
+}
+.sound-settings .sound-footnote {
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+.sound-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sound-row label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.sound-row select {
+  min-width: 0;
+  max-width: 100%;
+  background: white;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 14px;
+  min-height: 40px;
+}
+.sound-preview {
+  border: 1px solid #d5d0f2;
+  background: #f6f4ff;
+  color: var(--accent);
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-height: 40px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.player-short {
+  display: none;
+}
+.transport .player-follow {
+  color: #c5ccda;
+  font-size: 12px;
+  gap: 6px;
+  min-height: 30px;
+  margin: 0;
+}
+.player-follow input {
+  accent-color: #a99fff;
+  flex: none;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+}
+.transport-settings {
+  gap: 14px;
+}
+.transport-settings .player-follow {
+  order: 3;
+}
+.transport-settings .volume {
+  order: 4;
+  margin-left: 0;
+}
+@media (min-width: 1100px) {
+  .transport-inner {
+    grid-template-columns: minmax(320px, 1fr) auto;
+    column-gap: 18px;
+  }
+  .transport-settings {
+    gap: 12px;
+  }
+}
+@media (max-width: 540px) {
+  .player-long {
+    display: none;
+  }
+  .player-short {
+    display: inline;
+  }
+  .transport-settings {
+    gap: 8px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .transport .player-follow {
+    font-size: 11px;
+  }
+  .transport .segments button {
+    padding: 6px 8px;
+  }
+  .sound-row {
+    gap: 8px;
+  }
+  .sound-row label {
+    flex-basis: 100%;
+  }
+  .sound-row select {
+    flex: 1;
+    font-size: 13px;
+    padding: 8px;
+  }
+  .sound-preview {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}

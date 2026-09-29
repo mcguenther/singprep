@@ -1,0 +1,230 @@
+/* Playerleiste, Tippbereich, Notenhinweis und Toast. */
+
+.transport {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--dark);
+  color: #f4f5fa;
+  z-index: 20;
+  box-shadow: 0 -5px 30px #1b244020;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.transport-inner {
+  max-width: 1000px;
+  margin: auto;
+  padding: 16px 24px 0;
+}
+.transport-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.play-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  background: #8e84fa;
+  color: #151529;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 750;
+  min-height: 48px;
+  padding: 0 22px;
+  min-width: 153px;
+}
+.play-button:hover {
+  background: #aaa1ff;
+}
+.play-button[aria-disabled="true"] {
+  opacity: 0.55;
+}
+.position {
+  min-width: 114px;
+  margin-right: auto;
+}
+.position strong {
+  font-size: 15px;
+  font-weight: 650;
+  display: block;
+}
+.position > span {
+  font-size: 12px;
+  color: #a6aebf;
+  display: block;
+  margin-top: 4px;
+}
+.cue-button {
+  border: 1px solid #485167;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 15px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.transport .icon-button {
+  color: #aeb7cb;
+}
+.transport .icon-button[aria-pressed="true"] {
+  color: #c6c0ff;
+  background: #383251;
+}
+.transport-settings {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 13px 0 16px;
+  padding-left: 54px;
+}
+.transport .segments {
+  background: #252d41;
+}
+.transport .segments button {
+  color: #b5bed1;
+  font-size: 12px;
+  min-height: 31px;
+  padding: 7px 12px;
+}
+.transport .segments button[aria-pressed="true"] {
+  background: #48516b;
+  color: #fff;
+  box-shadow: none;
+}
+.tempo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #aeb7cb;
+}
+.tempo input {
+  width: 56px;
+  border: 1px solid #48516b;
+  color: white;
+  background: #252d41;
+  border-radius: 6px;
+  padding: 5px 3px;
+  text-align: center;
+  font-size: 14px;
+  appearance: textfield;
+}
+.tempo input::-webkit-inner-spin-button {
+  appearance: none;
+}
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: #aeb7cb;
+  font-size: 13px;
+}
+.volume input {
+  width: 90px;
+  accent-color: #a198ff;
+}
+.progress-track {
+  height: 3px;
+  background: #394158;
+  width: 100%;
+}
+#progress {
+  height: 100%;
+  background: #a99fff;
+  width: 0;
+}
+.tap-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 0 17px;
+  margin-left: 54px;
+}
+.tap-area p {
+  font-size: 12px;
+  color: #adb6c9;
+  margin: 8px 0 0;
+}
+.tap-subdivision {
+  width: fit-content;
+}
+.tap-button {
+  border: 1px solid #9087e8;
+  border-radius: 10px;
+  background: #373153;
+  min-height: 70px;
+  width: 250px;
+  color: #e5e0ff;
+  touch-action: manipulation;
+  user-select: none;
+}
+.tap-button span {
+  display: block;
+  font-size: 19px;
+  font-weight: 650;
+}
+.tap-button small {
+  display: block;
+  font-size: 12px;
+  margin-top: 3px;
+  color: #bab2dc;
+}
+.tap-button.pulse {
+  background: #7567d1;
+  transform: scale(0.985);
+}
+body.tap-mode {
+  padding-bottom: 310px;
+}
+.selection {
+  position: fixed;
+  bottom: 178px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  width: 660px;
+  border: 1px solid #cfcbe9;
+  background: white;
+  box-shadow: 0 7px 32px #18223924;
+  border-radius: 11px;
+  padding: 13px 15px;
+  z-index: 22;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.selection div {
+  flex: 1;
+}
+.selection strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+.selection span {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+body.tap-mode .selection {
+  bottom: 276px;
+}
+.toast {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  background: #222c42;
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 10px;
+  z-index: 60;
+  font-size: 14px;
+  box-shadow: 0 5px 25px #0003;
+}

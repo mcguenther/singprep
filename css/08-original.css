@@ -1,0 +1,174 @@
+/* Ergänzungsschicht: Originalseiten, Einsatztöne-Einträge, Notenvorlage. Überschreibt Regeln aus 01–07. */
+
+/* Original score pages: preserve the photograph, add only transparent hit regions. */
+.view-toolbar {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  margin: -3px 0 20px;
+}
+.view-modes {
+  background: #e5e8f0;
+}
+.view-toolbar > span {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.original-mode main {
+  max-width: 1240px;
+}
+.original-page {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 26px;
+  box-shadow: 0 5px 20px #24314a09;
+}
+.original-caption {
+  font-size: 14px;
+  font-weight: 650;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.original-sheet {
+  position: relative;
+  width: 100%;
+  isolation: isolate;
+}
+.original-sheet > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.original-measure {
+  position: absolute;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  z-index: 2;
+  padding: 0;
+  scroll-margin-top: 20px;
+}
+.original-measure:hover {
+  background: #6256db09;
+  border-color: #6256db5c;
+}
+.original-measure:focus-visible {
+  outline: 3px solid #6256db;
+  outline-offset: 2px;
+}
+.original-measure.current {
+  background: #6256db0b;
+  border-color: #6256dbb0;
+}
+.original-takt-label {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #ffffffdc;
+  color: #5d4bc3;
+  border-radius: 4px;
+  min-width: 21px;
+  padding: 2px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0;
+}
+.original-measure:hover .original-takt-label,
+.original-measure.current .original-takt-label,
+.original-measure:focus-visible .original-takt-label {
+  opacity: 1;
+}
+.original-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+.cue-list .cue-item {
+  width: 100%;
+  text-align: left;
+  background: white;
+  min-height: 66px;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+.cue-list .cue-item:hover {
+  border-color: var(--voice);
+  background: color-mix(in srgb, var(--voice) 5%, white);
+}
+.cue-voice-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+.cue-play-icon {
+  font-size: 13px;
+  color: var(--voice);
+  margin-left: 10px;
+}
+.cue-actions {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-top: 16px;
+}
+.cue-actions .quiet-button {
+  padding: 12px;
+}
+.cue-list .cue-item.playing {
+  border-color: var(--voice);
+  background: color-mix(in srgb, var(--voice) 10%, white);
+}
+.source-figure {
+  margin: 0 0 24px;
+}
+.source-figure figcaption {
+  font-size: 14px;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+.source-figure img {
+  width: 100%;
+  height: auto;
+}
+@media (max-width: 640px) {
+  .view-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 17px;
+  }
+  .view-toolbar > span {
+    font-size: 12px;
+  }
+  .view-modes button {
+    font-size: 13px;
+  }
+  .original-mode main {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .original-caption {
+    padding: 10px 14px;
+  }
+  .cue-list .cue-item {
+    min-height: 64px;
+  }
+  .cue-voice-label {
+    font-size: 15px;
+  }
+  .original-takt-label {
+    font-size: 11px;
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    padding: 1px 3px;
+  }
+}

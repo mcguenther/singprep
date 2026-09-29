@@ -1,0 +1,7 @@
+# Lieddaten und Dokumente bleiben unverändert (reines JSON bzw. Text für KI-Werkzeuge).
+scores/
+local/
+docs/
+assets/
+dist/
+node_modules/
