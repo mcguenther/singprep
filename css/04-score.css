@@ -145,3 +145,18 @@
   padding: 45px;
   text-align: center;
 }
+/* Ansicht direkt über der Partitur umschalten (nur bei Liedern mit Originalseiten). */
+.score-caption {
+  align-items: center;
+  flex-wrap: wrap;
+}
+.score-view-switch {
+  margin-right: auto;
+  margin-left: 8px;
+  background: #e5e8f0;
+}
+.score-view-switch button {
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: 12px;
+}

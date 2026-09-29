@@ -69,7 +69,7 @@ Jede Stimme ist monophon. Für gleichzeitig unterschiedliche Töne innerhalb ein
 
 ## Abschnitte, Wiederholungen und gemeinsame Stimmen
 
-Die Liste `measures` definiert die tatsächliche Reihenfolge. Jeder Takt hat eine eindeutige `id` und eine optionale gedruckte `number` als Text. Ein Abschnitt muss zusammenhängend sein und mindestens einen Takt enthalten.
+Die Liste `measures` definiert die tatsächliche Reihenfolge. Jeder Takt hat eine eindeutige `id` und eine optionale gedruckte `number` als Text. Ein Abschnitt muss zusammenhängend sein und mindestens einen Takt enthalten. Abschnitte sind Übeeinheiten, keine Pflicht: Hat ein Lied keine echten Teile (etwa ein schlichtes Strophenlied), genügt **ein** Abschnitt für alle Takte. Die App blendet die Abschnittswahl dann aus, spielt immer das ganze Stück und bricht die Systeme nur nach Breite um.
 
 Wiederholungen, Da capo, Segno, erste/zweite Klammern und nacheinander einsetzende Gruppen werden für v1 **explizit in die Taktliste aufgelöst**. Takt-IDs müssen dabei neu vergeben werden. Alternativ kann ein zusammenhängender Abschnitt über die Schleife beliebig oft geübt werden. Die App interpretiert keine Wiederholungszeichen aus Kommentaren.
 

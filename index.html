@@ -268,7 +268,7 @@
       </section>
       <section class="score-toolbar" aria-label="Abschnitt und Strophe auswählen">
         <div class="toolbar-pickers">
-          <div class="section-picker">
+          <div id="sectionPicker" class="section-picker">
             <span class="toolbar-label">Abschnitt</span>
             <div
               id="sections"
@@ -294,8 +294,18 @@
         <a class="score-jump" href="#score">Zur Partitur ↓</a>
       </section>
       <div class="score-caption">
-        <span>PARTITUR</span
-        ><span id="scoreCaptionText">Note oder Takt antippen, um dort zu beginnen.</span>
+        <span>PARTITUR</span>
+        <div
+          id="scoreViewSwitch"
+          class="segments score-view-switch"
+          role="group"
+          aria-label="Ansicht"
+          hidden
+        >
+          <button type="button" data-view="practice" aria-pressed="true">Übeansicht</button
+          ><button type="button" data-view="original" aria-pressed="false">Originalseiten</button>
+        </div>
+        <span id="scoreCaptionText">Note oder Takt antippen, um dort zu beginnen.</span>
       </div>
       <div class="range-tools">
         <button

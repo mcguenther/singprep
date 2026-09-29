@@ -26,15 +26,13 @@ Chorprobe.registerScore({
     {"id": "5", "name": "5. Strophe"}
   ],
   "sections": [
-    {"id": "z1", "name": "1. Zeile", "comment": "Takte 0–4 · „In einem kühlen Grunde …“"},
-    {"id": "z2", "name": "2. Zeile", "comment": "Takte 5–8 · „… mein Liebchen ist verschwunden …“"},
-    {"id": "z3", "name": "3. Zeile", "comment": "Takte 9–12 · Wiederholung der zweiten Textzeile, anders gesetzt."}
+    {"id": "lied", "name": "Lied"}
   ],
   "measures": [
     {
       "id": "m0",
       "number": "0",
-      "section": "z1",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "lengthTicks": 240,
@@ -63,7 +61,7 @@ Chorprobe.registerScore({
     {
       "id": "m1",
       "number": "1",
-      "section": "z1",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "voices": {
@@ -99,7 +97,7 @@ Chorprobe.registerScore({
     {
       "id": "m2",
       "number": "2",
-      "section": "z1",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "voices": {
@@ -129,7 +127,7 @@ Chorprobe.registerScore({
     {
       "id": "m3",
       "number": "3",
-      "section": "z1",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "voices": {
@@ -163,7 +161,7 @@ Chorprobe.registerScore({
     {
       "id": "m4",
       "number": "4",
-      "section": "z1",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "voices": {
@@ -196,7 +194,7 @@ Chorprobe.registerScore({
     {
       "id": "m5",
       "number": "5",
-      "section": "z2",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "voices": {
@@ -232,7 +230,7 @@ Chorprobe.registerScore({
     {
       "id": "m6",
       "number": "6",
-      "section": "z2",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "voices": {
@@ -266,7 +264,7 @@ Chorprobe.registerScore({
     {
       "id": "m7",
       "number": "7",
-      "section": "z2",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "voices": {
@@ -301,7 +299,7 @@ Chorprobe.registerScore({
     {
       "id": "m8",
       "number": "8",
-      "section": "z2",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "voices": {
@@ -334,7 +332,7 @@ Chorprobe.registerScore({
     {
       "id": "m9",
       "number": "9",
-      "section": "z3",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "dynamics": [
@@ -374,7 +372,7 @@ Chorprobe.registerScore({
     {
       "id": "m10",
       "number": "10",
-      "section": "z3",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "voices": {
@@ -407,7 +405,7 @@ Chorprobe.registerScore({
     {
       "id": "m11",
       "number": "11",
-      "section": "z3",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "dynamics": [
@@ -443,7 +441,7 @@ Chorprobe.registerScore({
     {
       "id": "m12",
       "number": "12",
-      "section": "z3",
+      "section": "lied",
       "meter": [6, 8],
       "keyFifths": 1,
       "lengthTicks": 1200,

@@ -4,7 +4,10 @@
 function renderScore() {
   const container = $("score");
   container.replaceChildren();
-  container.className = viewMode === "original" ? "original-grid" : "practice-grid";
+  container.className =
+    viewMode === "original"
+      ? `original-grid${score.layout.pages.length === 1 ? " single-page" : ""}`
+      : "practice-grid";
   const mobile = window.innerWidth <= 840,
     dense = !$("showCounts").checked,
     setting = $("measuresPerRow").value;
@@ -131,7 +134,8 @@ function renderScore() {
         title = escText("button", "", "measure-title");
       title.setAttribute("aria-label", `Bei Takt ${m.number} beginnen`);
       title.append(escText("span", String(m.number).padStart(2, "0"), "measure-number"));
-      if (column === 0)
+      // Nur bei mehreren Abschnitten steht der Abschnittsname am Systemanfang.
+      if (column === 0 && score.sections.length > 1)
         title.append(escText("strong", score.sections.find((s) => s.id === m.section)?.name || ""));
       title.onclick = () => selectPosition(m.start, null, null, m);
       head.append(title);
@@ -311,6 +315,8 @@ function renderChrome() {
     displayVoices.append(b);
   }
   updateDisplayControls();
+  // Ein einziger Abschnitt braucht keine Wahl: dann gilt fest „Ganzes Stück“.
+  $("sectionPicker").hidden = score.sections.length < 2;
   const tabs = $("sections");
   tabs.replaceChildren();
   for (const s of [{ id: "all", name: "Ganzes Stück" }, ...score.sections]) {
@@ -336,9 +342,12 @@ function renderChrome() {
 function updateViewControls() {
   updateDisplayControls();
   document.body.classList.toggle("original-mode", viewMode === "original");
+  $("scoreViewSwitch").hidden = !score.layout;
+  const pageName = score.layout?.pages.length === 1 ? "Originalseite" : "Originalseiten";
   document.querySelectorAll("[data-view]").forEach((b) => {
     b.setAttribute("aria-pressed", String(b.dataset.view === viewMode));
     if (b.dataset.view === "original") {
+      if (b.closest("#scoreViewSwitch")) b.textContent = pageName;
       b.disabled = !score.layout;
       b.title = score.layout
         ? "Originalfotos mit anklickbaren Takten"
