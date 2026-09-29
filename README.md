@@ -8,8 +8,8 @@ tippt die Viertel.
 
 `index.html` im Browser öffnen. Kein Server, keine Installation, geht auch offline.
 
-Mitgeliefert ist der Kanon „Es tönen die Lieder“ (gemeinfrei), ausgeschrieben für Sopran, Alt,
-Tenor und Bass.
+Mitgeliefert ist „In einem kühlen Grunde“ (Eichendorff/Glück) im vierstimmigen Satz von Max Reger,
+alle fünf Strophen. Gemeinfrei.
 
 ## Eigene Lieder
 
