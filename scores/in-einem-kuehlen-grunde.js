@@ -312,7 +312,7 @@ Chorprobe.registerScore({
           {"at": 1200, "duration": 240, "pitch": "A2", "lyric": "das"}
         ]
       },
-      "comment": "Mittelstimmen chromatisch: Alt Fis–F–E, Tenor A–As–G."
+      "comment": "Sopran springt bei „-den“ eine Septime abwärts (D5–E4), so steht es auch in Glücks Melodie. Mittelstimmen chromatisch: Alt Fis–F–E, Tenor A–As–G."
     },
     {
       "id": "s1m7",
