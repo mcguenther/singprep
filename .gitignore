@@ -1,0 +1,15 @@
+# Private songs (no redistribution rights) – never commit
+local/
+*.private.json
+*.private.js
+
+# Build output (standalone single-file export)
+dist/
+
+# Tooling
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
