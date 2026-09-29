@@ -87,12 +87,15 @@ let range = null,
 // Strophen: verseChoice ist "all" (alle nacheinander) oder eine Strophen-ID, verseIndex die gerade
 // gespielte/hervorgehobene Strophe (Index in score.verses). lyricMode "all"/"current" für den
 // Liedtext, null = automatisch (schmale Bildschirme nur aktuelle Strophe). dynamicLevels: Pegel je
-// Note für die aktuelle Strophe (null = Dynamik aus oder keine Angaben).
+// Note für die aktuelle Strophe (null = Dynamik aus oder keine Angaben). versePause: Atempause vor
+// der nächsten Strophe bzw. Runde in Vierteln oder "bar", verseWaitTimer läuft während dieser Pause.
 let verseChoice = "all",
   verseIndex = 0,
   lyricMode = null,
   playDynamics = true,
-  dynamicLevels = null;
+  dynamicLevels = null,
+  versePause = "1",
+  verseWaitTimer = 0;
 // Liedauswahl: geöffnetes Lied als Index in Chorprobe.scores oder "file" für die zuletzt geladene
 // JSON-Datei (importedScore). defaultScore oben ist true für angemeldete Lieder, false für Dateien.
 let currentSong = null,

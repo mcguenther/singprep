@@ -652,3 +652,22 @@ h1 {
     width: 100%;
   }
 }
+/* Atempause zwischen den Strophen, neben der Strophenwahl. */
+.verse-pause {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.verse-pause select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px 8px;
+  color: var(--ink);
+}
+.verse-picker {
+  flex-wrap: wrap;
+}

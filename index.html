@@ -280,6 +280,15 @@
           <div id="versePicker" class="section-picker verse-picker" hidden>
             <span class="toolbar-label">Strophe</span>
             <div id="verses" class="section-tabs segments" role="group" aria-label="Strophe"></div>
+            <label class="verse-pause"
+              >Atempause
+              <select id="versePause" aria-label="Atempause vor der nächsten Strophe">
+                <option value="0">Keine</option>
+                <option value="1">Eine Viertel</option>
+                <option value="2">Zwei Viertel</option>
+                <option value="bar">Ein ganzer Takt</option>
+              </select></label
+            >
           </div>
         </div>
         <a class="score-jump" href="#score">Zur Partitur ↓</a>
@@ -625,10 +634,11 @@
           <strong>Strophen:</strong> Hat ein Lied mehrere Strophen, stehen sie untereinander unter
           den Noten; die aktuelle ist hervorgehoben. „Alle nacheinander“ spielt die Partitur einmal
           pro Strophe, mit Schleife danach wieder ab der ersten. Eine gewählte Strophe wird allein
-          gespielt. Ein markierter Übebereich bleibt in der gerade aktuellen Strophe. Unter
-          „Notenbild“ lässt sich auch nur der Text der aktuellen Strophe anzeigen.
-          <strong>Dynamik:</strong> Zeichen wie mp oder f und Gabeln stehen über den Notenzeilen und
-          steuern die Lautstärke; unter „Klang“ lässt sich das abschalten.
+          gespielt. Vor jeder neuen Strophe oder Runde gibt es eine einstellbare Atempause; die
+          Partitur blättert dabei schon zum Anfang zurück. Ein markierter Übebereich bleibt in der
+          gerade aktuellen Strophe. Unter „Notenbild“ lässt sich auch nur der Text der aktuellen
+          Strophe anzeigen. <strong>Dynamik:</strong> Zeichen wie mp oder f und Gabeln stehen über
+          den Notenzeilen und steuern die Lautstärke; unter „Klang“ lässt sich das abschalten.
         </p>
         <p>
           <strong>Nur meine Stimmen:</strong> Nur die markierten Stimmen sind hörbar.

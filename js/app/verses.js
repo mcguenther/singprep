@@ -34,6 +34,27 @@ function nextVerse() {
 function hasNextVerse() {
   return hasVerses() && verseChoice === "all" && verseIndex < score.verses.length - 1;
 }
+// Atempause vor der nächsten Strophe oder Runde; „ein ganzer Takt“ misst die volle Taktart des
+// Schlusstakts, auch wenn dieser (wie bei Auftakten) verkürzt ist.
+function versePauseSeconds() {
+  const m = measureAt(bounds().end - 0.001),
+    quarters = versePause === "bar" ? (m.meter[0] * 4) / m.meter[1] : Number(versePause);
+  return (quarters * 60) / bpm;
+}
+// Wiedergabe nach der Atempause fortsetzen. Die Anzeige steht währenddessen schon am Anfang.
+function afterVersePause(resume) {
+  const delay = versePauseSeconds() * 1000;
+  if (!delay) return resume();
+  const token = playRun;
+  playing = true;
+  $("playIcon").textContent = "Ⅱ";
+  $("playText").textContent = "Pause";
+  $("play").setAttribute("aria-label", "Anhalten");
+  $("beatLabel").textContent = "Atempause …";
+  verseWaitTimer = setTimeout(() => {
+    if (token === playRun) resume();
+  }, delay);
+}
 // Neuer Durchlauf von vorn: bei „Alle nacheinander“ wieder mit der ersten Strophe.
 function restartVerses() {
   if (hasVerses() && verseChoice === "all" && verseIndex !== 0) setVerseIndex(0);
@@ -132,6 +153,7 @@ function updateVerseControls() {
       ? "Alle Strophen untereinander, die aktuelle hervorgehoben."
       : "Nur der Text der aktuellen Strophe. Die Hervorhebung folgt der Wiedergabe.";
   $("playDynamics").checked = playDynamics;
+  $("versePause").value = versePause;
 }
 // Strophenwahl, Liedtext-Anzeige und Schalter „Dynamik abspielen“ (mit gespeicherter Einstellung).
 function bindVerseControls() {
@@ -139,7 +161,15 @@ function bindVerseControls() {
     const saved = localStorage.getItem("chorprobe.lyrics.v1");
     if (["all", "current"].includes(saved)) lyricMode = saved;
     playDynamics = localStorage.getItem("chorprobe.dynamics.v1") !== "false";
+    const pause = localStorage.getItem("chorprobe.versePause.v1");
+    if (["0", "1", "2", "bar"].includes(pause)) versePause = pause;
   } catch {}
+  $("versePause").onchange = () => {
+    versePause = $("versePause").value;
+    try {
+      localStorage.setItem("chorprobe.versePause.v1", versePause);
+    } catch {}
+  };
   document.querySelectorAll("[data-lyric-mode]").forEach(
     (b) =>
       (b.onclick = () => {

@@ -5,6 +5,7 @@
 function stop({ resetTap = true } = {}) {
   playRun++;
   clearTimeout(rangeLoopTimer);
+  clearTimeout(verseWaitTimer);
   cancelAnimationFrame(rangeWaitFrame);
   rangeWaiting = false;
   if (audio.running) cursor = audio.stop();
@@ -158,8 +159,22 @@ function followTarget(measure, t) {
     upcoming && upcoming.end <= measure.end && upcoming.end > measure.start
       ? measureAt(upcoming.start)
       : compiled.measures[measure.index + 1];
-  if (!card || !next || next.start >= bounds().end || t < measure.start + measure.length * 0.75)
-    return card;
+  if (!card || t < measure.start + measure.length * 0.75) return card;
+  if (!next || next.start >= bounds().end) {
+    // Schlusstakt: vor der nächsten Strophe oder Runde schon zum Anfang zurückblättern.
+    const again = hasNextVerse()
+      ? bounds().start
+      : playback === "auto" && loop
+        ? loopStart()
+        : null;
+    if (again === null) return card;
+    const index = measureAt(again).index;
+    return (
+      (viewMode === "original"
+        ? document.querySelector(`.original-measure[data-index="${index}"]`)
+        : $(`measure-${index}`)) || card
+    );
+  }
   if (viewMode === "practice") {
     const following = $(`measure-${next.index}`);
     if (following && card.closest(".score-system") !== following.closest(".score-system"))
@@ -260,8 +275,9 @@ function onEnd(end) {
     resetWrittenRepeats();
     cursor = bounds().start;
     currentMeasure = -1;
+    followAfter = 0;
     onTick(cursor);
-    startAuto();
+    afterVersePause(startAuto);
     return;
   }
   playing = false;
@@ -273,7 +289,13 @@ function onEnd(end) {
     resetWrittenRepeats();
     restartVerses();
     cursor = loopStart();
-    startAuto();
+    if (hasVerses()) {
+      currentMeasure = -1;
+      followAfter = 0;
+      playing = true;
+      onTick(cursor);
+      afterVersePause(startAuto);
+    } else startAuto();
   } else if (playback === "tap")
     $("tapHint").textContent = repeatAt(end)
       ? "Nächster Tipp: Wiederholung."
