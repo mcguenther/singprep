@@ -1,0 +1,735 @@
+<!doctype html>
+<!-- Chorprobe. Bravura glyph outlines: Steinberg, SIL OFL 1.1; see assets/Bravura-LICENSE.txt. -->
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#171e30" />
+    <title>Chorprobe</title>
+    <meta
+      name="description"
+      content="Dein digitaler Probenraum: Chorstimmen hören, mischen, Einsatztöne holen und das Tempo mit Vierteln oder Achteln selbst führen."
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23171e30'/%3E%3Cpath d='M11 22V10l13-3v12M11 13l13-3' fill='none' stroke='%238c85ff' stroke-width='3'/%3E%3Cellipse cx='8' cy='23' rx='4' ry='3' fill='%238c85ff'/%3E%3Cellipse cx='21' cy='20' rx='4' ry='3' fill='%238c85ff'/%3E%3C/svg%3E"
+    />
+    <!-- Kaskade: Die Reihenfolge der Stylesheets ist verbindlich (spätere Dateien überschreiben frühere). -->
+    <link rel="stylesheet" href="css/01-base.css" />
+    <link rel="stylesheet" href="css/02-layout.css" />
+    <link rel="stylesheet" href="css/03-controls.css" />
+    <link rel="stylesheet" href="css/04-score.css" />
+    <link rel="stylesheet" href="css/05-transport.css" />
+    <link rel="stylesheet" href="css/06-dialogs.css" />
+    <link rel="stylesheet" href="css/07-responsive.css" />
+    <link rel="stylesheet" href="css/08-original.css" />
+    <link rel="stylesheet" href="css/09-practice-layout.css" />
+    <link rel="stylesheet" href="css/10-score-system.css" />
+    <link rel="stylesheet" href="css/11-player.css" />
+    <link rel="stylesheet" href="css/12-setup.css" />
+    <link rel="stylesheet" href="css/13-cue-tray.css" />
+    <link rel="stylesheet" href="css/14-range.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="top-inner">
+        <a class="brand" href="#" aria-label="Chorprobe Start"
+          ><span class="brand-icon">♫</span> <span class="brand-name">CHORPROBE</span></a
+        >
+        <div class="file-actions">
+          <label id="songPickerLabel" class="song-picker" hidden
+            ><span class="sr-only">Lied wählen</span
+            ><select id="songPicker"></select></label
+          ><button id="import" class="text-button">
+            <span aria-hidden="true">↥</span> Lied laden</button
+          ><button
+            id="format"
+            class="icon-button"
+            aria-label="Datenformat und Hilfe"
+            title="Datenformat und Hilfe"
+          >
+            ?
+          </button>
+        </div>
+      </div>
+    </header>
+    <main>
+      <section class="intro">
+        <div>
+          <h1 id="title">Chorprobe</h1>
+          <p id="subtitle" class="subline"></p>
+        </div>
+      </section>
+      <details class="source-note" id="sourceNote">
+        <summary id="sourceSummary">Zum Stück</summary>
+        <div id="performanceBlock" hidden>
+          <h3>Zur Aufführung</h3>
+          <p id="performanceText"></p>
+        </div>
+        <p id="scoreComment"></p>
+        <p id="sourceDescription"></p>
+        <div id="contextComments"></div>
+        <button id="source" class="quiet-button">Notenvorlage ansehen ↗</button>
+      </details>
+      <section class="controls panel" aria-labelledby="setupTitle">
+        <div class="setup-heading">
+          <h2 id="setupTitle">Deine Probe</h2>
+          <span>Start und Tempo findest du unten in der Playerleiste.</span>
+        </div>
+        <div class="setup-grid">
+          <div class="voice-setup">
+            <h3>Deine Stimmen</h3>
+            <p id="voicePrompt" class="muted">Eine oder mehrere Stimmen auswählen.</p>
+            <div id="voices" class="voices" role="group" aria-label="Deine Stimmen"></div>
+          </div>
+          <div class="playback-setup">
+            <h3>Wiedergabe</h3>
+            <div class="practice-modes segments" role="group" aria-label="Was möchtest du hören?">
+              <button type="button" data-practice="all" aria-pressed="true">Alle Stimmen</button
+              ><button type="button" data-practice="solo" aria-pressed="false">
+                Nur meine Stimmen</button
+              ><button type="button" data-practice="focus" aria-pressed="false">
+                Mit Begleitung</button
+              ><button type="button" data-practice="sing" aria-pressed="false">
+                Selbst mitsingen
+              </button>
+            </div>
+            <p id="mixHint" class="mix-hint" role="status">Alle Stimmen sind gleich laut.</p>
+            <label id="backingLabel" class="range-label" hidden
+              >Begleitung
+              <input id="backing" type="range" min="0" max="100" step="1" value="50" /><output
+                id="backingValue"
+                >50 %</output
+              ></label
+            >
+            <div id="singLevels" class="sing-levels" hidden>
+              <label class="range-label"
+                >Meine Stimmen
+                <input
+                  id="guideLevel"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="0"
+                  aria-label="Meine Stimmen als Orientierung"
+                /><output id="guideValue">Aus</output></label
+              ><label class="range-label"
+                >Andere Stimmen
+                <input
+                  id="choirLevel"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="100"
+                  aria-label="Lautstärke der anderen Stimmen"
+                /><output id="choirValue">100 %</output></label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="settings-grid">
+          <details class="sound-settings setting-card">
+            <summary>
+              <span class="setting-title">Klang</span
+              ><span id="soundSummary" class="setting-value">Chor · alle Stimmen</span>
+            </summary>
+            <div class="setting-body">
+              <p class="setting-description">Ein Klang für alle Stimmen und Einsatztöne.</p>
+              <div class="sound-row">
+                <label for="scoreSound" class="sr-only">Klang für alle Stimmen</label
+                ><select id="scoreSound"></select
+                ><button
+                  type="button"
+                  id="previewSound"
+                  class="sound-preview"
+                  aria-label="Gewählten Klang anhören"
+                >
+                  ▶ Anhören
+                </button>
+              </div>
+              <span id="soundStatus" class="sr-only" role="status"></span>
+              <label
+                class="compact-toggle dynamics-toggle"
+                for="playDynamics"
+                id="dynamicsOption"
+                hidden
+                ><input
+                  type="checkbox"
+                  role="switch"
+                  id="playDynamics"
+                  checked
+                  aria-describedby="dynamicsHint"
+                /><span
+                  ><strong>Dynamik abspielen</strong
+                  ><small id="dynamicsHint"
+                    >Lautstärke nach den Zeichen im Lied (pp bis ff, Gabeln). Aus: alle Noten gleich
+                    laut.</small
+                  ></span
+                ></label
+              >
+            </div>
+          </details>
+          <details class="layout-settings setting-card">
+            <summary>
+              <span class="setting-title">Notenbild</span
+              ><span id="layoutSummary" class="setting-value">Alle Stimmen · automatisch</span>
+            </summary>
+            <div class="setting-body">
+              <div class="field-group">
+                <h3>Ansicht</h3>
+                <div class="segments view-modes" role="group" aria-label="Ansicht wählen">
+                  <button data-view="practice" aria-pressed="true">Übeansicht</button
+                  ><button data-view="original" aria-pressed="false">Originalseiten</button>
+                </div>
+                <p id="viewHint" class="muted"></p>
+              </div>
+              <div id="practiceAppearance">
+                <fieldset id="displayChoices">
+                  <legend>Sichtbare Stimmen</legend>
+                  <div class="segments display-modes" role="group" aria-label="Stimmen anzeigen">
+                    <button type="button" data-display-mode="all" aria-pressed="true">
+                      Alle Stimmen</button
+                    ><button type="button" data-display-mode="selected" aria-pressed="false">
+                      Nur Auswahl</button
+                    ><button type="button" data-display-mode="compact" aria-pressed="false">
+                      Mit Sammelzeile
+                    </button>
+                  </div>
+                  <div id="displaySelection">
+                    <label class="compact-toggle display-override" for="independentDisplay"
+                      ><input
+                        type="checkbox"
+                        role="switch"
+                        id="independentDisplay"
+                        aria-describedby="displayLinkHint"
+                        aria-controls="displayVoicePicker"
+                      /><span
+                        ><strong>Stimmen separat auswählen</strong
+                        ><small id="displayLinkHint"
+                          >Folgt automatisch „Deine Stimmen“ unter „Deine Probe“.</small
+                        ></span
+                      ></label
+                    >
+                    <div id="displayVoicePicker" hidden>
+                      <p class="field-help">
+                        Wähle die Stimmen, die eine eigene Notenzeile bekommen.
+                      </p>
+                      <div
+                        id="displayVoices"
+                        class="display-voices"
+                        role="group"
+                        aria-label="Stimmen mit eigener Notenzeile"
+                      ></div>
+                    </div>
+                  </div>
+                </fieldset>
+                <p id="displayHint" class="muted"></p>
+                <div id="lyricOptions" class="field-group lyric-options" hidden>
+                  <h3>Liedtext</h3>
+                  <div class="segments lyric-modes" role="group" aria-label="Liedtext anzeigen">
+                    <button type="button" data-lyric-mode="all" aria-pressed="true">
+                      Alle Strophen</button
+                    ><button type="button" data-lyric-mode="current" aria-pressed="false">
+                      Nur aktuelle Strophe
+                    </button>
+                  </div>
+                  <p id="lyricHint" class="muted"></p>
+                </div>
+                <div class="layout-options">
+                  <label for="measuresPerRow">Takte pro Zeile</label
+                  ><select id="measuresPerRow">
+                    <option value="auto">Automatisch</option>
+                    <option value="1">1 Takt</option>
+                    <option value="2">2 Takte</option>
+                    <option value="3">3 Takte</option>
+                    <option value="4">4 Takte</option>
+                    <option value="5">5 Takte</option>
+                    <option value="6">6 Takte</option></select
+                  ><span id="layoutHint"></span>
+                </div>
+                <label class="compact-toggle" for="showCounts"
+                  ><input
+                    type="checkbox"
+                    role="switch"
+                    id="showCounts"
+                    aria-describedby="compactHint"
+                  /><span
+                    ><strong>Zählzeiten anzeigen</strong
+                    ><small id="compactHint"
+                      >Schläge unter den Noten und mehr Abstand zwischen den Zeilen.</small
+                    ></span
+                  ></label
+                >
+              </div>
+            </div>
+          </details>
+        </div>
+      </section>
+      <section class="score-toolbar" aria-label="Abschnitt und Strophe auswählen">
+        <div class="toolbar-pickers">
+          <div id="sectionPicker" class="section-picker">
+            <span class="toolbar-label">Abschnitt</span>
+            <div
+              id="sections"
+              class="section-tabs segments"
+              role="group"
+              aria-label="Abschnitt"
+            ></div>
+          </div>
+          <div id="versePicker" class="section-picker verse-picker" hidden>
+            <span class="toolbar-label">Strophe</span>
+            <div id="verses" class="section-tabs segments" role="group" aria-label="Strophe"></div>
+            <label class="verse-pause"
+              >Atempause
+              <select id="versePause" aria-label="Atempause vor der nächsten Strophe">
+                <option value="0">Keine</option>
+                <option value="1">Eine Viertel</option>
+                <option value="2">Zwei Viertel</option>
+                <option value="bar">Ein ganzer Takt</option>
+              </select></label
+            >
+          </div>
+        </div>
+        <a class="score-jump" href="#score">Zur Partitur ↓</a>
+      </section>
+      <div class="score-caption">
+        <span>PARTITUR</span>
+        <div
+          id="scoreViewSwitch"
+          class="segments score-view-switch"
+          role="group"
+          aria-label="Ansicht"
+          hidden
+        >
+          <button type="button" data-view="practice" aria-pressed="true">Übeansicht</button
+          ><button type="button" data-view="original" aria-pressed="false">Originalseiten</button>
+        </div>
+        <span id="scoreCaptionText">Note oder Takt antippen, um dort zu beginnen.</span>
+      </div>
+      <div class="range-tools">
+        <button
+          id="rangePick"
+          class="range-pick"
+          type="button"
+          aria-pressed="false"
+          aria-describedby="rangeSummary"
+        >
+          ▣ Bereich markieren</button
+        ><label class="range-unit"
+          >Auswahl
+          <select id="rangeUnit" aria-label="Einheit der Markierung">
+            <option value="bars">Ganze Takte</option>
+            <option value="notes">Einzelne Noten</option>
+          </select></label
+        ><button id="rangeEdit" class="range-pick" type="button" hidden>Bereich einstellen</button
+        ><span id="rangeSummary" role="status"
+          >Mit der Maus ziehen oder Anfang und Ende antippen.</span
+        >
+      </div>
+      <div id="score" aria-label="Partitur">
+        <div class="loading">Die Partitur wird geladen …</div>
+      </div>
+      <div class="score-end">
+        <span aria-hidden="true">𝄂</span>
+        <p id="endLabel">Ende des erfassten Abschnitts</p>
+        <button id="toStart" class="quiet-button">Zurück zum Anfang ↑</button>
+      </div>
+      <footer id="sourceCredit" class="source-credit" hidden></footer>
+    </main>
+    <aside id="selection" class="selection" hidden>
+      <div><strong id="selectionTitle"></strong><span id="selectionText"></span></div>
+      <button id="dismissSelection" class="icon-button" aria-label="Notenhinweis schließen">
+        ×
+      </button>
+    </aside>
+    <aside id="rangeMenu" class="range-menu" aria-labelledby="rangeHeading" hidden>
+      <div class="range-menu-head">
+        <div>
+          <h2 id="rangeHeading" tabindex="-1">Übebereich</h2>
+          <p id="rangeDescription"></p>
+        </div>
+        <button
+          id="rangeClose"
+          class="icon-button"
+          aria-label="Menü schließen, Markierung behalten"
+          title="Markierung behalten"
+        >
+          ×
+        </button>
+      </div>
+      <div class="range-mode-switch" role="group" aria-label="Verwendung der Markierung">
+        <button type="button" data-range-mode="off" aria-pressed="false">Nur markieren</button
+        ><button type="button" data-range-mode="isolate" aria-pressed="true">Nur Bereich</button
+        ><button type="button" data-range-mode="override" aria-pressed="false">Im Stück</button>
+      </div>
+      <p id="rangeHint" class="range-help"></p>
+      <fieldset id="rangeConfig" class="range-fields">
+        <legend class="sr-only">Einstellungen nur für den markierten Bereich</legend>
+        <label
+          >Tempo im Bereich<select id="rangeTempo">
+            <option value="1">100 % · normal</option>
+            <option value="0.9">90 %</option>
+            <option value="0.8">80 %</option>
+            <option value="0.7">70 %</option>
+            <option value="0.6">60 %</option>
+            <option value="0.5">50 % · halb</option>
+          </select></label
+        ><label
+          >Stimmen im Bereich<select id="rangeVoices">
+            <option value="inherit">Wie außerhalb</option>
+            <option value="all">Alle Stimmen</option>
+            <option value="mine">Nur meine Stimmen</option>
+            <option value="others">Alle außer meine</option>
+            <option value="focus">Meine mit Begleitung</option>
+            <option value="sing">Mitsingen mit Orientierung</option>
+          </select></label
+        >
+        <div class="range-wide" id="rangeVoiceOptions" hidden>
+          <label class="range-check"
+            ><input id="rangeOwnVoices" type="checkbox" /> Andere Stimmen für diesen Bereich
+            wählen</label
+          >
+          <div
+            id="rangeVoiceButtons"
+            class="range-voice-buttons"
+            role="group"
+            aria-label="Eigene Stimmen im Bereich"
+            hidden
+          ></div>
+          <p id="rangeVoiceNames" class="range-help"></p>
+        </div>
+        <label class="range-wide range-level" id="rangeLevelLabel" hidden
+          ><span id="rangeLevelName">Begleitung</span
+          ><input id="rangeLevel" type="range" min="0" max="100" value="35" /><output
+            id="rangeLevelValue"
+            >35 %</output
+          ></label
+        >
+        <div class="range-wide range-repeat" id="rangeRepeatFields">
+          <label class="range-check"
+            ><input id="rangeLoop" type="checkbox" /> Bereich wiederholen</label
+          ><label
+            >Pause zwischen den Runden<select id="rangePause">
+              <option value="0">Keine Pause</option>
+              <option value="1">Eine Viertelpause</option>
+              <option value="2">Zwei Viertelpausen</option>
+              <option value="bar">Ein ganzer Takt</option>
+            </select></label
+          >
+        </div>
+      </fieldset>
+      <div class="range-menu-foot">
+        <button id="rangePlay" class="primary-button" type="button">▶ Bereich abspielen</button
+        ><button id="rangeLead" class="quiet-button" type="button" hidden>
+          Mit vorherigem Takt starten</button
+        ><button id="rangeClear" class="quiet-button" type="button">Markierung aufheben</button>
+      </div>
+    </aside>
+    <aside id="rangeDraft" class="range-draft" aria-label="Markierung festlegen" hidden>
+      <span id="rangeDraftText">Anfang und Ende wählen.</span
+      ><button id="rangeFinish" class="primary-button" type="button" hidden>Übernehmen</button
+      ><button id="rangeCancel" class="quiet-button" type="button">Abbrechen</button>
+    </aside>
+
+    <footer class="transport" aria-label="Wiedergabe">
+      <button
+        id="rangeStatus"
+        class="range-status"
+        type="button"
+        aria-controls="rangeMenu"
+        hidden
+      ></button>
+      <section id="cuePanel" class="cue-panel" aria-labelledby="cueHeading" hidden>
+        <div class="cue-panel-head">
+          <div>
+            <h2 id="cueHeading" tabindex="-1">Einsatztöne</h2>
+            <span id="cueIntro"></span>
+          </div>
+          <button id="cueClose" class="icon-button" aria-label="Einsatztöne schließen">×</button>
+        </div>
+        <div class="cue-panel-controls">
+          <div class="segments cue-modes" role="group" aria-label="Welche Einsatztöne?">
+            <button type="button" data-cue-mode="onset" aria-pressed="true">
+              Auf diesem Schlag</button
+            ><button type="button" data-cue-mode="next" aria-pressed="false">
+              Nächste Einsätze
+            </button>
+          </div>
+          <button id="cueAgain" class="sound-preview">▶ Alle anhören</button
+          ><button id="cueStop" class="sound-preview" hidden>■ Stopp</button>
+        </div>
+        <p id="cueModeHint" class="cue-mode-hint">
+          Nur Töne, die hier neu beginnen. Gehaltene Töne bleiben aus.
+        </p>
+        <div
+          id="cueList"
+          class="cue-list"
+          role="group"
+          aria-label="Einsatztöne einzeln anhören"
+        ></div>
+        <div class="cue-panel-foot">
+          <p id="cueStatus" role="status" aria-live="polite"></p>
+          <span id="cueViewHint" hidden></span>
+        </div>
+      </section>
+
+      <div class="transport-inner">
+        <div class="transport-main">
+          <button
+            id="reset"
+            class="icon-button reset"
+            aria-label="Zum Abschnittsanfang"
+            title="Zum Abschnittsanfang"
+          >
+            ↤</button
+          ><button id="play" aria-keyshortcuts="Space" class="play-button" aria-label="Abspielen">
+            <span id="playIcon" aria-hidden="true">▶</span><span id="playText">Abspielen</span>
+          </button>
+          <div class="position">
+            <strong id="position">Takt 1</strong><span id="beatLabel">Zählzeit 1</span>
+          </div>
+          <button id="cue" class="cue-button" aria-controls="cuePanel" aria-expanded="false">
+            ♪ <span>Einsatztöne</span></button
+          ><button
+            id="loop"
+            class="icon-button"
+            aria-pressed="false"
+            aria-label="Abschnitt als Endlosschleife"
+            title="Abschnitt als Endlosschleife. Notierte Wiederholungen werden auch ohne Schleife einmal gespielt."
+          >
+            ↻
+          </button>
+        </div>
+        <div class="transport-settings">
+          <label class="check player-follow"
+            ><input type="checkbox" id="follow" checked /> Mitlaufen</label
+          >
+          <div class="segments playback-modes" role="group" aria-label="Wiedergabeart">
+            <button data-playback="auto" aria-pressed="true" aria-label="Automatisch abspielen">
+              <span class="player-long">Automatisch</span
+              ><span class="player-short" aria-hidden="true">Auto</span></button
+            ><button data-playback="tap" aria-pressed="false" aria-label="Selbst tippen">
+              <span class="player-long">Selbst tippen</span
+              ><span class="player-short" aria-hidden="true">Tippen</span>
+            </button>
+          </div>
+          <label class="tempo"
+            ><span>Tempo</span
+            ><input
+              id="bpm"
+              type="number"
+              min="20"
+              max="300"
+              value="96"
+              aria-label="Viertel pro Minute"
+            /><span>BPM</span></label
+          ><label class="volume" title="Gesamtlautstärke"
+            ><span aria-hidden="true">◖))</span
+            ><input
+              id="volume"
+              type="range"
+              min="0"
+              max="100"
+              value="70"
+              aria-label="Gesamtlautstärke"
+          /></label>
+        </div>
+        <div class="tap-area" id="tapArea" hidden>
+          <div>
+            <div class="tap-subdivision segments" role="group" aria-label="Pro Tipp">
+              <button data-step="1" aria-pressed="true">♩ Viertel</button
+              ><button data-step="0.5" aria-pressed="false">♪ Achtel</button>
+            </div>
+            <p id="tapHint">Ein Tipp pro Viertel. Zwischentöne laufen mit.</p>
+          </div>
+          <button id="tap" class="tap-button">
+            <span>Hier tippen</span><small>oder Leertaste</small>
+          </button>
+        </div>
+        <div class="progress-track"><div id="progress"></div></div>
+      </div>
+    </footer>
+    <div id="toast" role="status" class="toast" hidden></div>
+    <input type="file" id="fileInput" accept=".json,application/json" hidden />
+    <dialog id="helpDialog">
+      <div class="dialog-header">
+        <h2>Ein Probenraum. Viele Lieder.</h2>
+        <button class="icon-button close-dialog" aria-label="Schließen">×</button>
+      </div>
+      <div class="dialog-body">
+        <p>
+          Die mitgelieferten Lieder sind bereits eingebunden; im Projekt liegen sie im Ordner
+          <code>scores/</code>. Weitere Partituren lassen sich als JSON laden. Darstellung,
+          Stimmenmischung und Wiedergabe funktionieren auch mit anderen Liedern.
+        </p>
+        <h3>Ein neues Lied vorbereiten</h3>
+        <ol>
+          <li>Gib einer KI die Noten und die Formatbeschreibung.</li>
+          <li>
+            Lass sie eine Datei im Format <code>chorprobe/v1</code> erstellen. Unklare Stellen
+            gehören als Kommentare an die Noten.
+          </li>
+          <li>
+            Lade die JSON-Datei über <strong>Lied laden</strong>. Die App prüft sie vor dem Öffnen.
+          </li>
+        </ol>
+        <div class="download-list">
+          <a href="docs/datenformat.md" download="datenformat.md">↓ Formatbeschreibung für die KI</a
+          ><a href="docs/score.schema.json" download="score.schema.json">↓ JSON-Schema</a
+          ><a href="docs/beispiel.json" download="beispiel.json">↓ Kleines Beispiel</a
+          ><button id="export">↓ Aktuelle Partitur als JSON</button>
+        </div>
+        <h3>Offline üben</h3>
+        <p>
+          Die App läuft vollständig im Browser. Öffne <code>index.html</code> per Doppelklick;
+          Internet, Installation oder ein Server sind zum Üben nicht nötig. Eigene Lieder, die nicht
+          weitergegeben werden dürfen, gehören in <code>local/scores.js</code>. Diese Datei wird
+          beim Start mitgeladen, aber nicht ins Repository übernommen.
+          <code>npm run build</code> fasst alles zu einer einzelnen HTML-Datei zusammen, die du
+          speichern und weitergeben kannst.
+        </p>
+        <h3>Markieren und gezielt üben</h3>
+        <p>
+          <strong>Markieren:</strong> Ziehe mit der Maus über die gewünschten Takte. Auf dem
+          Smartphone tippe „Bereich markieren“, dann den ersten und letzten Takt an. Für einen
+          einzelnen Takt genügt ein Tipp und „Übernehmen“. „Einzelne Noten“ erlaubt eine feinere
+          Auswahl. Umschalt-Klick erweitert die vorhandene Markierung oder die aktuelle
+          Startposition. Escape bricht eine unfertige Auswahl ab.
+        </p>
+        <p>
+          <strong>Nur Bereich:</strong> Spielt nur die Markierung. Auf Wunsch wiederholt sie sich
+          mit keiner Pause, einer oder zwei Viertelpausen oder einem ganzen Takt Pause im
+          eingestellten Bereichstempo. Notierte Wiederholungszeichen werden in diesem Arbeitsmodus
+          übergangen. Die Leertaste hält auch die Wiederholungspause an.
+        </p>
+        <p>
+          <strong>Im Stück:</strong> Klicke eine beliebige Startposition an oder starte mit dem
+          vorherigen Takt. Nur innerhalb der Markierung ändern sich Tempo und Stimmen; anschließend
+          kehren beide zu den normalen Einstellungen zurück. Auch gehaltene Töne passen ihre Dauer
+          an. „Wie außerhalb“ übernimmt die normale Stimmenmischung. „Andere Stimmen für diesen
+          Bereich wählen“ erlaubt eine eigene Auswahl.
+        </p>
+        <p>
+          Die Leiste über dem Player zeigt den aktiven Bereich und öffnet seine Einstellungen
+          erneut. „Nur markieren“ deaktiviert die Änderungen, ohne die Auswahl zu löschen.
+          „Markierung aufheben“ entfernt sie. Beim Wechsel des Lieds oder Abschnitts wird die
+          Markierung zurückgesetzt.
+        </p>
+        <h3>So übst du</h3>
+        <p>
+          <strong>Notierte Wiederholungen:</strong> Am Wiederholungsende springt die Wiedergabe
+          einmal zum zugehörigen Anfangszeichen zurück und spielt danach weiter. Das gilt auch beim
+          selbstständigen Tippen. Pause und Fortsetzen behalten den Durchlauf bei; das Anklicken
+          einer neuen Startstelle beginnt ihn neu. Die Schleife in der Playerleiste wiederholt
+          zusätzlich den gewählten Abschnitt fortlaufend.
+        </p>
+        <p>
+          <strong>Selbst mitsingen:</strong> Markiere deine Stimmen. Die App spielt die übrigen
+          Stimmen; deine bleiben zunächst stumm. Bei Bedarf kannst du sie leise zur Orientierung
+          dazumischen. Beide Lautstärken sind getrennt regelbar.
+        </p>
+        <p>
+          <strong>Darstellung einstellen:</strong> Bei „Nur Auswahl“ und „Mit Sammelzeile“ folgt das
+          Notenbild automatisch „Deine Stimmen“. Aktiviere „Stimmen separat auswählen“, um eine
+          unabhängige Auswahl einzublenden. Wenn du den Schalter ausschaltest, wird wieder deine
+          aktuelle Stimmenauswahl übernommen. „Mit Sammelzeile“ fasst die übrigen Stimmen farbig in
+          einer Notenzeile zusammen. Sie stehen in klingender Tonhöhe, ohne verschobene Oktaven.
+          Namen und Liedtext stehen beim Anklicken an der jeweiligen Note. „Automatisch“ passt die
+          Anzahl der Takte an die Fensterbreite an: zwei bis sechs auf Desktop, bis zu drei manuell
+          auf dem Handy. Unter „Notenbild“ kannst du auch Zählzeiten einblenden; sonst bleiben die
+          Zeilen kompakt.
+        </p>
+        <p>
+          <strong>Strophen:</strong> Hat ein Lied mehrere Strophen, stehen sie untereinander unter
+          den Noten; die aktuelle ist hervorgehoben. „Alle nacheinander“ spielt die Partitur einmal
+          pro Strophe, mit Schleife danach wieder ab der ersten. Eine gewählte Strophe wird allein
+          gespielt. Vor jeder neuen Strophe oder Runde gibt es eine einstellbare Atempause; die
+          Partitur blättert dabei schon zum Anfang zurück. Ein markierter Übebereich bleibt in der
+          gerade aktuellen Strophe. Unter „Notenbild“ lässt sich auch nur der Text der aktuellen
+          Strophe anzeigen. <strong>Dynamik:</strong> Zeichen wie mp oder f und Gabeln stehen über
+          den Notenzeilen und steuern die Lautstärke; unter „Klang“ lässt sich das abschalten.
+        </p>
+        <p>
+          <strong>Nur meine Stimmen:</strong> Nur die markierten Stimmen sind hörbar.
+          <strong>Mit Begleitung:</strong> Die übrigen Stimmen kommen leiser dazu. Der Regler bietet
+          im leisen Bereich besonders viel Feineinstellung: 0 % ist stumm, 100 % entspricht der
+          ausgewählten Stimme. Bei ungeteilten Stimmen wird die im Lied hinterlegte gemeinsame Linie
+          genutzt.
+        </p>
+        <p>
+          <strong>Einsatztöne:</strong> Klicke eine Stelle und dann „Einsatztöne“ an. Die Leiste
+          spielt alle passenden Töne automatisch nacheinander; die Partitur bleibt sichtbar und
+          markiert die Töne in Gold. „Auf diesem Schlag“ spielt nur neu beginnende Töne, keine
+          gehaltenen oder angebundenen Noten. „Nächste Einsätze“ spielt klingende Töne und bei
+          Pausen den nächsten Einsatz im Abschnitt. In der Liste kannst du jeden Ton erneut anhören.
+          Wähle direkt in der Partitur eine neue Stelle, um die Liste zu aktualisieren.
+          Ausgeblendete Stimmen werden bei Bedarf vorübergehend angezeigt; Originalseiten wechseln
+          für die Markierung zur Übeansicht. Beim Schließen gilt wieder deine vorherige Ansicht.
+        </p>
+        <p>
+          <strong>Selbst tippen:</strong> Jeder Tipp gibt ein Viertel oder Achtel frei. Das Tempo
+          wird aus den letzten Tippabständen geschätzt und gleitend angepasst, damit kleine
+          Ungenauigkeiten keinen Temposprung auslösen. Ohne weiteren Tipp wartet die App an der
+          nächsten Grenze. Beim ersten Tipp gilt das eingestellte Tempo.
+        </p>
+        <p class="muted">
+          Leertaste: Start/Pause oder Tipp, auch nach dem Anklicken einer Stimme oder eines Takts.
+          Auch nach Klicks auf Schaltflächen startet oder pausiert die Leertaste. In Eingabe- und
+          Auswahlfeldern sowie Dialogen bleibt die normale Tastaturbedienung erhalten. Im Tippmodus
+          gibt die Leertaste einen Schritt frei. Enter aktiviert die fokussierte Schaltfläche.
+          Escape: Wiedergabe stoppen. Importierte Lieder bleiben in diesem Browser-Tab und werden
+          nicht hochgeladen. Zum Aufbewahren die JSON-Datei herunterladen.
+        </p>
+        <p class="muted">
+          Notenzeichen: Bravura von Steinberg,
+          <a href="assets/Bravura-LICENSE.txt" download="Bravura-LICENSE.txt"
+            >SIL Open Font License</a
+          >.
+        </p>
+      </div>
+    </dialog>
+
+    <dialog id="sourceDialog">
+      <div class="dialog-header">
+        <h2>Deine Notenvorlage</h2>
+        <button class="icon-button close-dialog" aria-label="Schließen">×</button>
+      </div>
+      <div class="dialog-body">
+        <div id="sourceGallery"></div>
+        <p class="muted">
+          In der Ansicht „Originalseiten“ kannst du die Takte direkt auf diesen Fotos auswählen.
+        </p>
+      </div>
+    </dialog>
+
+    <!-- App-Kern und Bibliotheken (ohne Seiteneffekte beim Laden). -->
+    <script src="js/core.js"></script>
+    <script src="js/lib/original.js"></script>
+    <script src="js/lib/dynamics.js"></script>
+    <script src="js/lib/score.js"></script>
+    <script src="js/lib/practice.js"></script>
+    <script src="js/lib/glyphs.js"></script>
+    <script src="js/lib/render.js"></script>
+    <script src="js/lib/audio.js"></script>
+    <!-- Mitgelieferte Lieder. Das zuletzt angemeldete Lied wird beim Start geöffnet. -->
+    <script src="scores/in-einem-kuehlen-grunde.js"></script>
+    <!-- Optionale private Lieder (gitignored). Fehlt die Datei, wird das Tag still entfernt. -->
+    <script src="local/scores.js" onerror="this.remove()"></script>
+    <!-- Controller: klassische Skripte mit gemeinsamem Top-Level-Scope; main.js startet die App. -->
+    <script src="js/app/state.js"></script>
+    <script src="js/app/helpers.js"></script>
+    <script src="js/app/repeats.js"></script>
+    <script src="js/app/mix.js"></script>
+    <script src="js/app/range.js"></script>
+    <script src="js/app/playback.js"></script>
+    <script src="js/app/cues.js"></script>
+    <script src="js/app/verses.js"></script>
+    <script src="js/app/score-view.js"></script>
+    <script src="js/app/songs.js"></script>
+    <script src="js/app/dialogs.js"></script>
+    <script src="js/app/keyboard.js"></script>
+    <script src="js/app/webmcp.js"></script>
+    <script src="js/app/main.js"></script>
+  </body>
+</html>

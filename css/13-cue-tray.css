@@ -1,0 +1,210 @@
+/* Ergänzungsschicht: Einsatztöne-Leiste über dem Player. */
+
+/* Non-modal cue tray: the score remains readable and interactive. */
+.cue-panel {
+  color: var(--ink);
+  background: #fff;
+  max-width: 1500px;
+  margin: 0 auto;
+  border: 1px solid #dce0ec;
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  padding: 12px 20px 8px;
+  max-height: 46dvh;
+  overflow-y: auto;
+}
+.cue-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cue-panel-head > div {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.cue-panel h2 {
+  font-size: 16px;
+  margin: 0;
+}
+.cue-panel #cueIntro {
+  font-size: 12px;
+  color: var(--muted);
+}
+.transport .cue-panel .icon-button {
+  color: var(--muted);
+  min-height: 32px;
+  min-width: 32px;
+}
+.cue-panel-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+.transport .cue-panel .segments {
+  background: #eff0f6;
+}
+.transport .cue-panel .segments button {
+  color: var(--muted);
+  min-height: 36px;
+  font-size: 12px;
+}
+.transport .cue-panel .segments button[aria-pressed="true"] {
+  background: #fff;
+  color: var(--accent);
+  box-shadow: 0 1px 5px #202b4215;
+}
+.cue-panel .sound-preview {
+  min-height: 36px;
+  padding: 6px 12px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.cue-mode-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 7px 0;
+}
+.cue-panel .cue-list {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0;
+  padding: 2px 0 7px;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+}
+.cue-panel .cue-item {
+  flex: 1 0 170px;
+  min-width: 170px;
+  width: auto;
+  max-width: 320px;
+  min-height: 56px;
+  padding: 8px 10px;
+  gap: 8px;
+  border-color: #dfe3ec;
+  color: var(--ink);
+}
+.cue-panel .cue-voice-label {
+  font-size: 13px;
+  white-space: nowrap;
+}
+.cue-panel .cue-item small {
+  font-size: 10px;
+  margin-top: 3px;
+}
+.cue-panel .cue-item strong {
+  font-size: 18px;
+  white-space: nowrap;
+}
+.cue-panel .cue-play-icon {
+  font-size: 10px;
+  margin-left: 1px;
+}
+.cue-panel .cue-item.playing {
+  border: 2px solid var(--voice);
+  padding: 7px 9px;
+  background: color-mix(in srgb, var(--voice) 12%, white);
+}
+.cue-panel-foot {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.cue-panel-foot p {
+  margin: 0;
+}
+.cue-panel-foot > span {
+  font-size: 10px;
+  text-align: right;
+}
+.score-note.cue-target .hit {
+  stroke: #ad7610;
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+  fill: #edb64220;
+}
+.score-note.cue-target .notehead {
+  stroke: #a8710b;
+  stroke-width: 2.4;
+}
+.score-note.cue-sounding .hit {
+  stroke: var(--voice);
+  stroke-width: 2.3;
+  stroke-dasharray: none;
+  fill: color-mix(in srgb, var(--voice) 24%, transparent);
+}
+.score-note.cue-sounding .notehead {
+  stroke: var(--voice);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 2px #8c7aff80);
+}
+.cue-panel .cue-list:empty {
+  display: none;
+}
+.transport:has(.cue-panel:not([hidden])) {
+  background: var(--dark);
+}
+@media (max-width: 600px) {
+  .cue-panel {
+    padding: 9px 12px 7px;
+    border-radius: 12px 12px 0 0;
+    max-height: 43dvh;
+  }
+  .cue-panel-head > div {
+    gap: 9px;
+  }
+  .cue-panel h2 {
+    font-size: 14px;
+  }
+  .cue-panel #cueIntro {
+    font-size: 11px;
+  }
+  .cue-panel-controls {
+    gap: 7px;
+  }
+  .transport .cue-panel .segments {
+    flex: 1;
+    min-width: 0;
+  }
+  .transport .cue-panel .segments button {
+    font-size: 11px;
+    padding: 7px 6px;
+    white-space: normal;
+    flex: 1;
+  }
+  .cue-panel .sound-preview {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+  .cue-mode-hint {
+    font-size: 11px;
+    line-height: 1.4;
+    margin: 6px 0;
+  }
+  .cue-panel .cue-item {
+    flex: 0 0 162px;
+    min-width: 162px;
+    gap: 6px;
+  }
+  .cue-panel-foot {
+    font-size: 10px;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .cue-panel-foot > span {
+    text-align: left;
+  }
+  .cue-panel .cue-dot {
+    width: 7px;
+    height: 7px;
+    flex: none;
+  }
+}

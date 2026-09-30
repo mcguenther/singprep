@@ -1,0 +1,627 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chorprobe v1",
+  "description": "Melodische Chorstimmen mit expliziten klingenden Tonhöhen und ganzzahligen Ticks. Die App prüft zusätzlich Taktgrenzen, Stimmen-IDs, Haltebögen und zusammenhängende Abschnitte. Optional: Strophen (verses) mit Silbenlisten, Dynamik und Vortragsangaben je Takt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "title",
+    "tempo",
+    "ppq",
+    "voices",
+    "sections",
+    "measures"
+  ],
+  "properties": {
+    "format": {
+      "const": "chorprobe/v1"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 5000
+    },
+    "composer": {
+      "type": "string",
+      "maxLength": 5000
+    },
+    "comment": {
+      "type": "string",
+      "maxLength": 5000
+    },
+    "tempo": {
+      "type": "number",
+      "minimum": 20,
+      "maximum": 300
+    },
+    "ppq": {
+      "type": "integer",
+      "minimum": 24,
+      "maximum": 9600
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "image": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "complete": {
+          "type": "boolean",
+          "description": "Ob die fotografierte Vorlage vollständig vorliegt."
+        },
+        "performanceNotes": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "copyright": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "edition": {
+          "type": "string",
+          "maxLength": 5000
+        }
+      }
+    },
+    "voices": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/$defs/voice"
+      }
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/$defs/section"
+      }
+    },
+    "verses": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 20,
+      "description": "Strophen in Aufführungsreihenfolge. Die ganze Partitur wird einmal pro Strophe gespielt. Mit verses darf lyric eine Liste mit einem Eintrag je Strophe sein.",
+      "items": {
+        "$ref": "#/$defs/verse"
+      }
+    },
+    "measures": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1000,
+      "items": {
+        "$ref": "#/$defs/measure"
+      }
+    },
+    "layout": {
+      "$ref": "#/$defs/layout"
+    }
+  },
+  "$defs": {
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "clef"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "short": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "clef": {
+          "enum": [
+            "treble",
+            "bass",
+            "alto",
+            "tenor"
+          ]
+        },
+        "displayOctave": {
+          "type": "integer",
+          "minimum": -2,
+          "maximum": 2
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 5000
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "unison": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "repeatFrom": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "measure",
+            "tick"
+          ],
+          "properties": {
+            "measure": {
+              "type": "string"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "measure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "section",
+        "meter",
+        "keyFifths",
+        "voices"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "number": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "section": {
+          "type": "string"
+        },
+        "meter": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 32
+            },
+            {
+              "enum": [
+                1,
+                2,
+                4,
+                8,
+                16,
+                32
+              ]
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "keyFifths": {
+          "type": "integer",
+          "minimum": -7,
+          "maximum": 7
+        },
+        "lengthTicks": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "voiceLabels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 80
+          }
+        },
+        "voices": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/event"
+            }
+          }
+        },
+        "barlines": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "at",
+              "kind"
+            ],
+            "properties": {
+              "at": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "kind": {
+                "enum": [
+                  "double",
+                  "final",
+                  "repeatStart",
+                  "repeatEnd"
+                ]
+              }
+            }
+          }
+        },
+        "dynamics": {
+          "type": "array",
+          "maxItems": 32,
+          "description": "Dynamik ab Taktposition at (Ticks). cresc/dim sind Gabeln mit duration in Ticks und dürfen in Folgetakte reichen, müssen aber innerhalb der Partitur enden.",
+          "items": {
+            "$ref": "#/$defs/dynamic"
+          }
+        },
+        "directions": {
+          "type": "array",
+          "maxItems": 16,
+          "description": "Vortragsangaben wie Tempo- oder Ausdrucksbezeichnungen; erscheinen über dem obersten System.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "at",
+              "text"
+            ],
+            "properties": {
+              "at": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            }
+          }
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "duration",
+        "pitch"
+      ],
+      "properties": {
+        "at": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pitch": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[A-G][#b]{0,2}-?[0-9]+$"
+            }
+          ]
+        },
+        "lyric": {
+          "description": "Silbe unter der Note. Ein Text gilt in jeder Strophe; mit verses alternativ eine Liste mit genau einem Eintrag je Strophe (null = keine Silbe).",
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 150
+            },
+            {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "string",
+                    "maxLength": 150
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "tie": {
+          "type": "boolean",
+          "description": "Haltebogen: bindet die Note an den unmittelbar folgenden gleich hohen Ton derselben Stimme."
+        },
+        "slur": {
+          "enum": [
+            "start",
+            "end"
+          ],
+          "description": "Bogen (Legato-/Phrasierungsbogen) zwischen beliebigen Tönen derselben Stimme: \"start\" an der ersten, \"end\" an der letzten Note. Auch über Taktstriche; nicht verschachtelt, nicht an Pausen, unabhängig von tie. Ohne Einfluss auf die Wiedergabe."
+        },
+        "confidence": {
+          "enum": [
+            "clear",
+            "uncertain"
+          ]
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "fermata": {
+          "type": "boolean",
+          "description": "Zeichnet eine Fermate über dieser Note oder Pause; verlängert die automatische Wiedergabe dieser Dauer um den Faktor 1,5."
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pages"
+      ],
+      "properties": {
+        "pages": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/page"
+          }
+        }
+      }
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "image",
+        "width",
+        "height",
+        "measures"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "image": {
+          "type": "string",
+          "maxLength": 7000000,
+          "description": "Eingebettetes Bild (data:-URI) oder relativer Pfad zu index.html, z. B. scores/lied.webp. In importierten JSON-Dateien funktionieren nur data:-URIs zuverlässig.",
+          "anyOf": [
+            {
+              "pattern": "^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$"
+            },
+            {
+              "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._/-]+\\.(?:jpe?g|png|webp)$"
+            }
+          ]
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000
+        },
+        "measures": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/region"
+          }
+        }
+      }
+    },
+    "region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "box"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID eines Takts in measures."
+        },
+        "box": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "description": "x, y, Breite, Höhe in Pixeln des aufrechten Seitenbilds."
+        },
+        "anchors": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 300,
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "fromTick": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "toTick": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "verse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      }
+    },
+    "dynamic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "mark"
+      ],
+      "properties": {
+        "at": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mark": {
+          "enum": [
+            "pp",
+            "p",
+            "mp",
+            "mf",
+            "f",
+            "ff",
+            "fp",
+            "sfz",
+            "cresc",
+            "dim"
+          ]
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Nur und immer bei cresc und dim."
+        },
+        "voices": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "Nur für diese Stimmen-IDs; ohne Angabe für alle Stimmen."
+        },
+        "verses": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "Nur in diesen Strophen-IDs; setzt verses auf Partiturebene voraus."
+        }
+      },
+      "if": {
+        "properties": {
+          "mark": {
+            "enum": [
+              "cresc",
+              "dim"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "duration"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "duration"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,350 @@
+/* Grundlegende Media-Queries; danach Abstand zur tatsächlichen Playerhöhe. */
+
+@media (min-width: 800px) {
+  .measure .staff-row:first-of-type {
+    margin-top: 8px;
+  }
+  .measure .staff-row:last-of-type {
+    margin-bottom: 10px;
+  }
+}
+@media (max-width: 800px) {
+  .control-top {
+    display: block;
+  }
+  .mix-modes {
+    margin-top: 17px;
+    width: fit-content;
+  }
+  .voices {
+    gap: 8px;
+  }
+  .voice-button {
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 3px;
+  }
+  .voice-button .voice-name {
+    font-size: 12px;
+  }
+  .control-bottom {
+    flex-wrap: wrap;
+  }
+  .transport-settings {
+    gap: 16px;
+  }
+  .volume {
+    display: none;
+  }
+}
+@media (max-width: 540px) {
+  .topbar {
+    height: 56px;
+  }
+  .top-inner {
+    padding: 0 18px;
+  }
+  .brand {
+    font-size: 12px;
+    gap: 8px;
+  }
+  .brand-icon {
+    font-size: 26px;
+  }
+  .file-actions {
+    gap: 12px;
+  }
+  .text-button {
+    font-size: 13px;
+  }
+  main {
+    padding: 26px 14px 10px;
+  }
+  .intro {
+    align-items: flex-start;
+    display: block;
+    margin-bottom: 13px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 31px;
+  }
+  .subline {
+    font-size: 13px;
+  }
+  .intro .quiet-button {
+    font-size: 12px;
+    padding-top: 9px;
+  }
+  .source-note {
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+  .panel {
+    padding: 18px 15px;
+    border-radius: 13px;
+  }
+  .control-top h2 {
+    font-size: 16px;
+  }
+  .control-top .muted {
+    font-size: 13px;
+  }
+  .mix-modes {
+    width: 100%;
+    gap: 0;
+  }
+  .mix-modes button {
+    font-size: 11px;
+    flex: 1;
+    padding: 9px 5px;
+  }
+  .voices {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 15px 0 12px;
+    gap: 7px;
+  }
+  .voice-button {
+    flex-direction: row;
+    min-height: 47px;
+    padding: 9px 5px;
+  }
+  .voice-button .voice-mark {
+    width: 23px;
+    height: 23px;
+    font-size: 11px;
+  }
+  .voice-button .voice-name {
+    font-size: 12px;
+  }
+  .mix-hint {
+    font-size: 12px;
+  }
+  .range-label {
+    font-size: 12px;
+    gap: 8px;
+  }
+  .score-toolbar {
+    margin: 24px 0 14px;
+    gap: 4px;
+  }
+  .section-tabs {
+    gap: 2px;
+  }
+  .section-tabs button {
+    padding: 9px 9px;
+    font-size: 12px;
+  }
+  .check {
+    font-size: 12px;
+    gap: 5px;
+  }
+  .score-caption {
+    font-size: 11px;
+    align-items: center;
+  }
+  .score-caption > span:last-child {
+    max-width: 190px;
+    text-align: right;
+    line-height: 1.5;
+  }
+  .measure-head {
+    padding: 10px 14px;
+  }
+  .measure-title {
+    gap: 9px;
+  }
+  .measure-title strong {
+    font-size: 12px;
+  }
+  .measure-title small,
+  .measure-meta {
+    font-size: 11px;
+  }
+  .staff-row {
+    display: block;
+    margin: 5px 12px 9px;
+  }
+  .staff-label {
+    font-size: 11px;
+    gap: 6px;
+    padding-top: 4px;
+  }
+  .staff-label:before {
+    height: 12px;
+    width: 3px;
+  }
+  .staff {
+    height: 96px;
+  }
+  .measure-note {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+  .transport-inner {
+    padding: 12px 14px 0;
+  }
+  .transport-main {
+    gap: 8px;
+  }
+  .reset {
+    min-width: 30px;
+  }
+  .play-button {
+    min-width: 49px;
+    width: 49px;
+    padding: 0;
+    min-height: 46px;
+  }
+  #playText {
+    display: none;
+  }
+  .position {
+    min-width: 85px;
+  }
+  .position strong {
+    font-size: 14px;
+  }
+  .position > span {
+    font-size: 11px;
+  }
+  .cue-button {
+    padding: 9px 10px;
+    gap: 4px;
+    font-size: 12px;
+    min-height: 41px;
+  }
+  .transport-main > .icon-button:last-child {
+    min-width: 33px;
+  }
+  .transport-settings {
+    padding: 0;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .transport .segments button {
+    font-size: 11px;
+    padding: 7px 9px;
+  }
+  .tempo {
+    font-size: 11px;
+    gap: 5px;
+  }
+  .tempo > span:first-child {
+    display: none;
+  }
+  .tempo input {
+    width: 47px;
+  }
+  .tap-area {
+    margin: 0;
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+  .tap-button {
+    width: 135px;
+    min-height: 69px;
+    flex-shrink: 0;
+  }
+  .tap-button span {
+    font-size: 17px;
+  }
+  .tap-button small {
+    font-size: 10px;
+  }
+  .tap-area p {
+    max-width: 185px;
+    font-size: 11px;
+  }
+  .selection {
+    bottom: 146px;
+  }
+  body.tap-mode .selection {
+    bottom: 247px;
+  }
+  body {
+    padding-bottom: 165px;
+  }
+  body.tap-mode {
+    padding-bottom: 260px;
+  }
+  .dialog-header {
+    padding: 16px 18px;
+  }
+  .dialog-header h2 {
+    font-size: 23px;
+  }
+  .dialog-body {
+    padding: 18px;
+    font-size: 14px;
+  }
+  .score-end {
+    padding-bottom: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+@media (min-width: 541px) {
+  .staff-row {
+    min-height: 96px;
+  }
+}
+@media (max-width: 360px) {
+  h1 {
+    font-size: 28px;
+  }
+  .transport-main {
+    gap: 5px;
+  }
+  .cue-button {
+    padding: 8px;
+  }
+  .position {
+    min-width: 70px;
+  }
+  .position strong {
+    font-size: 13px;
+  }
+  .playback-modes button {
+    padding: 6px !important;
+  }
+  .mix-modes button {
+    font-size: 10px;
+  }
+}
+body,
+body.tap-mode {
+  padding-bottom: calc(var(--transport-height, 180px) + 32px);
+}
+.selection,
+body.tap-mode .selection {
+  bottom: calc(var(--transport-height, 180px) + 12px);
+}
+@media (max-width: 540px) {
+  .mix-modes button {
+    font-size: 12px;
+  }
+  .transport .segments button {
+    font-size: 12px;
+  }
+  .section-tabs button {
+    font-size: 13px;
+  }
+  .check {
+    font-size: 13px;
+  }
+  .tap-button small {
+    font-size: 12px;
+  }
+  .tap-area p {
+    font-size: 12px;
+  }
+}
