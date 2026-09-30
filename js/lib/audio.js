@@ -111,10 +111,6 @@ Chorprobe.audio = (function () {
     }
     return buffer;
   }
-  // Relative loudness and brightness of a dynamic level; mf is 1.
-  function brightness(dyn) {
-    return (dyn?.level ?? REFERENCE) / REFERENCE;
-  }
   // Envelope shared by all sounds: attack to the peak (or a soft crossfade within a slur), decay
   // to the held level, release just before the next note (or overlapping it within a slur).
   function envelope(gain, at, until, { attack, peak, hold, decay, release, legatoIn, legatoOut }) {
@@ -141,23 +137,77 @@ Chorprobe.audio = (function () {
     lfo.start(at);
     return [lfo, depth];
   }
+  // Level of a held note at time t from its curve [[seconds, level]], even in dB between points.
+  function curveLevel(points, t) {
+    let i = 0;
+    while (i + 1 < points.length && points[i + 1][0] <= t) i++;
+    const [t0, a] = points[i],
+      next = points[i + 1];
+    if (!next || next[0] <= t0 || t <= t0) return a;
+    return a * (next[1] / a) ** (Math.min(1, (t - t0) / (next[0] - t0)) || 0);
+  }
+  // Let an AudioParam follow a held note's curve from `at` on: value(level) gives the parameter
+  // value, exponential ramps keep level changes even in dB (linear ramps for crossfade weights).
+  // Steps (two points at once) become short ramps.
+  function follow(param, at, points, value, linear = false) {
+    param.setValueAtTime(value(curveLevel(points, at)), at);
+    let last = at;
+    for (const [t, level] of points) {
+      if (t <= at) continue;
+      last = Math.max(t, last + 0.03);
+      if (linear) param.linearRampToValueAtTime(value(level), last);
+      else param.exponentialRampToValueAtTime(Math.max(1e-4, value(level)), last);
+    }
+  }
+  // Parameters that follow a held note's curve; a tone that is extended (tap mode) follows anew.
+  function followAll(followers, at, points, restart = false) {
+    for (const { param, value, linear } of followers) {
+      if (restart) {
+        if (param.cancelAndHoldAtTime) param.cancelAndHoldAtTime(at);
+        else param.cancelScheduledValues(at);
+      }
+      follow(param, at, points, value, linear);
+    }
+  }
   // Sung tone: three slightly detuned singers per voice with a vibrato that sets in late and the
   // spectrum of the voice type at this pitch and dynamic level. No breath noise at the onset: in
-  // quick succession it sounded like a snare drum.
+  // quick succession it sounded like a snare drum. A hairpin during the note (options.span, curve)
+  // crossfades between the spectra of its quietest and loudest level: both waveforms are in phase,
+  // so the mix interpolates every partial, and with levels even in dB the crossfade weight changes
+  // linearly in time. A lowpass could only darken, and muffled the basses.
   function sungTone(ctx, destination, note, type, at, until, dyn, options) {
     const p = timbre.TYPES[type] || timbre.TYPES.alto,
       profile = VOICE_SOUNDS.choir,
       frequency = timbre.frequency(note.midi),
       length = Math.max(0.03, until - at),
       level = dynamicGain(dyn),
-      wave = sungWave(ctx, type, note.midi, dyn?.level ?? REFERENCE),
+      onset = dyn?.level ?? REFERENCE,
+      [low, high] = options.span ?? [onset, onset],
+      swell = high / low > 1.001,
       gain = ctx.createGain(),
+      shape = ctx.createGain(),
       filter = ctx.createBiquadFilter(),
       sources = [],
-      graph = [filter, gain];
+      graph = [filter, shape, gain];
     filter.type = "lowpass";
     filter.Q.value = 0.5;
-    filter.frequency.value = 5500 + 3500 * Math.min(1.3, brightness(dyn));
+    filter.frequency.value = 5500 + 3500 * Math.min(1.3, high / REFERENCE);
+    const followers = [],
+      weight = (x) => Math.log(x / low) / Math.log(high / low);
+    const layers = (swell ? [low, high] : [onset]).map((l, i) => {
+      const bus = ctx.createGain();
+      if (swell)
+        followers.push({
+          param: bus.gain,
+          value: (x) => (i ? weight(x) : 1 - weight(x)),
+          linear: true,
+        });
+      bus.connect(filter);
+      graph.push(bus);
+      return { bus, wave: sungWave(ctx, type, note.midi, l) };
+    });
+    if (swell) followers.push({ param: shape.gain, value: (x) => x / onset });
+    followAll(followers, at, options.curve ?? [[at, onset]]);
     // Fewer, closer companions sound cleaner; the level stays the same.
     const shares = [0.5, p.ensemble, p.ensemble],
       norm = ENSEMBLE / Math.hypot(...shares);
@@ -166,24 +216,27 @@ Chorprobe.audio = (function () {
       [p.spread, shares[1] * norm],
       [-p.spread * 0.8, shares[2] * norm],
     ]) {
-      const osc = ctx.createOscillator(),
-        part = ctx.createGain();
-      osc.setPeriodicWave(wave);
-      osc.frequency.value = frequency;
-      osc.detune.value = detune;
-      part.gain.value = share;
-      osc.connect(part);
-      part.connect(filter);
-      osc.start(at);
-      sources.push(osc);
-      graph.push(osc, part);
+      for (const { bus, wave } of layers) {
+        const osc = ctx.createOscillator(),
+          part = ctx.createGain();
+        osc.setPeriodicWave(wave);
+        osc.frequency.value = frequency;
+        osc.detune.value = detune;
+        part.gain.value = share;
+        osc.connect(part);
+        part.connect(bus);
+        osc.start(at);
+        sources.push(osc);
+        graph.push(osc, part);
+      }
     }
     if (length > 0.3) {
       const nodes = vibrato(ctx, at, p.vibrato.rate, p.vibrato.depth, 0.28, sources);
       sources.push(nodes[0]);
       graph.push(...nodes);
     }
-    filter.connect(gain);
+    filter.connect(shape);
+    shape.connect(gain);
     gain.connect(destination);
     const hold = profile.sustain * level.sustain;
     const tail = envelope(gain.gain, at, until, {
@@ -194,32 +247,37 @@ Chorprobe.audio = (function () {
       release: p.release / 4,
       ...options,
     });
-    return { gain, sources, graph, hold, tail };
+    return { gain, sources, graph, hold, tail, followers };
   }
   function instrumentTone(ctx, destination, note, id, at, until, dyn, options) {
     const profile = VOICE_SOUNDS[id],
       osc = ctx.createOscillator(),
       gain = ctx.createGain(),
+      shape = ctx.createGain(),
       filter = ctx.createBiquadFilter(),
       sources = [osc],
-      graph = [osc, filter, gain];
+      graph = [osc, filter, shape, gain];
     const frequency = timbre.frequency(note.midi),
       length = Math.max(0.03, until - at),
-      level = dynamicGain(dyn);
+      level = dynamicGain(dyn),
+      onset = dyn?.level ?? REFERENCE,
+      followers = [];
     osc.setPeriodicWave(instrumentWave(ctx, id));
     osc.frequency.setValueAtTime(frequency, at);
     filter.type = "lowpass";
     filter.Q.value = profile.q ?? 0.5;
     // Louder notes open the filter; the floor keeps low notes from sounding muffled.
-    const cutoff = Math.min(
-      14000,
-      Math.max(900, frequency * profile.cutoff) * (0.65 + 0.35 * brightness(dyn)),
-    );
-    filter.frequency.setValueAtTime(cutoff, at);
-    if (profile.pluck)
+    const cutoff = (l) =>
+      Math.min(14000, Math.max(900, frequency * profile.cutoff) * (0.65 + (0.35 * l) / REFERENCE));
+    if (profile.pluck) {
+      filter.frequency.setValueAtTime(cutoff(onset), at);
       filter.frequency.setTargetAtTime(Math.max(frequency * 1.3, 350), at + 0.012, 0.22);
+    } else followers.push({ param: filter.frequency, value: cutoff });
+    followers.push({ param: shape.gain, value: (x) => x / onset });
+    followAll(followers, at, options.curve ?? [[at, onset]]);
     osc.connect(filter);
-    filter.connect(gain);
+    filter.connect(shape);
+    shape.connect(gain);
     gain.connect(destination);
     if (profile.vibrato) {
       const nodes = vibrato(ctx, at, profile.vibrato, profile.depth, 0.1, [osc]);
@@ -236,9 +294,9 @@ Chorprobe.audio = (function () {
       release: 0.012,
       ...options,
     });
-    return { gain, sources, graph, hold, tail };
+    return { gain, sources, graph, hold, tail, followers };
   }
-  // options: { type: voice type for the choir sound, legatoIn, legatoOut }.
+  // options: { type: voice type for the choir sound, legatoIn, legatoOut, curve: [[seconds, level]] }.
   function createVoiceTone(ctx, destination, note, id, at, until, dyn = null, options = {}) {
     const preset = VOICE_SOUNDS[id] ? id : "choir",
       { type = "alto", ...shape } = options,
@@ -246,6 +304,21 @@ Chorprobe.audio = (function () {
         ? sungTone(ctx, destination, note, type, at, until, dyn, shape)
         : instrumentTone(ctx, destination, note, preset, at, until, dyn, shape);
     return { ...tone, preset, until, at, note, dyn, level: dynamicGain(dyn) };
+  }
+  // Held-note dynamics for the part of a note that is scheduled now (until tick `stop`; in tap
+  // mode that is the current step). curve: [[seconds, level]] on the audio clock; span: quietest
+  // and loudest level of the whole note, so the sound is prepared for all of it.
+  function heldDynamics(curve, stop, seconds) {
+    if (!curve) return {};
+    const levels = curve.map(([, l]) => l),
+      part = curve.filter(([t]) => t < stop);
+    return {
+      curve: [...part, [stop, Chorprobe.dynamics.levelAt(curve, stop)]].map(([t, l]) => [
+        seconds(t),
+        l,
+      ]),
+      span: [Math.min(...levels), Math.max(...levels)],
+    };
   }
   // Events sung legato into the next one: both lie in the same slur and follow without a rest.
   // Returns { into, from }: ids that start without a new attack / that hand over to the next note.
@@ -459,7 +532,7 @@ Chorprobe.audio = (function () {
         setTimeout(cleanup, fade * 1000 + 10);
       } else cleanup();
     }
-    // shape: { legatoIn, legatoOut } for notes inside a slur.
+    // shape: { legatoIn, legatoOut } for notes inside a slur, curve for held-note dynamics.
     tone(note, at, until, key = note.id, dyn = null, shape = {}) {
       const now = this.ctx.currentTime;
       let n = this.nodes.get(key);
@@ -468,6 +541,7 @@ Chorprobe.audio = (function () {
         n.gain.gain.setTargetAtTime(n.hold, now, 0.015);
         n.until = until;
         n.gain.gain.setTargetAtTime(0.0001, Math.max(now, until - 0.025), 0.012);
+        if (shape.curve) followAll(n.followers, now, shape.curve, true);
         return;
       }
       if (n) this.kill(key);
@@ -578,10 +652,16 @@ Chorprobe.audio = (function () {
           const at = this.startTime + this.secondsAtScore(Math.max(n.start, start));
           if (at > time + 0.13) continue;
           const until = this.startTime + this.secondsAtScore(Math.min(n.end, end));
+          const dyn = levels?.get(n.id);
           if (until > time)
-            this.tone(n, Math.max(time + 0.001, at), until, n.id, levels?.get(n.id), {
+            this.tone(n, Math.max(time + 0.001, at), until, n.id, dyn, {
               legatoIn: n.start > start && this.legato.into.has(n.id),
               legatoOut: n.end < end && this.legato.from.has(n.id),
+              ...heldDynamics(
+                dyn?.curve,
+                Math.min(n.end, end),
+                (t) => this.startTime + this.secondsAtScore(t),
+              ),
             });
           this.queued.add(n.id);
         }
@@ -648,6 +728,7 @@ Chorprobe.audio = (function () {
     ChoirAudio,
     performanceTimeline,
     legatoNotes,
+    heldDynamics,
     VOICE_SOUNDS,
     createVoiceTone,
     dynamicGain,

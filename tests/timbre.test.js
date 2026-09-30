@@ -92,6 +92,43 @@ describe("Klarer Sopran", () => {
   });
 });
 
+describe("Crescendo auf einem gehaltenen Ton", () => {
+  test("Überblenden zwischen p- und f-Spektrum trifft die Zwischenstufen", () => {
+    for (const [type, midi] of [
+      ["bass", 45],
+      ["tenor", 57],
+      ["alto", 64],
+      ["soprano", 74],
+    ]) {
+      const f0 = timbre.frequency(midi),
+        p = timbre.harmonicSpectrum(type, midi, 0.45),
+        f = timbre.harmonicSpectrum(type, midi, 0.9);
+      for (const w of [0.25, 0.5, 0.75]) {
+        const mix = p.map((a, k) => (1 - w) * a + w * f[k]),
+          exact = timbre.harmonicSpectrum(type, midi, 0.45 * 2 ** w);
+        const ratio = timbre.centroid(mix, f0) / timbre.centroid(exact, f0);
+        assert.ok(ratio > 0.95 && ratio < 1.08, `${type} ${w}: ${ratio}`);
+      }
+    }
+  });
+  test("heldDynamics: Kurve nur bis zum geplanten Ende, Spannweite der ganzen Note", () => {
+    const curve = [
+      [0, 0.45],
+      [960, 0.9],
+    ];
+    const held = audio.heldDynamics(curve, 480, (t) => t / 1000);
+    assert.deepEqual(held.span, [0.45, 0.9]);
+    assert.equal(held.curve.length, 2);
+    assert.deepEqual(held.curve[0], [0, 0.45]);
+    assert.equal(held.curve[1][0], 0.48);
+    assert.ok(Math.abs(held.curve[1][1] - Math.sqrt(0.45 * 0.9)) < 1e-9);
+    assert.deepEqual(
+      audio.heldDynamics(undefined, 480, (t) => t),
+      {},
+    );
+  });
+});
+
 describe("Aufstellung", () => {
   test("Sopran und Tenor links, Alt und Bass rechts; gleiche Lagen nebeneinander", () => {
     const voices = ["s1", "s2", "a", "t", "b"].map((id) => ({ id }));

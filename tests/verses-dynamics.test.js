@@ -213,7 +213,7 @@ describe("noteLevels", () => {
       [0.75, 0.75, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
     );
   });
-  test("cresc interpoliert zur nächsten Angabe bis eine Viertel nach dem Ende", () => {
+  test("cresc führt gleichmäßig in dB zur nächsten Angabe bis eine Viertel nach dem Ende", () => {
     const s = fixture();
     // p ab 0, cresc 960–1920, f eine Viertel nach dem Gabelende.
     s.measures[0].dynamics.push({ at: 960, mark: "cresc", duration: 960 });
@@ -221,8 +221,10 @@ describe("noteLevels", () => {
     const v = levelsOf(s)("s");
     assert.deepEqual(
       v.map((x) => x[1]),
-      [0.45, 0.45, 0.45, 0.675, 0.9, 0.9, 0.9, 0.9],
+      [0.45, 0.45, 0.45, 0.6364, 0.9, 0.9, 0.9, 0.9],
     );
+    // Mitte der Gabel: geometrisches Mittel von p und f (0,6364), nicht das arithmetische (0,675).
+    assert.ok(Math.abs(Math.sqrt(0.45 * 0.9) - 0.6364) < 1e-4);
   });
   test("ohne Zielangabe eine Stufe lauter bzw. leiser", () => {
     const s = fixture();
@@ -234,7 +236,7 @@ describe("noteLevels", () => {
     const v = levelsOf(s)("s");
     assert.deepEqual(
       v.map((x) => x[1]),
-      [0.45, 0.45, 0.45, 0.525, 0.6, 0.6, 0.9, 0.825],
+      [0.45, 0.45, 0.45, 0.5196, 0.6, 0.6, 0.9, 0.8216],
     );
     assert.equal(dyn.stepLevel(1, 1), 1);
     assert.equal(dyn.stepLevel(0.3, -1), 0.3);
@@ -279,6 +281,84 @@ describe("noteLevels", () => {
     assert.deepEqual(audio.dynamicGain(null), { sustain: 1, peak: 1 });
     const g = audio.dynamicGain({ level: 0.45, attack: 0.9 });
     assert.ok(Math.abs(g.sustain - 0.6) < 1e-9 && Math.abs(g.peak - 1.2) < 1e-9);
+  });
+});
+
+describe("Pegelverlauf innerhalb gehaltener Töne", () => {
+  // Beispiel: mp ab 0, cresc in Takt 2 (1440–1920), f bei 1920. Das übergebundene G4 der hohen
+  // Stimme (960–1920) und das G2 der tiefen Stimme (1440–2400) klingen während der Gabel.
+  const curves = (mutate = () => {}) => {
+    const s = readJson("docs/beispiel.json");
+    mutate(s);
+    const c = lib.compileScore(lib.validateScore(s));
+    const levels = dyn.noteLevels(c);
+    const round = (curve) => curve?.map(([t, l]) => [t, +l.toFixed(4)]);
+    return (voice, start) => {
+      const n = c.events.find((e) => e.voice === voice && e.start === start);
+      return { ...levels.get(n.id), curve: round(levels.get(n.id).curve) };
+    };
+  };
+  test("Gabel über einen gehaltenen Ton", () => {
+    const at = curves();
+    assert.deepEqual(at("hoch", 960).curve, [
+      [960, 0.6],
+      [1440, 0.6],
+      [1920, 0.9],
+    ]);
+    const low = at("tief", 1440);
+    assert.equal(low.level, 0.6);
+    assert.deepEqual(low.curve.at(-1), [2400, 0.9]);
+    assert.ok(low.curve.some(([t, l]) => t === 1920 && l === 0.9));
+  });
+  test("Töne ohne Änderung haben keine Kurve", () => {
+    const at = curves();
+    assert.equal(at("hoch", 0).curve, undefined);
+    assert.equal(at("hoch", 1920).curve, undefined);
+  });
+  test("levelAt: gleichmäßig in dB, Stufen gelten ab ihrem Tick", () => {
+    const points = [
+      [0, 0.45],
+      [960, 0.9],
+      [1440, 0.9],
+      [1440, 0.3],
+    ];
+    assert.equal(dyn.levelAt(points, 0), 0.45);
+    assert.ok(Math.abs(dyn.levelAt(points, 480) - Math.sqrt(0.45 * 0.9)) < 1e-9);
+    assert.equal(dyn.levelAt(points, 1200), 0.9);
+    assert.equal(dyn.levelAt(points, 1440), 0.3);
+    assert.equal(dyn.levelAt(points, 5000), 0.3);
+  });
+  test("Zeichen mitten im gehaltenen Ton", () => {
+    const at = curves((s) => {
+      s.measures[1].dynamics = [{ at: 240, mark: "p" }];
+    });
+    assert.deepEqual(at("tief", 1440).curve, [
+      [1440, 0.6],
+      [1680, 0.6],
+      [1680, 0.45],
+      [2400, 0.45],
+    ]);
+  });
+  test("fp mit Crescendo: laut angesetzt, leise gehalten, dann lauter", () => {
+    const at = curves((s) => {
+      s.measures[1].dynamics = [
+        { at: 0, mark: "fp" },
+        { at: 0, mark: "cresc", duration: 960 },
+      ];
+    });
+    const low = at("tief", 1440);
+    assert.equal(low.attack, 0.9);
+    assert.equal(low.level, 0.45);
+    assert.deepEqual(low.curve.at(-1), [2400, 0.6]);
+  });
+  test("sfz hebt den ganzen Verlauf der Note an", () => {
+    const at = curves((s) => {
+      s.measures[1].dynamics.push({ at: 0, mark: "sfz" });
+    });
+    const low = at("tief", 1440);
+    assert.equal(low.level, 0.85);
+    assert.equal(low.curve[0][1], 0.85);
+    assert.ok(low.curve.at(-1)[1] > 0.85);
   });
 });
 

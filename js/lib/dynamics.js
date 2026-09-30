@@ -35,65 +35,112 @@ Chorprobe.dynamics = (function () {
     });
   }
 
+  // Level curve of one voice as breakpoints [tick, level]: a mark is a step (two points on the same
+  // tick), a hairpin a ramp between two points. Accents (fp, sfz) only affect the note at their tick.
+  function levelCurve(compiled, voiceId, verseId = null) {
+    const marks = marksFor(compiled, voiceId, verseId),
+      ppq = compiled.score.ppq,
+      points = [[0, DEFAULT]],
+      accents = new Map();
+    let base = DEFAULT,
+      ramp = null;
+    const current = (t) => (ramp && t < ramp.end ? rampLevel(ramp, t) : base);
+    // A ramp ends at its end or where a later mark takes over.
+    const closeRamp = (t) => {
+      if (!ramp) return;
+      if (t >= ramp.end) {
+        points.push([ramp.end, ramp.to]);
+        base = ramp.to;
+      } else points.push([t, rampLevel(ramp, t)]);
+      ramp = null;
+    };
+    for (const [i, d] of marks.entries()) {
+      if (ramp && d.tick >= ramp.end) closeRamp(d.tick);
+      if (HAIRPINS.includes(d.mark)) {
+        const from = current(d.tick),
+          end = d.tick + d.duration;
+        const next = marks.find(
+          (x, j) =>
+            j > i &&
+            x.tick > d.tick &&
+            x.tick <= end + ppq &&
+            !HAIRPINS.includes(x.mark) &&
+            x.mark !== "sfz",
+        );
+        const to = next ? targetLevel(next.mark) : stepLevel(from, d.mark === "cresc" ? 1 : -1);
+        closeRamp(d.tick);
+        base = from;
+        points.push([d.tick, from]);
+        ramp = { start: d.tick, end, from, to };
+      } else if (d.mark === "sfz") accents.set(d.tick, "sfz");
+      else {
+        const level = d.mark === "fp" ? LEVELS.p : LEVELS[d.mark];
+        closeRamp(d.tick);
+        points.push([d.tick, current(d.tick)], [d.tick, level]);
+        base = level;
+        if (d.mark === "fp") accents.set(d.tick, "fp");
+      }
+    }
+    closeRamp(Infinity);
+    return { points, accents };
+  }
+  // Hairpins sound even to the ear: the level changes by the same number of dB per tick.
+  function rampLevel(r, t) {
+    return r.from * (r.to / r.from) ** ((t - r.start) / (r.end - r.start));
+  }
+  // Level at tick t; on a step the new level applies (the mark sits on that tick).
+  function levelAt(points, t) {
+    let i = 0;
+    while (i + 1 < points.length && points[i + 1][0] <= t) i++;
+    const [t0, a] = points[i],
+      next = points[i + 1];
+    if (!next || next[0] === t0) return a;
+    return a * (next[1] / a) ** ((t - t0) / (next[0] - t0));
+  }
+
+  // Level arriving at tick t (before a step on t takes effect): the end level of a held note.
+  function levelBefore(points, t) {
+    const j = points.findIndex(([tick]) => tick >= t);
+    if (j < 0) return points.at(-1)[1];
+    if (points[j][0] === t || j === 0) return points[j][1];
+    return levelAt(points.slice(0, j + 1), t);
+  }
+
   // Relative level per sounding event (tied notes are one event), keyed by event id:
-  // { level, attack }. level is held after the attack; fp and sfz differ at the onset only.
+  // { level, attack, curve? }. level applies at the onset; fp and sfz differ at the onset only.
+  // curve lists [tick, level] from the start to the end of the note when the level changes while
+  // it is held (hairpins, marks during a long note).
   function noteLevels(compiled, verseId = null) {
     const result = new Map();
-    const ppq = compiled.score.ppq;
     for (const v of compiled.score.voices) {
-      const marks = marksFor(compiled, v.id, verseId);
-      const events = compiled.events.filter((n) => n.voice === v.id);
-      let base = DEFAULT,
-        ramp = null,
-        i = 0;
-      const current = (t) =>
-        ramp && t < ramp.end
-          ? ramp.from + ((ramp.to - ramp.from) * (t - ramp.start)) / (ramp.end - ramp.start)
-          : base;
-      const finishRamp = (t) => {
-        if (ramp && t >= ramp.end) {
-          base = ramp.to;
-          ramp = null;
-        }
-      };
-      for (const n of events) {
-        let accent = null;
-        for (; i < marks.length && marks[i].tick <= n.start; i++) {
-          const d = marks[i];
-          finishRamp(d.tick);
-          if (HAIRPINS.includes(d.mark)) {
-            const from = current(d.tick),
-              end = d.tick + d.duration;
-            const next = marks.find(
-              (x, j) =>
-                j > i &&
-                x.tick > d.tick &&
-                x.tick <= end + ppq &&
-                !HAIRPINS.includes(x.mark) &&
-                x.mark !== "sfz",
-            );
-            const to = next ? targetLevel(next.mark) : stepLevel(from, d.mark === "cresc" ? 1 : -1);
-            base = from;
-            ramp = { start: d.tick, end, from, to };
-          } else if (d.mark === "sfz") {
-            if (d.tick === n.start) accent = "sfz";
-          } else {
-            ramp = null;
-            base = d.mark === "fp" ? LEVELS.p : LEVELS[d.mark];
-            if (d.mark === "fp") accent = d.tick === n.start ? "fp" : null;
-          }
-        }
-        finishRamp(n.start);
-        const level = current(n.start);
-        if (accent === "sfz") {
-          const loud = clamp(level + 0.25);
-          result.set(n.id, { level: loud, attack: loud });
-        } else if (accent === "fp") result.set(n.id, { level, attack: LEVELS.f });
-        else result.set(n.id, { level, attack: level });
+      const { points, accents } = levelCurve(compiled, v.id, verseId);
+      for (const n of compiled.events.filter((e) => e.voice === v.id)) {
+        const onset = levelAt(points, n.start),
+          accent = accents.get(n.start);
+        const level = accent === "sfz" ? clamp(onset + 0.25) : onset;
+        const inner = points.filter(([t]) => t > n.start && t < n.end),
+          scale = level / onset,
+          curve = [[n.start, onset], ...inner, [n.end, levelBefore(points, n.end)]]
+            .filter((p, i, all) => i === 0 || p[0] !== all[i - 1][0] || p[1] !== all[i - 1][1])
+            .map(([t, l]) => [t, l * scale]);
+        const entry = { level, attack: accent === "fp" ? LEVELS.f : level };
+        if (curve.some(([, l]) => Math.abs(l - level) > 1e-6)) entry.curve = curve;
+        result.set(n.id, entry);
       }
     }
     return result;
   }
 
-  return { LEVELS, MARKS, HAIRPINS, DEFAULT, stepLevel, appliesTo, marksFor, noteLevels };
+  return {
+    LEVELS,
+    MARKS,
+    HAIRPINS,
+    DEFAULT,
+    stepLevel,
+    appliesTo,
+    marksFor,
+    levelCurve,
+    levelAt,
+    noteLevels,
+  };
 })();

@@ -51,7 +51,8 @@ als `.js`-Dateien statt `.json`. Das bitte nicht „modernisieren“, ohne dass 
 
 - `score.js`: Validierung (`validateScore`) und Kompilierung des Formats `chorprobe/v1`, Tonhöhen,
   Strophentexte (`lyricFor`), Stimmenmischung, Einsatztöne, Tempo-Schätzung.
-- `dynamics.js`: Dynamikzeichen und Pegel je Note und Strophe (`noteLevels`), vor `score.js` geladen.
+- `dynamics.js`: Dynamikzeichen, Pegelverlauf je Stimme (`levelCurve`, Gabeln gleichmäßig in dB) und
+  Pegel je Note und Strophe (`noteLevels`, mit `curve` für gehaltene Töne), vor `score.js` geladen.
 - `original.js`: optionale Originalseiten (Fotos mit anklickbaren Taktbereichen), `validateLayout`.
   Seitenbilder sind data:-URIs oder relative Pfade (`scores/lied.webp`); der Build bettet Pfade ein.
 - `render.js` + `glyphs.js`: SVG-Notensatz. Glyphen sind Bravura-Umrisse (SIL OFL,
