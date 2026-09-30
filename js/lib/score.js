@@ -4,6 +4,7 @@
 Chorprobe.score = (function () {
   const { validateLayout } = Chorprobe.original;
   const { MARKS, HAIRPINS } = Chorprobe.dynamics;
+  const VOICE_TYPES = Chorprobe.timbre.ORDER;
   const FORMAT = "chorprobe/v1";
   function midi(pitch) {
     if (pitch === null) return null;
@@ -80,7 +81,7 @@ Chorprobe.score = (function () {
       fail("Es werden 1 bis 16 Stimmen unterstützt.");
     const ids = new Set();
     for (const v of input.voices) {
-      keys(v, ["id", "name", "short", "clef", "displayOctave", "comment"], "Stimme");
+      keys(v, ["id", "name", "short", "clef", "displayOctave", "voiceType", "comment"], "Stimme");
       text(v, "short", "Stimme", 12);
       text(v, "comment", "Stimme");
       if (
@@ -100,6 +101,8 @@ Chorprobe.score = (function () {
         (!Number.isInteger(v.displayOctave) || Math.abs(v.displayOctave) > 2)
       )
         fail("displayOctave muss zwischen -2 und 2 liegen.");
+      if (v.voiceType !== undefined && !VOICE_TYPES.includes(v.voiceType))
+        fail(`Stimme ${v.id}: voiceType muss ${VOICE_TYPES.join(", ")} sein.`);
     }
     const verseIds = new Set();
     if (input.verses !== undefined) {
@@ -348,7 +351,7 @@ Chorprobe.score = (function () {
     // A tie always extends to the immediately following same-pitch event, including a barline.
     // Slurs (phrasing) pair start/end per voice, without nesting, across barlines as well.
     for (const v of input.voices) {
-      keys(v, ["id", "name", "short", "clef", "displayOctave", "comment"], "Stimme");
+      keys(v, ["id", "name", "short", "clef", "displayOctave", "voiceType", "comment"], "Stimme");
       text(v, "short", "Stimme", 12);
       text(v, "comment", "Stimme");
       let prev = null;

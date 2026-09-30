@@ -24,6 +24,7 @@ const {
 } = Chorprobe.score;
 const { noteLevels, appliesTo } = Chorprobe.dynamics;
 const { ChoirAudio, VOICE_SOUNDS } = Chorprobe.audio;
+const VOICE_TYPES = Chorprobe.timbre.TYPES;
 const {
   drawStaff,
   drawCombinedStaff,

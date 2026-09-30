@@ -8,17 +8,17 @@ Chorprobe.audio = (function () {
       ? { sustain: dyn.level / REFERENCE, peak: (dyn.attack ?? dyn.level) / REFERENCE }
       : { sustain: 1, peak: 1 };
   }
+  const timbre = Chorprobe.timbre;
+  const ROOM_LEVEL = 0.2;
+  // choir: a sung tone per voice type (see timbre.js); attack and release come from the type.
+  // The instruments share one waveform for all voices; cutoff is a multiple of the frequency.
   const VOICE_SOUNDS = {
     choir: {
-      name: "Chor · weich",
-      harmonics: [1, 0.5, 0.26, 0.15, 0.08, 0.03],
-      attack: 0.055,
-      peak: 0.105,
-      sustain: 0.075,
-      decay: 0.15,
-      cutoff: 5,
-      vibrato: 0,
-      depth: 0,
+      name: "Chor · Stimmfarben",
+      sung: true,
+      peak: 0.25,
+      sustain: 0.2,
+      decay: 0.2,
     },
     flute: {
       name: "Flöte · luftig",
@@ -52,6 +52,7 @@ Chorprobe.audio = (function () {
       cutoff: 9,
       vibrato: 5.3,
       depth: 14,
+      q: 0.85,
     },
     pluck: {
       name: "Zupfklang · klar",
@@ -63,75 +64,229 @@ Chorprobe.audio = (function () {
       cutoff: 7,
       vibrato: 0,
       depth: 0,
+      pluck: true,
     },
   };
   const waveformCache = new WeakMap();
-  function voiceWave(ctx, id) {
+  function cached(ctx, key, make) {
     let cache = waveformCache.get(ctx);
     if (!cache) {
       cache = new Map();
       waveformCache.set(ctx, cache);
     }
-    if (!cache.has(id)) {
-      const h = VOICE_SOUNDS[id].harmonics;
-      cache.set(
-        id,
-        ctx.createPeriodicWave(new Float32Array(h.length + 1), new Float32Array([0, ...h])),
-      );
-    }
-    return cache.get(id);
+    if (!cache.has(key)) cache.set(key, make());
+    return cache.get(key);
   }
-  function createVoiceTone(ctx, destination, note, id, at, until, dyn = null) {
-    const profile = VOICE_SOUNDS[id] || VOICE_SOUNDS.choir,
+  function instrumentWave(ctx, id) {
+    return cached(ctx, id, () => {
+      const h = VOICE_SOUNDS[id].harmonics;
+      return ctx.createPeriodicWave(new Float32Array(h.length + 1), new Float32Array([0, ...h]));
+    });
+  }
+  // The spectra are already loudness-matched, so the browser must not normalize them again.
+  function sungWave(ctx, type, midi, level) {
+    const step = Math.round(level * 20) / 20;
+    return cached(ctx, `sung:${type}:${midi}:${step}`, () => {
+      const amps = timbre.harmonicSpectrum(type, midi, step);
+      return ctx.createPeriodicWave(new Float32Array(amps.length), amps, {
+        disableNormalization: true,
+      });
+    });
+  }
+  function noiseBuffer(ctx) {
+    return cached(ctx, "noise", () => {
+      const buffer = ctx.createBuffer(1, Math.round(ctx.sampleRate * 0.25), ctx.sampleRate),
+        data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      return buffer;
+    });
+  }
+  // Synthetic room: decaying stereo noise, darker towards the end (no impulse file needed).
+  function roomImpulse(ctx, seconds = 1.6) {
+    const length = Math.round(ctx.sampleRate * seconds),
+      buffer = ctx.createBuffer(2, length, ctx.sampleRate),
+      predelay = Math.round(ctx.sampleRate * 0.018);
+    for (let c = 0; c < 2; c++) {
+      const data = buffer.getChannelData(c);
+      let smooth = 0;
+      for (let i = predelay; i < length; i++) {
+        const t = (i - predelay) / ctx.sampleRate,
+          damping = Math.min(0.92, 0.25 + t * 0.9);
+        smooth = smooth * damping + (Math.random() * 2 - 1) * (1 - damping);
+        data[i] = smooth * Math.exp(-t / 0.28) * (1 + damping * 2);
+      }
+    }
+    return buffer;
+  }
+  // Relative loudness and brightness of a dynamic level; mf is 1.
+  function brightness(dyn) {
+    return (dyn?.level ?? REFERENCE) / REFERENCE;
+  }
+  // Envelope shared by all sounds: attack to the peak (or a soft crossfade within a slur), decay
+  // to the held level, release just before the next note (or overlapping it within a slur).
+  function envelope(gain, at, until, { attack, peak, hold, decay, release, legatoIn, legatoOut }) {
+    gain.setValueAtTime(0, at);
+    if (legatoIn) gain.linearRampToValueAtTime(hold, at + 0.04);
+    else {
+      gain.linearRampToValueAtTime(peak, at + attack);
+      gain.setTargetAtTime(hold, at + attack, decay);
+    }
+    const releaseAt = legatoOut ? until : Math.max(at + attack, until - 0.03),
+      fade = legatoOut ? 0.02 : release;
+    gain.setTargetAtTime(0.0001, releaseAt, fade);
+    return releaseAt + fade * 5 - until;
+  }
+  function vibrato(ctx, at, rate, cents, delay, targets) {
+    const lfo = ctx.createOscillator(),
+      depth = ctx.createGain();
+    // Slightly different rates keep simultaneous voices from pulsing in step.
+    lfo.frequency.value = rate * (0.97 + Math.random() * 0.06);
+    depth.gain.setValueAtTime(0, at);
+    depth.gain.setTargetAtTime(cents, at + delay, 0.2);
+    lfo.connect(depth);
+    for (const t of targets) depth.connect(t.detune);
+    lfo.start(at);
+    return [lfo, depth];
+  }
+  // Sung tone: three slightly detuned singers per voice with a vibrato that sets in late, a
+  // breath at the onset and the spectrum of the voice type at this pitch and dynamic level.
+  function sungTone(ctx, destination, note, type, at, until, dyn, options) {
+    const p = timbre.TYPES[type] || timbre.TYPES.alto,
+      profile = VOICE_SOUNDS.choir,
+      frequency = timbre.frequency(note.midi),
+      length = Math.max(0.03, until - at),
+      level = dynamicGain(dyn),
+      wave = sungWave(ctx, type, note.midi, dyn?.level ?? REFERENCE),
+      gain = ctx.createGain(),
+      filter = ctx.createBiquadFilter(),
+      sources = [],
+      graph = [filter, gain];
+    filter.type = "lowpass";
+    filter.Q.value = 0.5;
+    filter.frequency.value = 5500 + 3500 * Math.min(1.3, brightness(dyn));
+    for (const [detune, share] of [
+      [0, 0.5],
+      [p.spread, 0.36],
+      [-p.spread * 0.8, 0.36],
+    ]) {
+      const osc = ctx.createOscillator(),
+        part = ctx.createGain();
+      osc.setPeriodicWave(wave);
+      osc.frequency.value = frequency;
+      osc.detune.value = detune;
+      part.gain.value = share;
+      osc.connect(part);
+      part.connect(filter);
+      osc.start(at);
+      sources.push(osc);
+      graph.push(osc, part);
+    }
+    if (length > 0.3) {
+      const nodes = vibrato(ctx, at, p.vibrato.rate, p.vibrato.depth, 0.28, sources);
+      sources.push(nodes[0]);
+      graph.push(...nodes);
+    }
+    if (!options.legatoIn) {
+      const breath = ctx.createBufferSource(),
+        band = ctx.createBiquadFilter(),
+        air = ctx.createGain();
+      breath.buffer = noiseBuffer(ctx);
+      band.type = "bandpass";
+      band.frequency.value = 1700 * p.formants;
+      band.Q.value = 0.9;
+      air.gain.setValueAtTime(0, at);
+      air.gain.linearRampToValueAtTime(0.018 * level.peak, at + 0.012);
+      air.gain.setTargetAtTime(0, at + 0.02, 0.035);
+      breath.connect(band);
+      band.connect(air);
+      air.connect(destination);
+      breath.start(at);
+      breath.stop(at + 0.2);
+      sources.push(breath);
+      graph.push(breath, band, air);
+    }
+    filter.connect(gain);
+    gain.connect(destination);
+    const hold = profile.sustain * level.sustain;
+    const tail = envelope(gain.gain, at, until, {
+      attack: Math.min(p.attack, length * 0.3),
+      peak: profile.peak * level.peak,
+      hold,
+      decay: profile.decay,
+      release: p.release / 4,
+      ...options,
+    });
+    return { gain, sources, graph, hold, tail };
+  }
+  function instrumentTone(ctx, destination, note, id, at, until, dyn, options) {
+    const profile = VOICE_SOUNDS[id],
       osc = ctx.createOscillator(),
       gain = ctx.createGain(),
       filter = ctx.createBiquadFilter(),
       sources = [osc],
       graph = [osc, filter, gain];
-    const frequency = 440 * 2 ** ((note.midi - 69) / 12),
+    const frequency = timbre.frequency(note.midi),
       length = Math.max(0.03, until - at),
-      attack = Math.min(profile.attack, length * 0.3);
-    osc.setPeriodicWave(voiceWave(ctx, VOICE_SOUNDS[id] ? id : "choir"));
+      level = dynamicGain(dyn);
+    osc.setPeriodicWave(instrumentWave(ctx, id));
     osc.frequency.setValueAtTime(frequency, at);
     filter.type = "lowpass";
-    filter.Q.value = id === "sax" ? 0.85 : 0.5;
-    const cutoff = Math.min(14000, frequency * profile.cutoff);
+    filter.Q.value = profile.q ?? 0.5;
+    // Louder notes open the filter; the floor keeps low notes from sounding muffled.
+    const cutoff = Math.min(
+      14000,
+      Math.max(900, frequency * profile.cutoff) * (0.65 + 0.35 * brightness(dyn)),
+    );
     filter.frequency.setValueAtTime(cutoff, at);
-    if (id === "pluck")
+    if (profile.pluck)
       filter.frequency.setTargetAtTime(Math.max(frequency * 1.3, 350), at + 0.012, 0.22);
-    const level = dynamicGain(dyn);
-    gain.gain.setValueAtTime(0, at);
-    gain.gain.linearRampToValueAtTime(profile.peak * level.peak, at + attack);
-    gain.gain.setTargetAtTime(profile.sustain * level.sustain, at + attack, profile.decay);
-    gain.gain.setTargetAtTime(0.0001, Math.max(at + attack, until - 0.025), 0.012);
     osc.connect(filter);
     filter.connect(gain);
     gain.connect(destination);
     if (profile.vibrato) {
-      const lfo = ctx.createOscillator(),
-        depth = ctx.createGain();
-      lfo.frequency.value = profile.vibrato;
-      depth.gain.setValueAtTime(0, at);
-      depth.gain.setTargetAtTime(profile.depth, at + 0.1, 0.18);
-      lfo.connect(depth);
-      depth.connect(osc.detune);
-      lfo.start(at);
-      sources.push(lfo);
-      graph.push(lfo, depth);
-    }
-    if (id === "choir") {
-      osc.detune.value = 4;
-      const second = ctx.createOscillator();
-      second.setPeriodicWave(voiceWave(ctx, "choir"));
-      second.frequency.value = frequency;
-      second.detune.value = -4;
-      second.connect(filter);
-      second.start(at);
-      sources.push(second);
-      graph.push(second);
+      const nodes = vibrato(ctx, at, profile.vibrato, profile.depth, 0.1, [osc]);
+      sources.push(nodes[0]);
+      graph.push(...nodes);
     }
     osc.start(at);
-    return { osc, gain, sources, graph, profile, preset: id, until, at, note, dyn, level };
+    const hold = profile.sustain * level.sustain;
+    const tail = envelope(gain.gain, at, until, {
+      attack: Math.min(profile.attack, length * 0.3),
+      peak: profile.peak * level.peak,
+      hold,
+      decay: profile.decay,
+      release: 0.012,
+      ...options,
+    });
+    return { gain, sources, graph, hold, tail };
+  }
+  // options: { type: voice type for the choir sound, legatoIn, legatoOut }.
+  function createVoiceTone(ctx, destination, note, id, at, until, dyn = null, options = {}) {
+    const preset = VOICE_SOUNDS[id] ? id : "choir",
+      { type = "alto", ...shape } = options,
+      tone = VOICE_SOUNDS[preset].sung
+        ? sungTone(ctx, destination, note, type, at, until, dyn, shape)
+        : instrumentTone(ctx, destination, note, preset, at, until, dyn, shape);
+    return { ...tone, preset, until, at, note, dyn, level: dynamicGain(dyn) };
+  }
+  // Events sung legato into the next one: both lie in the same slur and follow without a rest.
+  // Returns { into, from }: ids that start without a new attack / that hand over to the next note.
+  function legatoNotes(compiled) {
+    const slurOf = new Map();
+    for (const slur of compiled.slurs || []) for (const n of slur.notes) slurOf.set(n.id, slur);
+    const into = new Set(),
+      from = new Set(),
+      last = {};
+    for (const e of compiled.events) {
+      const prev = last[e.voice],
+        slur = slurOf.get(e.noteIds?.[0] ?? e.id);
+      if (prev && slur && prev.end === e.start && slurOf.get(prev.noteIds?.at(-1)) === slur) {
+        into.add(e.id);
+        from.add(prev.id);
+      }
+      last[e.voice] = e;
+    }
+    return { into, from };
   }
   function performanceTimeline(compiled) {
     const holds = compiled.measures.flatMap((m) =>
@@ -178,6 +333,12 @@ Chorprobe.audio = (function () {
       this.frame = 0;
       this.timer = 0;
       this.sound = "choir";
+      this.room = true;
+      this.types = {};
+      this.pans = {};
+      this.panners = [];
+      this.previewGains = new Map();
+      this.legato = { into: new Set(), from: new Set() };
     }
     async ready() {
       if (!this.ctx) {
@@ -191,9 +352,16 @@ Chorprobe.audio = (function () {
         comp.ratio.value = 6;
         this.output.connect(comp);
         comp.connect(this.ctx.destination);
-        this.previewBus = this.ctx.createGain();
-        this.previewBus.gain.value = 1;
-        this.previewBus.connect(this.output);
+        // All voices meet on the stage: dry to the output and through a small room.
+        this.stage = this.ctx.createGain();
+        this.stage.connect(this.output);
+        this.wet = this.ctx.createGain();
+        this.wet.gain.value = this.room ? ROOM_LEVEL : 0;
+        const convolver = this.ctx.createConvolver();
+        convolver.buffer = roomImpulse(this.ctx);
+        this.stage.connect(this.wet);
+        this.wet.connect(convolver);
+        convolver.connect(this.output);
       }
       await this.ctx.resume();
       if (this.ctx.state !== "running")
@@ -203,6 +371,26 @@ Chorprobe.audio = (function () {
       this.stop();
       this.compiled = c;
       this.timeline = performanceTimeline(c);
+      this.types = timbre.voiceTypes(c);
+      this.pans = timbre.voicePans(c.score.voices, this.types);
+      this.legato = legatoNotes(c);
+      this.placeVoices();
+    }
+    // Room on: voices placed like a choir in front of you, with reverb. Off: dry and centred.
+    setRoom(on) {
+      this.room = !!on;
+      if (!this.ctx) return;
+      this.wet.gain.setTargetAtTime(this.room ? ROOM_LEVEL : 0, this.ctx.currentTime, 0.05);
+      this.placeVoices();
+    }
+    placeVoices() {
+      if (!this.ctx) return;
+      for (const { panner, voice } of this.panners)
+        panner.pan.setTargetAtTime(
+          this.room ? (this.pans[voice] ?? 0) : 0,
+          this.ctx.currentTime,
+          0.05,
+        );
     }
     setMix(mix) {
       this.mix = mix;
@@ -239,14 +427,22 @@ Chorprobe.audio = (function () {
       this.master = value;
       if (this.output) this.output.gain.setTargetAtTime(value, this.ctx.currentTime, 0.025);
     }
-    channel(id) {
-      if (!this.gains.has(id)) {
+    // Voice channel with its mix gain; sound samples use a separate channel that is always open.
+    channel(id, preview = false) {
+      const channels = preview ? this.previewGains : this.gains;
+      if (!channels.has(id)) {
         const g = this.ctx.createGain();
-        g.gain.value = this.mix[id] ?? 0;
-        g.connect(this.output);
-        this.gains.set(id, g);
+        g.gain.value = preview ? 1 : (this.mix[id] ?? 0);
+        if (this.ctx.createStereoPanner) {
+          const panner = this.ctx.createStereoPanner();
+          panner.pan.value = this.room ? (this.pans[id] ?? 0) : 0;
+          g.connect(panner);
+          panner.connect(this.stage);
+          this.panners.push({ panner, voice: id });
+        } else g.connect(this.stage);
+        channels.set(id, g);
       }
-      return this.gains.get(id);
+      return channels.get(id);
     }
     soundFor() {
       return Object.hasOwn(VOICE_SOUNDS, this.sound) ? this.sound : "choir";
@@ -261,7 +457,7 @@ Chorprobe.audio = (function () {
           until = n.until,
           note = n.note;
         this.kill(key, 0.025);
-        if (until > at) this.tone(note, at, until, key, n.dyn);
+        if (until > at) this.tone(note, at, until, key, n.dyn, n.shape);
       }
     }
     kill(key, fade = 0) {
@@ -269,11 +465,11 @@ Chorprobe.audio = (function () {
       if (!n) return;
       this.nodes.delete(key);
       const cleanup = () => {
-        for (const source of n.sources || [n.osc])
+        for (const source of n.sources)
           try {
             source.stop();
           } catch {}
-        for (const node of n.graph || [n.osc, n.gain])
+        for (const node of n.graph)
           try {
             node.disconnect();
           } catch {}
@@ -285,12 +481,13 @@ Chorprobe.audio = (function () {
         setTimeout(cleanup, fade * 1000 + 10);
       } else cleanup();
     }
-    tone(note, at, until, key = note.id, dyn = null) {
+    // shape: { legatoIn, legatoOut } for notes inside a slur.
+    tone(note, at, until, key = note.id, dyn = null, shape = {}) {
       const now = this.ctx.currentTime;
       let n = this.nodes.get(key);
       if (n && n.at <= now && n.until > now - 0.035 && n.preset === this.soundFor(note.voice)) {
         n.gain.gain.cancelScheduledValues(now);
-        n.gain.gain.setTargetAtTime(n.profile.sustain * n.level.sustain, now, 0.015);
+        n.gain.gain.setTargetAtTime(n.hold, now, 0.015);
         n.until = until;
         n.gain.gain.setTargetAtTime(0.0001, Math.max(now, until - 0.025), 0.012);
         return;
@@ -298,26 +495,38 @@ Chorprobe.audio = (function () {
       if (n) this.kill(key);
       n = createVoiceTone(
         this.ctx,
-        key.startsWith("preview:") ? this.previewBus : this.channel(note.voice),
+        this.channel(note.voice, key.startsWith("preview:")),
         note,
         this.soundFor(note.voice),
         at,
         until,
         dyn,
+        { type: this.types[note.voice], ...shape },
       );
+      n.shape = shape;
       this.nodes.set(key, n);
     }
-    async preview(note) {
+    // Sound sample: the notes enter one after another, from the lowest, and sound together.
+    async preview(notes) {
       const token = (this.previewToken ?? 0) + 1;
       this.previewToken = token;
       await this.ready();
       if (token !== this.previewToken) return;
       for (const key of [...this.nodes.keys()])
         if (key.startsWith("preview:")) this.kill(key, 0.02);
-      const key = `preview:${token}`,
-        now = this.ctx.currentTime;
-      this.tone(note, now + 0.015, now + 1.05, key);
-      setTimeout(() => this.kill(key), 1150);
+      const now = this.ctx.currentTime,
+        sorted = [...notes].sort((a, b) => a.midi - b.midi),
+        end = now + 0.015 + sorted.length * 0.3 + 1.1;
+      sorted.forEach((note, i) =>
+        this.tone(note, now + 0.015 + i * 0.3, end, `preview:${token}:${i}`),
+      );
+      setTimeout(
+        () => {
+          for (const key of [...this.nodes.keys()])
+            if (key.startsWith(`preview:${token}:`)) this.kill(key);
+        },
+        (end - now + 0.3) * 1000,
+      );
     }
     position() {
       if (!this.running) return this.cursor ?? 0;
@@ -392,10 +601,13 @@ Chorprobe.audio = (function () {
           if (at > time + 0.13) continue;
           const until = this.startTime + this.secondsAtScore(Math.min(n.end, end));
           if (until > time)
-            this.tone(n, Math.max(time + 0.001, at), until, n.id, levels?.get(n.id));
+            this.tone(n, Math.max(time + 0.001, at), until, n.id, levels?.get(n.id), {
+              legatoIn: n.start > start && this.legato.into.has(n.id),
+              legatoOut: n.end < end && this.legato.from.has(n.id),
+            });
           this.queued.add(n.id);
         }
-        for (const [key, n] of this.nodes) if (time > n.until + 0.07) this.kill(key);
+        for (const [key, n] of this.nodes) if (time > n.until + n.tail + 0.02) this.kill(key);
       };
       const frame = () => {
         if (!this.running) return;
@@ -407,7 +619,7 @@ Chorprobe.audio = (function () {
           this.onEnd(end);
           setTimeout(() => {
             for (const [key, n] of this.nodes)
-              if (this.ctx.currentTime > n.until + 0.06) this.kill(key);
+              if (this.ctx.currentTime > n.until + n.tail + 0.02) this.kill(key);
           }, 100);
           return;
         }
@@ -454,5 +666,13 @@ Chorprobe.audio = (function () {
     }
   }
 
-  return { ChoirAudio, performanceTimeline, VOICE_SOUNDS, createVoiceTone, dynamicGain };
+  return {
+    ChoirAudio,
+    performanceTimeline,
+    legatoNotes,
+    VOICE_SOUNDS,
+    createVoiceTone,
+    dynamicGain,
+    roomImpulse,
+  };
 })();

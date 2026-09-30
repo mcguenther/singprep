@@ -147,6 +147,16 @@
           "minimum": -2,
           "maximum": 2
         },
+        "voiceType": {
+          "enum": [
+            "soprano",
+            "mezzo",
+            "alto",
+            "tenor",
+            "baritone",
+            "bass"
+          ]
+        },
         "comment": {
           "type": "string",
           "maxLength": 5000

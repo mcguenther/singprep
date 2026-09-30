@@ -226,6 +226,13 @@ function renderScore() {
     revealCue(cueActive || cueItems[0], true);
   }
 }
+// Erster Einsatz jeder Stimme; bei homophonen Liedern ist das der Anfangsakkord.
+function openingChord() {
+  return score.voices
+    .map((v) => compiled.events.find((n) => n.voice === v.id))
+    .filter(Boolean)
+    .map((n) => ({ ...n, start: 0, end: score.ppq }));
+}
 function renderSoundControls() {
   const select = $("scoreSound");
   select.replaceChildren();
@@ -235,23 +242,42 @@ function renderSoundControls() {
     select.append(option);
   }
   select.value = audio.soundFor();
+  const summary = () => {
+    const sung = VOICE_SOUNDS[select.value].sung;
+    $("soundSummary").textContent =
+      `${VOICE_SOUNDS[select.value].name.split(" · ")[0]} · ${sung ? "Stimmfarben je Lage" : "alle Stimmen"}`;
+    $("voiceTypes").hidden = !sung;
+  };
   select.onchange = () => {
     audio.setSound(select.value);
     try {
       localStorage.setItem("chorprobe.sound.v1", select.value);
     } catch {}
-    $("soundSummary").textContent =
-      `${VOICE_SOUNDS[select.value].name.split(" · ")[0]} · alle Stimmen`;
+    summary();
   };
-  $("soundSummary").textContent =
-    `${VOICE_SOUNDS[select.value].name.split(" · ")[0]} · alle Stimmen`;
+  summary();
+  $("voiceTypes").textContent =
+    "Erkannt: " +
+    score.voices
+      .map((v) => `${v.short || v.name} ${VOICE_TYPES[audio.types[v.id]]?.name ?? "–"}`)
+      .join(" · ");
+  $("playRoom").checked = audio.room;
   $("previewSound").onclick = async () => {
     try {
-      await audio.preview({ voice: score.voices[0].id, midi: 60, start: 0, end: score.ppq });
+      await audio.preview(openingChord());
       $("soundStatus").textContent = `Klangprobe: ${VOICE_SOUNDS[audio.soundFor()].name}`;
     } catch (e) {
       toast(e.message);
     }
+  };
+}
+// Schalter „Raumklang“ (gespeichert); Klangwahl und Klangprobe hängen am Lied (renderSoundControls).
+function bindSoundControls() {
+  $("playRoom").onchange = () => {
+    audio.setRoom($("playRoom").checked);
+    try {
+      localStorage.setItem("chorprobe.room.v1", String(audio.room));
+    } catch {}
   };
 }
 function renderChrome() {

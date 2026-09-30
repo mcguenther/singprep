@@ -4,6 +4,7 @@
 try {
   const saved = localStorage.getItem("chorprobe.sound.v1");
   if (Object.hasOwn(VOICE_SOUNDS, saved)) audio.sound = saved;
+  audio.room = localStorage.getItem("chorprobe.room.v1") !== "false";
 } catch {}
 bindRangeControls();
 bindTransport();
@@ -13,6 +14,7 @@ bindSongControls();
 bindMixControls();
 bindLayoutControls();
 bindVerseControls();
+bindSoundControls();
 bindKeyboard();
 window.addEventListener("resize", () => {
   clearTimeout(resizeTimer);

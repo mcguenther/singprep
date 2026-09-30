@@ -56,7 +56,11 @@ als `.js`-Dateien statt `.json`. Das bitte nicht „modernisieren“, ohne dass 
   Seitenbilder sind data:-URIs oder relative Pfade (`scores/lied.webp`); der Build bettet Pfade ein.
 - `render.js` + `glyphs.js`: SVG-Notensatz. Glyphen sind Bravura-Umrisse (SIL OFL,
   `assets/Bravura-LICENSE.txt`).
-- `audio.js`: WebAudio-Synthese, Zeitachse mit Fermaten.
+- `timbre.js`: Stimmlagen (`voiceTypes`: Feld `voiceType`, Name, sonst Tonhöhe), Obertonspektren
+  des Chorklangs je Lage und Dynamik (`harmonicSpectrum`), Stereoaufstellung. Vor `score.js` geladen.
+- `audio.js`: WebAudio-Synthese, Zeitachse mit Fermaten, Legato unter Bögen (`legatoNotes`), Raumhall
+  aus einer erzeugten Impulsantwort. Klangänderungen offline prüfen: `OfflineAudioContext` in
+  Chromium rendern und Pegel mit der vorigen Version vergleichen.
 - `practice.js`: kleine Helfer für Layout und Wiedergabe.
 
 Jedes Modul hat die Form `Chorprobe.<name> = (function () { … return {…}; })();` und hängt nur von
