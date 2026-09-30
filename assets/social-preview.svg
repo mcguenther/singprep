@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" font-family="'Liberation Sans', 'DejaVu Sans', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171e30"/>
+      <stop offset="1" stop-color="#232b4a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+
+  <g transform="translate(0 28)">
+  <g stroke-linecap="round">
+    <g stroke="#8c85ff" stroke-width="3" opacity=".35">
+      <path d="M80 452H1200M80 484H1200M80 516H1200"/>
+    </g>
+    <g fill="none" stroke-width="6" opacity=".9">
+      <path d="M80 452H520" stroke="#8c85ff"/>
+      <path d="M80 484H660" stroke="#5fd0c0"/>
+      <path d="M80 516H420" stroke="#ffb86b"/>
+    </g>
+  </g>
+  <g fill="#8c85ff">
+    <ellipse cx="620" cy="452" rx="15" ry="11" transform="rotate(-20 620 452)"/>
+    <ellipse cx="780" cy="484" rx="15" ry="11" transform="rotate(-20 780 484)"/>
+    <ellipse cx="940" cy="452" rx="15" ry="11" transform="rotate(-20 940 452)"/>
+    <ellipse cx="1100" cy="484" rx="15" ry="11" transform="rotate(-20 1100 484)"/>
+  </g>
+  <g stroke="#8c85ff" stroke-width="4">
+    <path d="M633 448V392M793 480V424M953 448V392M1113 480V424"/>
+  </g>
+
+  </g>
+
+  <!-- Titel -->
+  <text x="80" y="230" font-size="128" font-weight="700" fill="#ffffff" letter-spacing="2">Chorprobe</text>
+  <text x="84" y="306" font-size="42" fill="#c9ccf5">Chorstimmen üben im Browser</text>
+  <text x="84" y="362" font-size="30" fill="#8d95b3">Stimmen mischen · Einsatztöne · Tempo tippen · Übebereiche schleifen</text>
+
+  <!-- Marke -->
+  <g transform="translate(1080 80)">
+    <rect width="120" height="120" rx="30" fill="#8c85ff"/>
+    <g transform="scale(3.75)" fill="none" stroke="#171e30" stroke-width="3">
+      <path d="M11 22V10l13-3v12M11 13l13-3"/>
+    </g>
+    <g transform="scale(3.75)" fill="#171e30">
+      <ellipse cx="8" cy="23" rx="4" ry="3"/>
+      <ellipse cx="21" cy="20" rx="4" ry="3"/>
+    </g>
+  </g>
+
+  <text x="80" y="606" font-size="26" fill="#8d95b3">Offline · ohne Server · ohne Installation</text>
+</svg>
