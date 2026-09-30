@@ -83,6 +83,15 @@ describe("Spektrum je Lage", () => {
   });
 });
 
+describe("Klarer Sopran", () => {
+  test("leise, eng gestimmte Begleitsänger und wenig Vibrato", () => {
+    const { soprano, alto } = timbre.TYPES;
+    assert.ok(soprano.ensemble < alto.ensemble / 4);
+    assert.ok(soprano.spread < alto.spread / 2);
+    assert.ok(soprano.vibrato.depth < alto.vibrato.depth);
+  });
+});
+
 describe("Aufstellung", () => {
   test("Sopran und Tenor links, Alt und Bass rechts; gleiche Lagen nebeneinander", () => {
     const voices = ["s1", "s2", "a", "t", "b"].map((id) => ({ id }));

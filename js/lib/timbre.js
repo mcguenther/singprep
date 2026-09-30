@@ -3,7 +3,9 @@
 // berechnen (Formanten, Sängerformant, Dynamik als Helligkeit, Lautheitsausgleich über die Lagen).
 Chorprobe.timbre = (function () {
   // Formants of a neutral, rounded choir vowel (between „o“ and „a“) for a tenor; other types scale
-  // them. singer: the "singer's formant" cluster that gives low male voices their ring.
+  // them. singer: the "singer's formant" cluster that gives low male voices their ring. spread
+  // (cents) and ensemble (level) describe the two companion singers; sopranos stay close together
+  // with little vibrato so that they sound clear.
   const VOWEL = [
     [480, 90, 1],
     [860, 100, 0.8],
@@ -15,10 +17,11 @@ Chorprobe.timbre = (function () {
       name: "Sopran",
       center: 72,
       formants: 1.17,
-      tilt: 9.5,
-      singer: { at: 3100, gain: 0.6 },
-      vibrato: { rate: 5.6, depth: 11 },
-      spread: 3,
+      tilt: 10.5,
+      singer: { at: 3100, gain: 0.3 },
+      vibrato: { rate: 5.6, depth: 5 },
+      spread: 1.2,
+      ensemble: 0.06,
       attack: 0.05,
       release: 0.09,
       pan: -0.35,
@@ -29,8 +32,9 @@ Chorprobe.timbre = (function () {
       formants: 1.12,
       tilt: 9,
       singer: { at: 3000, gain: 0.8 },
-      vibrato: { rate: 5.4, depth: 10 },
-      spread: 3.5,
+      vibrato: { rate: 5.4, depth: 7 },
+      spread: 2,
+      ensemble: 0.14,
       attack: 0.055,
       release: 0.1,
       pan: -0.15,
@@ -43,6 +47,7 @@ Chorprobe.timbre = (function () {
       singer: { at: 2900, gain: 1 },
       vibrato: { rate: 5.3, depth: 9 },
       spread: 4,
+      ensemble: 0.36,
       attack: 0.06,
       release: 0.11,
       pan: 0.3,
@@ -55,6 +60,7 @@ Chorprobe.timbre = (function () {
       singer: { at: 2850, gain: 3 },
       vibrato: { rate: 5.4, depth: 9 },
       spread: 4,
+      ensemble: 0.36,
       attack: 0.06,
       release: 0.12,
       pan: -0.15,
@@ -67,6 +73,7 @@ Chorprobe.timbre = (function () {
       singer: { at: 2650, gain: 3.5 },
       vibrato: { rate: 5.1, depth: 8 },
       spread: 4.5,
+      ensemble: 0.36,
       attack: 0.07,
       release: 0.14,
       pan: 0.1,
@@ -79,6 +86,7 @@ Chorprobe.timbre = (function () {
       singer: { at: 2450, gain: 4 },
       vibrato: { rate: 4.9, depth: 7 },
       spread: 5,
+      ensemble: 0.36,
       attack: 0.08,
       release: 0.16,
       pan: 0.25,

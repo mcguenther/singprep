@@ -9,7 +9,8 @@ Chorprobe.audio = (function () {
       : { sustain: 1, peak: 1 };
   }
   const timbre = Chorprobe.timbre;
-  const ROOM_LEVEL = 0.2;
+  const ROOM_LEVEL = 0.2,
+    ENSEMBLE = Math.hypot(0.5, 0.36, 0.36);
   // choir: a sung tone per voice type (see timbre.js); attack and release come from the type.
   // The instruments share one waveform for all voices; cutoff is a multiple of the frequency.
   const VOICE_SOUNDS = {
@@ -93,14 +94,6 @@ Chorprobe.audio = (function () {
       });
     });
   }
-  function noiseBuffer(ctx) {
-    return cached(ctx, "noise", () => {
-      const buffer = ctx.createBuffer(1, Math.round(ctx.sampleRate * 0.25), ctx.sampleRate),
-        data = buffer.getChannelData(0);
-      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-      return buffer;
-    });
-  }
   // Synthetic room: decaying stereo noise, darker towards the end (no impulse file needed).
   function roomImpulse(ctx, seconds = 1.6) {
     const length = Math.round(ctx.sampleRate * seconds),
@@ -148,8 +141,9 @@ Chorprobe.audio = (function () {
     lfo.start(at);
     return [lfo, depth];
   }
-  // Sung tone: three slightly detuned singers per voice with a vibrato that sets in late, a
-  // breath at the onset and the spectrum of the voice type at this pitch and dynamic level.
+  // Sung tone: three slightly detuned singers per voice with a vibrato that sets in late and the
+  // spectrum of the voice type at this pitch and dynamic level. No breath noise at the onset: in
+  // quick succession it sounded like a snare drum.
   function sungTone(ctx, destination, note, type, at, until, dyn, options) {
     const p = timbre.TYPES[type] || timbre.TYPES.alto,
       profile = VOICE_SOUNDS.choir,
@@ -164,10 +158,13 @@ Chorprobe.audio = (function () {
     filter.type = "lowpass";
     filter.Q.value = 0.5;
     filter.frequency.value = 5500 + 3500 * Math.min(1.3, brightness(dyn));
+    // Fewer, closer companions sound cleaner; the level stays the same.
+    const shares = [0.5, p.ensemble, p.ensemble],
+      norm = ENSEMBLE / Math.hypot(...shares);
     for (const [detune, share] of [
-      [0, 0.5],
-      [p.spread, 0.36],
-      [-p.spread * 0.8, 0.36],
+      [0, shares[0] * norm],
+      [p.spread, shares[1] * norm],
+      [-p.spread * 0.8, shares[2] * norm],
     ]) {
       const osc = ctx.createOscillator(),
         part = ctx.createGain();
@@ -185,25 +182,6 @@ Chorprobe.audio = (function () {
       const nodes = vibrato(ctx, at, p.vibrato.rate, p.vibrato.depth, 0.28, sources);
       sources.push(nodes[0]);
       graph.push(...nodes);
-    }
-    if (!options.legatoIn) {
-      const breath = ctx.createBufferSource(),
-        band = ctx.createBiquadFilter(),
-        air = ctx.createGain();
-      breath.buffer = noiseBuffer(ctx);
-      band.type = "bandpass";
-      band.frequency.value = 1700 * p.formants;
-      band.Q.value = 0.9;
-      air.gain.setValueAtTime(0, at);
-      air.gain.linearRampToValueAtTime(0.018 * level.peak, at + 0.012);
-      air.gain.setTargetAtTime(0, at + 0.02, 0.035);
-      breath.connect(band);
-      band.connect(air);
-      air.connect(destination);
-      breath.start(at);
-      breath.stop(at + 0.2);
-      sources.push(breath);
-      graph.push(breath, band, air);
     }
     filter.connect(gain);
     gain.connect(destination);
