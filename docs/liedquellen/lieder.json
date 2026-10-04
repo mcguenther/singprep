@@ -8,6 +8,14 @@
     "statusText": "Satz gemeinfrei. Kodierung CC BY 4.0: mit Namensnennung frei nutzbar."
   },
   {
+    "file": "aennchen-von-tharau-silcher.json",
+    "kategorie": "Volkslied",
+    "besetzung": "TTBB, 4 Strophen",
+    "quelle": "Friedrich Silcher, „Volkslieder für vier Männerstimmen“, Laupp 1902, Nr. 7 · <a href=\"https://archive.org/details/SilcherVLMstNA1902\">Scan bei archive.org</a> · per KI aus dem Scan übertragen",
+    "status": "gruen",
+    "statusText": "Gemeinfrei, eigene Übertragung. Melodie in allen 60 Noten gegen Tauberts Satz geprüft."
+  },
+  {
     "file": "aennchen-von-tharau.json",
     "kategorie": "Volkslied",
     "besetzung": "SATB, 4 Strophen",

@@ -530,8 +530,8 @@
           Freie Chorsätze ab drei Stimmen gibt es reichlich, maschinenlesbar ist davon nur ein Teil.
           Am schnellsten lässt sich die CPDL umwandeln. Die besten Volksliedsätze stehen in den
           Volksliederbüchern von 1906 und 1915 und in Erks Schulchorbüchern, meist nur als Scan.
-          Project Gutenberg hilft bei Noten kaum. Elf Lieder aus diesen Quellen sind unten schon im
-          Chorprobe-Format zum Anhören.
+          Project Gutenberg hilft bei Noten kaum. Zwölf Lieder aus diesen Quellen sind unten schon
+          im Chorprobe-Format zum Anhören.
         </p>
         <nav class="toc" aria-label="Inhalt">
           <a href="#kurz">Kurz gesagt</a>
@@ -1056,13 +1056,15 @@
           <p class="kicker">Schon im Chorprobe-Format</p>
           <h2>Hörproben</h2>
           <p class="prose">
-            Elf Lieder aus drei Quellenarten, automatisch umgewandelt und mit der Validierung der
-            App geprüft: sieben Volksliedsätze von Mutopia (LilyPond), drei gemeinfreie Ausgaben der
-            CPDL (MusicXML) und ein Kanon. „Anhören &amp; üben“ öffnet die echte Chorprobe-App mit
-            dem gewohnten Chorklang, mit Stimmenmischung, Einsatztönen und Tippmodus. Die Grafik
+            Zwölf Lieder aus vier Quellenarten, umgewandelt und mit der Validierung der App geprüft:
+            sieben Volksliedsätze von Mutopia (LilyPond), drei gemeinfreie Ausgaben der CPDL
+            (MusicXML), ein Kanon und Silchers eigener Männerchorsatz von „Ännchen von Tharau“, per
+            KI aus dem Scan von 1902 übertragen. „Anhören &amp; üben“ öffnet die echte Chorprobe-App
+            mit dem gewohnten Chorklang, mit Stimmenmischung, Einsatztönen und Tippmodus. Die Grafik
             zeigt alle Stimmen über die Zeit. Zur Gegenprobe: Regers „In einem kühlen Grunde“ von
             Mutopia stimmt in allen Tönen, Dauern und Haltebögen mit der handgeprüften Fassung in
-            der App überein, und die Mutopia-Lieder decken sich mit der MIDI-Ausgabe von LilyPond.
+            der App überein, die Mutopia-Lieder decken sich mit der MIDI-Ausgabe von LilyPond, und
+            die Silcher-Melodie stimmt in allen 60 Noten mit Tauberts Satz überein.
           </p>
         </header>
         <div class="songs"><!--HOERPROBEN--></div>
@@ -1231,11 +1233,12 @@
             Bearbeitung in <code>source</code> eintragen.
           </li>
           <li>
-            <strong>Scans (Bewertung B).</strong> Saubere Drucke ab etwa 1850 mit Audiveris (Open
-            Source, MusicXML-Export) erkennen und dann wie Schritt 1 weiter. Für dichte
-            Liederbuchseiten mit Fraktur ist der bewährte Weg oft schneller: Notenfoto und
-            <code>docs/datenformat.md</code> an eine KI geben und das Ergebnis gegen das Foto
-            prüfen.
+            <strong>Scans (Bewertung B).</strong> Seitenbild laden, Systeme zuschneiden und mit
+            <code>tools/liedquellen/notenlinien.py</code> die Notenlinien mit Tonnamen beschriften.
+            Dann liest die KI Takt für Takt alle Stimmen, unklare Stellen vergrößert. Prüfen über
+            Taktlängen, Harmonien je Zählzeit und die Melodie einer zweiten Quelle. Ergebnis als
+            nachvollziehbare Abschrift in <code>tools/liedquellen/abschriften/</code>, so entstand
+            Silchers „Ännchen von Tharau“.
           </li>
           <li>
             <strong>Kanons.</strong> Eine gemeinfreie Melodie genügt. Die Einsätze werden
@@ -1254,7 +1257,8 @@
         <p>
           Diese Seite entsteht mit <code>node tools/liedquellen/build.mjs</code> aus
           <code>docs/liedquellen/lieder.json</code> und den Lieddateien in
-          <code>docs/liedquellen/lieder/</code>. Die eingebettete App ist ein Standalone-Build von
+          <code>docs/liedquellen/lieder/</code>. Plan und Importstand stehen in
+          <code>docs/liedquellen/TODO.md</code>. Die eingebettete App ist ein Standalone-Build von
           Chorprobe ohne private Lieder.
         </p>
         <p>
