@@ -22,7 +22,7 @@ import unicodedata
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -232,11 +232,79 @@ def umwandeln(aufgabe):
         data = convert(pfad, meta)
         if len(data["voices"]) < 2:
             return a["nr"], {"status": "fehler", "grund": "weniger als zwei Stimmen"}
-        with open(ziel, "w", encoding="utf-8") as f:
+        with open(ziel + ".tmp", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+        os.replace(ziel + ".tmp", ziel)
         return a["nr"], {"status": "umgewandelt"}
     except Exception as e:  # noqa: BLE001 – jeder Fehler landet im Katalog
         return a["nr"], {"status": "fehler", "grund": f"{type(e).__name__}: {str(e)[:200]}"}
+
+
+def worker(aufgaben_datei):
+    """Eigener Prozess für einen Stapel: Speicher- und Zeitgrenze je Datei, ein Ergebnis je Zeile."""
+    import resource
+    import signal
+
+    resource.setrlimit(resource.RLIMIT_AS, (3 * 2**30, 3 * 2**30))
+
+    def zu_lang(*_):
+        raise TimeoutError("Umwandlung dauert länger als 180 s")
+
+    signal.signal(signal.SIGALRM, zu_lang)
+    for t in json.load(open(aufgaben_datei, encoding="utf-8")):
+        signal.alarm(180)
+        try:
+            nr, res = umwandeln(tuple(t))
+        except (MemoryError, TimeoutError) as e:
+            nr, res = t[0]["nr"], {"status": "fehler", "grund": f"{type(e).__name__}: {e}"[:200]}
+        signal.alarm(0)
+        print(json.dumps({"nr": nr, "res": res}, ensure_ascii=False), flush=True)
+
+
+def stapel_umwandeln(aufgaben, ergebnis):
+    """Stapel zu je 20 in getrennten Prozessen; stürzt einer ab, die Reste einzeln wiederholen."""
+    import tempfile
+
+    def lauf(teil):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
+            json.dump(teil, f, ensure_ascii=False)
+        try:
+            p = subprocess.run(
+                [sys.executable, os.path.abspath(__file__), "--worker", f.name],
+                capture_output=True, text=True, timeout=180 * len(teil) + 60,
+            )
+            out = p.stdout
+        except subprocess.TimeoutExpired as e:
+            out = e.stdout.decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
+        finally:
+            os.remove(f.name)
+        fertig = {}
+        for zeile in out.splitlines():
+            try:
+                r = json.loads(zeile)
+                fertig[r["nr"]] = r["res"]
+            except ValueError:
+                pass
+        return fertig
+
+    def stapel(teil):
+        fertig = lauf(teil)
+        rest = [t for t in teil if t[0]["nr"] not in fertig]
+        if len(teil) > 1:
+            for t in rest:
+                fertig.update(lauf([t]) or {t[0]["nr"]: {"status": "fehler", "grund": "Absturz beim Umwandeln (Speicher?)"}})
+        else:
+            for t in rest:
+                fertig[t[0]["nr"]] = {"status": "fehler", "grund": "Absturz beim Umwandeln (Speicher?)"}
+        return fertig
+
+    teile = [aufgaben[i : i + 20] for i in range(0, len(aufgaben), 20)]
+    erledigt = 0
+    with ThreadPoolExecutor(max(1, (os.cpu_count() or 2))) as pool:
+        for fertig in pool.map(stapel, teile):
+            ergebnis.update(fertig)
+            erledigt += len(fertig)
+            print(f"  umgewandelt {erledigt}/{len(aufgaben)}", flush=True)
 
 
 def main():
@@ -269,6 +337,7 @@ def main():
             if a["stimmenzahl"] is not None and a["stimmenzahl"] < 2:
                 continue
             auswahl.append(a)
+    del seiten
     auswahl.sort(key=lambda a: a["nr"])
     if args.grenze:
         auswahl = auswahl[: args.grenze]
@@ -297,17 +366,13 @@ def main():
         ziel = os.path.join(ROOT, "bibliothek", a["datei"])
         if not pfad:
             ergebnis[a["nr"]] = {"status": "fehler", "grund": "Datei nicht ladbar"}
+        elif os.path.getsize(pfad) > 1_500_000:
+            ergebnis[a["nr"]] = {"status": "fehler", "grund": "MusicXML-Datei größer als 1,5 MB (übersprungen)"}
         elif os.path.exists(ziel) and not args.neu:
             ergebnis[a["nr"]] = {"status": "umgewandelt"}
         else:
             aufgaben.append((a, pfad, ziel, heute))
-    with ProcessPoolExecutor(max(1, (os.cpu_count() or 2))) as pool:
-        futures = [pool.submit(umwandeln, t) for t in aufgaben]
-        for k, f in enumerate(as_completed(futures), 1):
-            nr, res = f.result()
-            ergebnis[nr] = res
-            if k % 100 == 0:
-                print(f"  umgewandelt {k}/{len(aufgaben)}", flush=True)
+    stapel_umwandeln(aufgaben, ergebnis)
 
     # Prüfen mit der App-Validierung
     pfade = [os.path.join(ROOT, "bibliothek", a["datei"]) for a, _ in geladen if ergebnis[a["nr"]]["status"] == "umgewandelt"]
@@ -369,4 +434,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if sys.argv[1:2] == ["--worker"]:
+        worker(sys.argv[2])
+    else:
+        main()
