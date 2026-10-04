@@ -1,0 +1,767 @@
+<!doctype html>
+<!-- Vorlage für docs/liedquellen/index.html. Erzeugen mit: node tools/liedquellen/build.mjs -->
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>Chorprobe Liedquellen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;1,500&display=swap"
+    />
+    <style>
+      /* Layout: eine Lesespalte für Text, breitere Raster für Tabelle und Hörproben;
+         Farben aus der Chorprobe-App (Tinte, Violett, kühles Grau), Überschriften in einer Buchschrift. */
+      :root {
+        --ink: #202b42;
+        --muted: #5f6a7e;
+        --accent: #6256db;
+        --accent-ink: #4a40c4;
+        --line: #dfe3ec;
+        --bg: #f1f3f7;
+        --paper: #ffffff;
+        --tint: #ecebfb;
+        --good: #2f7a4a;
+        --good-bg: #e3f2e8;
+        --warn: #8a5a12;
+        --warn-bg: #f8eedb;
+        --bad: #a3343a;
+        --bad-bg: #f8e3e4;
+        --display: Alegreya, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+        --body:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --ink: #e4e7f0;
+          --muted: #a2abbd;
+          --accent: #9d97ff;
+          --accent-ink: #b8b3ff;
+          --line: #2f3850;
+          --bg: #141a2a;
+          --paper: #1c2336;
+          --tint: #262c4a;
+          --good: #8fd3a6;
+          --good-bg: #1f3a2a;
+          --warn: #e9c27c;
+          --warn-bg: #3d3018;
+          --bad: #f0a0a5;
+          --bad-bg: #432327;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme="dark"] {
+        --ink: #e4e7f0;
+        --muted: #a2abbd;
+        --accent: #9d97ff;
+        --accent-ink: #b8b3ff;
+        --line: #2f3850;
+        --bg: #141a2a;
+        --paper: #1c2336;
+        --tint: #262c4a;
+        --good: #8fd3a6;
+        --good-bg: #1f3a2a;
+        --warn: #e9c27c;
+        --warn-bg: #3d3018;
+        --bad: #f0a0a5;
+        --bad-bg: #432327;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 16px/1.6 var(--body);
+      }
+      .wrap {
+        max-width: 72rem;
+        margin: 0 auto;
+        padding-inline: 16px;
+        padding-block: 0 4rem;
+      }
+      a {
+        color: var(--accent-ink);
+        text-underline-offset: 2px;
+      }
+      a:focus-visible,
+      button:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--display);
+        font-weight: 700;
+        line-height: 1.15;
+        text-wrap: balance;
+        margin: 0;
+      }
+      h1 {
+        font-size: clamp(2.2rem, 5vw, 3.4rem);
+        letter-spacing: -0.01em;
+      }
+      h2 {
+        font-size: clamp(1.6rem, 3vw, 2.1rem);
+      }
+      h3 {
+        font-size: 1.3rem;
+      }
+      p {
+        margin: 0;
+      }
+      .prose {
+        max-width: 68ch;
+        display: grid;
+        gap: 0.9rem;
+      }
+      .eyebrow,
+      .kicker {
+        font-size: 0.75rem;
+        font-weight: 650;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      /* Kopf: Notenlinien als Hintergrund, fünf Linien wie im Notensystem. */
+      .masthead {
+        padding-block: 3.5rem 2.5rem;
+        display: grid;
+        gap: 1.1rem;
+        background-image: repeating-linear-gradient(
+          to bottom,
+          transparent 0 13px,
+          var(--line) 13px 14px
+        );
+        background-size: 100% 70px;
+        background-repeat: no-repeat;
+        background-position: 0 1.2rem;
+      }
+      .lead {
+        font-size: 1.15rem;
+        max-width: 62ch;
+      }
+      nav.toc {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      nav.toc a {
+        padding: 0.3rem 0.75rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--paper);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      section {
+        padding-block: 2.5rem 0.5rem;
+        display: grid;
+        gap: 1.2rem;
+      }
+      section > header {
+        display: grid;
+        gap: 0.4rem;
+      }
+      .verdict {
+        display: grid;
+        gap: 0.8rem;
+        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+      }
+      .verdict div {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 1rem 1.1rem;
+        display: grid;
+        gap: 0.35rem;
+        align-content: start;
+      }
+      .verdict strong {
+        font-family: var(--display);
+        font-size: 1.15rem;
+      }
+      /* Stichtage */
+      .dates {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+        gap: 0.8rem;
+      }
+      .dates div {
+        border-left: 3px solid var(--accent);
+        padding: 0.2rem 0 0.2rem 0.9rem;
+        display: grid;
+        gap: 0.15rem;
+      }
+      .dates b {
+        font-family: var(--display);
+        font-size: 1.5rem;
+        font-variant-numeric: tabular-nums;
+      }
+      ul.plain {
+        margin: 0;
+        padding-left: 1.2rem;
+        display: grid;
+        gap: 0.45rem;
+      }
+      /* Quellentabelle */
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--paper);
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 56rem;
+        font-size: 0.92rem;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 0.7rem 0.8rem;
+        border-bottom: 1px solid var(--line);
+      }
+      th {
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: var(--paper);
+        position: sticky;
+        top: 0;
+      }
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+      td.name strong {
+        display: block;
+        font-size: 1rem;
+      }
+      td.name small {
+        color: var(--muted);
+      }
+      .chip {
+        display: inline-block;
+        padding: 0.1rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 650;
+        white-space: nowrap;
+      }
+      .chip.a {
+        background: var(--good-bg);
+        color: var(--good);
+      }
+      .chip.b {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+      .chip.c {
+        background: var(--tint);
+        color: var(--accent-ink);
+      }
+      .chip.x {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem 1.2rem;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+      /* Hörproben */
+      .songs {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+        gap: 1rem;
+      }
+      .song {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 1.1rem 1.1rem 1rem;
+        display: grid;
+        gap: 0.75rem;
+        grid-template-rows: auto auto auto auto 1fr auto auto;
+        min-width: 0;
+      }
+      .song header {
+        display: grid;
+        gap: 0.2rem;
+      }
+      .song .by {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+      .roll {
+        width: 100%;
+        height: 72px;
+        display: block;
+        background: var(--bg);
+        border-radius: 6px;
+      }
+      .roll .bars line {
+        stroke: var(--line);
+        stroke-width: 1;
+      }
+      .facts {
+        margin: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+      }
+      .facts dt {
+        color: var(--muted);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .facts dd {
+        margin: 0;
+        font-variant-numeric: tabular-nums;
+      }
+      .voices {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem 0.9rem;
+        font-size: 0.88rem;
+      }
+      .voices .dot {
+        display: inline-block;
+        width: 0.65rem;
+        height: 0.65rem;
+        border-radius: 50%;
+        background: var(--c);
+        margin-right: 0.35rem;
+        vertical-align: -1px;
+      }
+      .voices .amb {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .song .src {
+        font-size: 0.84rem;
+        color: var(--muted);
+      }
+      .status {
+        font-size: 0.84rem;
+        padding: 0.45rem 0.6rem;
+        border-radius: 8px;
+      }
+      .status-gruen {
+        background: var(--good-bg);
+        color: var(--good);
+      }
+      .status-gelb {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+      button.play {
+        justify-self: start;
+        border: 0;
+        border-radius: 999px;
+        padding: 0.55rem 1.1rem;
+        background: var(--accent);
+        color: #fff;
+        font: 600 0.95rem var(--body);
+        cursor: pointer;
+      }
+      button.play::before {
+        content: "▶";
+        margin-right: 0.5rem;
+        font-size: 0.8em;
+      }
+      button.play:hover {
+        background: var(--accent-ink);
+      }
+      /* Kandidaten */
+      .cands {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+        gap: 0.6rem 1.5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .cands li {
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        gap: 0.15rem;
+        min-width: 0;
+      }
+      .cands b {
+        font-family: var(--display);
+        font-size: 1.08rem;
+      }
+      .cands small {
+        color: var(--muted);
+      }
+      ol.steps {
+        margin: 0;
+        padding-left: 1.3rem;
+        display: grid;
+        gap: 0.7rem;
+        max-width: 68ch;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.86em;
+        background: var(--tint);
+        padding: 0.05rem 0.3rem;
+        border-radius: 4px;
+      }
+      footer.end {
+        margin-top: 3rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.85rem;
+        display: grid;
+        gap: 0.4rem;
+        max-width: 68ch;
+      }
+      /* Spieler: die echte App im Dialog */
+      dialog.player {
+        width: min(100vw - 16px, 80rem);
+        height: min(100dvh - 16px, 60rem);
+        max-width: none;
+        max-height: none;
+        padding: 0;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--paper);
+        color: var(--ink);
+        overflow: hidden;
+      }
+      dialog.player::backdrop {
+        background: rgb(10 14 26 / 0.55);
+      }
+      .player-shell {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100%;
+      }
+      .player-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.55rem 0.6rem 0.55rem 1rem;
+        border-bottom: 1px solid var(--line);
+        min-width: 0;
+      }
+      .player-bar h2 {
+        font-size: 1.15rem;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .player-bar button {
+        border: 1px solid var(--line);
+        background: var(--bg);
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem;
+        font: 600 0.9rem var(--body);
+        cursor: pointer;
+      }
+      .player iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #f1f3f7;
+      }
+      @media (max-width: 40rem) {
+        dialog.player {
+          width: 100vw;
+          height: 100dvh;
+          border-radius: 0;
+        }
+        .facts {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .song {
+          transition: border-color 0.15s;
+        }
+        .song:hover {
+          border-color: var(--accent);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="masthead">
+        <p class="eyebrow">Recherche für Chorprobe · Stand Oktober 2026</p>
+        <h1>Woher neue Lieder kommen</h1>
+        <p class="lead">
+          <!--FAZIT-->
+        </p>
+        <nav class="toc" aria-label="Inhalt">
+          <a href="#kurz">Kurz gesagt</a>
+          <a href="#recht">Rechtsrahmen</a>
+          <a href="#quellen">Quellen im Vergleich</a>
+          <a href="#hoerproben">Hörproben</a>
+          <a href="#kandidaten">Nächste Lieder</a>
+          <a href="#weg">Importweg</a>
+        </nav>
+      </header>
+
+      <section id="kurz">
+        <header><h2>Kurz gesagt</h2></header>
+        <div class="verdict">
+          <!--KURZ-->
+        </div>
+      </section>
+
+      <section id="recht">
+        <header>
+          <p class="kicker">Was ein Lied frei macht</p>
+          <h2>Rechtsrahmen</h2>
+        </header>
+        <div class="dates">
+          <div>
+            <span class="kicker">Heute frei</span><b>† bis 1955</b
+            ><span
+              >Alle Beteiligten 1955 oder früher gestorben: 70 Jahre nach Ablauf des Todesjahres
+              (§&nbsp;64, §&nbsp;69 UrhG).</span
+            >
+          </div>
+          <div>
+            <span class="kicker">Ab 1. Januar 2027</span><b>† 1956</b
+            ><span
+              >Zum Beispiel Walther Hensel (Satz) und Bertolt Brecht (Text). Bis Silvester noch
+              geschützt.</span
+            >
+          </div>
+          <div>
+            <span class="kicker">Nicht frei</span><b>† nach 1956</b
+            ><span
+              >Etwa Fritz Jöde († 1970). Seine Sätze und Texte bleiben bis Ende 2040
+              geschützt.</span
+            >
+          </div>
+        </div>
+        <div class="prose">
+          <p>
+            Ein Chorlied hat bis zu drei Urheber: <strong>Text</strong>,
+            <strong>Melodie</strong> und <strong>Satz</strong>. Eine Volksweise mit altem Text ist
+            frei, der Chorsatz eines Bearbeiters aber ein eigenes Werk (§&nbsp;3 UrhG). Bei „Weise:
+            volkstümlich, Satz: N. N.“ entscheidet also das Sterbejahr von N. N.
+          </p>
+          <ul class="plain">
+            <li>
+              <strong>Text und Musik eigens füreinander geschrieben:</strong> Dann zählt der
+              Längstlebende von Texter und Komponist (§&nbsp;65 Abs.&nbsp;3 UrhG).
+            </li>
+            <li>
+              <strong>Moderne Ausgaben alter Musik:</strong> Wissenschaftliche Ausgaben sind 25
+              Jahre geschützt (§&nbsp;70 UrhG), erstmals veröffentlichte Nachlasswerke ebenfalls 25
+              Jahre (§&nbsp;71). Deshalb aus alten Drucken übertragen, nicht aus neuen
+              Urtext-Ausgaben.
+            </li>
+            <li>
+              <strong>Kodierungen:</strong> Eine reine Abschrift gemeinfreier Noten schafft kein
+              neues Werk. Ganze Sammlungen können aber als Datenbank geschützt sein (§&nbsp;87a),
+              und Lizenzbedingungen gelten als Vertrag. Einzelne Lieder übernehmen und die Quelle in
+              <code>source</code> nennen ist unproblematisch; ganze Korpora nur mit passender
+              Lizenz.
+            </li>
+            <li>
+              <strong>Scans:</strong> Zum Abschreiben sind gemeinfreie Scans unbedenklich. Ein Scan
+              als Originalseite in der App (<code>layout</code>) nur aus Quellen mit Public Domain
+              Mark oder CC0.
+            </li>
+            <li>
+              <strong>Projekt Gutenberg ≠ Projekt Gutenberg-DE:</strong> gutenberg.org stellt
+              gemeinfreie Texte frei bereit. projekt-gutenberg.org (Hille &amp; Partner) ist ein
+              kommerzielles Angebot mit eigenen Nutzungsbedingungen und für Massenübernahmen
+              ungeeignet.
+            </li>
+          </ul>
+          <p class="muted">
+            <small>Zusammenfassung zur Orientierung, keine Rechtsberatung.</small>
+          </p>
+        </div>
+      </section>
+
+      <section id="quellen">
+        <header>
+          <p class="kicker">Geprüfte Fundstellen</p>
+          <h2>Quellen im Vergleich</h2>
+        </header>
+        <div class="legend">
+          <span
+            ><span class="chip a">A</span> maschinenlesbare Noten, freie Lizenz: direkt
+            konvertierbar</span
+          >
+          <span><span class="chip b">B</span> gemeinfreie Scans: abschreiben oder OMR</span>
+          <span><span class="chip c">C</span> nur Texte oder Melodien, ergänzend</span>
+          <span><span class="chip x">X</span> nicht verwenden</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Quelle</th>
+                <th>Bewertung</th>
+                <th>Inhalt und Besetzung</th>
+                <th>Format</th>
+                <th>Rechte</th>
+                <th>Einschätzung</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!--QUELLEN-->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="hoerproben">
+        <header>
+          <p class="kicker">Schon im Chorprobe-Format</p>
+          <h2>Hörproben</h2>
+          <p class="prose">
+            <!--HOERPROBEN-TEXT-->
+          </p>
+        </header>
+        <div class="songs"><!--HOERPROBEN--></div>
+      </section>
+
+      <section id="kandidaten">
+        <header>
+          <p class="kicker">Gemeinfreie Sätze ab drei Stimmen</p>
+          <h2>Nächste Lieder</h2>
+        </header>
+        <ul class="cands">
+          <!--KANDIDATEN-->
+        </ul>
+      </section>
+
+      <section id="weg">
+        <header>
+          <p class="kicker">Vom Fund zur Übepartitur</p>
+          <h2>Importweg</h2>
+        </header>
+        <ol class="steps">
+          <li>
+            <strong>Maschinenlesbare Noten zuerst.</strong> MusicXML, MXL, Humdrum oder ABC mit
+            <code>tools/liedquellen/musicxml2chorprobe.py</code> umwandeln (music21, nur für den
+            Import). Das Werkzeug trennt Stimmen aus Doppelhälsen und Akkordsystemen, schreibt
+            Wiederholungen aus und legt dafür Übeabschnitte an (Teil A, Wiederholung, Teil B), führt
+            geteilte Takte zusammen, ordnet Textzeilen Strophen oder Durchgängen zu, überträgt den
+            Sopran-Text auf textlose Unterstimmen und übernimmt Fermaten, Bögen und Dynamik. Viele
+            Lieder auf einmal: <code>--rezepte rezepte.json</code>.
+          </li>
+          <li>
+            <strong>Automatisch prüfen.</strong> Der Seitenbau ruft für jedes Lied
+            <code>validateScore</code> und <code>compileScore</code> der App auf. Fehlerhafte Lieder
+            brechen den Bau ab.
+          </li>
+          <li>
+            <strong>Musikalisch prüfen.</strong> Jede Stimme einmal gegen die Vorlage lesen und
+            hören: Silben in den Unterstimmen, Haltebögen, Tonumfang, Tempo. Herkunft, Lizenz und
+            Bearbeitung in <code>source</code> eintragen.
+          </li>
+          <li>
+            <strong>Scans (Bewertung B).</strong> Saubere Drucke ab etwa 1850 mit Audiveris (Open
+            Source, MusicXML-Export) erkennen und dann wie Schritt 1 weiter. Für dichte
+            Liederbuchseiten mit Fraktur ist der bewährte Weg oft schneller: Notenfoto und
+            <code>docs/datenformat.md</code> an eine KI geben und das Ergebnis gegen das Foto
+            prüfen.
+          </li>
+          <li>
+            <strong>Kanons.</strong> Eine gemeinfreie Melodie genügt. Die Einsätze werden
+            ausgeschrieben, wie bei „Es tönen die Lieder“. So entsteht aus einstimmigen Quellen
+            echte Mehrstimmigkeit.
+          </li>
+          <li>
+            <strong>In die App übernehmen.</strong> Als <code>scores/&lt;lied&gt;.js</code> mit
+            Herkunftskommentar ablegen, in <code>index.html</code> vor
+            <code>local/scores.js</code> eintragen und <code>npm test</code> ausführen.
+          </li>
+        </ol>
+      </section>
+
+      <footer class="end">
+        <p>
+          Diese Seite entsteht mit <code>node tools/liedquellen/build.mjs</code> aus
+          <code>docs/liedquellen/lieder.json</code> und den Lieddateien in
+          <code>docs/liedquellen/lieder/</code>. Die eingebettete App ist ein Standalone-Build von
+          Chorprobe ohne private Lieder.
+        </p>
+        <p>
+          Notenglyphen: Bravura (Steinberg, SIL Open Font License 1.1). Alle Angaben ohne Gewähr;
+          Lizenzen vor einer Übernahme an der Quelle erneut prüfen.
+        </p>
+      </footer>
+    </div>
+    <dialog class="player" id="player" aria-labelledby="playerTitle">
+      <div class="player-shell">
+        <div class="player-bar">
+          <h2 id="playerTitle">Hörprobe</h2>
+          <button type="button" id="playerClose">Schließen</button>
+        </div>
+        <iframe id="playerFrame" title="Chorprobe-App"></iframe>
+      </div>
+    </dialog>
+    <script>
+      "use strict";
+      // Standalone-Build der Chorprobe-App mit allen Hörproben (eingesetzt von build.mjs).
+      const APP_HTML = "__APP_HTML__";
+      const dialog = document.getElementById("player"),
+        frame = document.getElementById("playerFrame");
+      // Das angehängte Skript läuft nach main.js und stellt das gewählte Lied ein.
+      function openPlayer(index, title) {
+        document.getElementById("playerTitle").textContent = title;
+        frame.srcdoc = APP_HTML.replace(
+          "</body>",
+          `<script>openSong(${JSON.stringify(String(index))});<\/script></body>`,
+        );
+        if (dialog.showModal) dialog.showModal();
+        else dialog.setAttribute("open", "");
+      }
+      function closePlayer() {
+        frame.srcdoc = "";
+        if (dialog.close) dialog.close();
+        else dialog.removeAttribute("open");
+      }
+      document.addEventListener("click", (e) => {
+        const button = e.target.closest("button.play");
+        if (button)
+          openPlayer(button.dataset.song, button.closest(".song").querySelector("h3").textContent);
+      });
+      document.getElementById("playerClose").addEventListener("click", closePlayer);
+      dialog.addEventListener("cancel", (e) => {
+        e.preventDefault();
+        closePlayer();
+      });
+    </script>
+  </body>
+</html>

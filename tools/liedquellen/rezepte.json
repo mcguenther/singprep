@@ -1,0 +1,122 @@
+[
+  {
+    "src": "corpus:bach/bwv386.mxl",
+    "out": "../../docs/liedquellen/lieder/bwv386.json",
+    "meta": {
+      "title": "Nun danket alle Gott",
+      "subtitle": "Choral, vierstimmig",
+      "composer": "Text: Martin Rinckart, 1636 · Melodie: Johann Crüger, 1647 · Satz: Johann Sebastian Bach (BWV 386)",
+      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "source": {
+        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv386.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
+        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
+        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
+      },
+      "tempo": 72,
+      "copyLyrics": "s",
+      "clefs": {
+        "t": ["treble", 1]
+      }
+    }
+  },
+  {
+    "src": "corpus:bach/bwv270.mxl",
+    "out": "../../docs/liedquellen/lieder/bwv270.json",
+    "meta": {
+      "title": "Befiehl du deine Wege",
+      "subtitle": "Choral, vierstimmig",
+      "composer": "Text: Paul Gerhardt, 1653 · Melodie: Hans Leo Haßler, 1601 · Satz: Johann Sebastian Bach (BWV 270)",
+      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "source": {
+        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv270.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
+        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
+        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
+      },
+      "tempo": 72,
+      "copyLyrics": "s",
+      "clefs": {
+        "t": ["treble", 1]
+      }
+    }
+  },
+  {
+    "src": "corpus:bach/bwv302.mxl",
+    "out": "../../docs/liedquellen/lieder/bwv302.json",
+    "meta": {
+      "title": "Ein feste Burg ist unser Gott",
+      "subtitle": "Choral, vierstimmig",
+      "composer": "Text und Melodie: Martin Luther, 1529 · Satz: Johann Sebastian Bach (BWV 302)",
+      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "source": {
+        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv302.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
+        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
+        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
+      },
+      "tempo": 72,
+      "copyLyrics": "s",
+      "clefs": {
+        "t": ["treble", 1]
+      }
+    }
+  },
+  {
+    "src": "corpus:bach/bwv392.mxl",
+    "out": "../../docs/liedquellen/lieder/bwv392.json",
+    "meta": {
+      "title": "Nun ruhen alle Wälder",
+      "subtitle": "Choral, vierstimmig",
+      "composer": "Text: Paul Gerhardt, 1647 · Melodie: Heinrich Isaac, um 1495 · Satz: Johann Sebastian Bach (BWV 392)",
+      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "source": {
+        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv392.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
+        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
+        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
+      },
+      "tempo": 72,
+      "copyLyrics": "s",
+      "clefs": {
+        "t": ["treble", 1]
+      }
+    }
+  },
+  {
+    "src": "corpus:bach/bwv436.mxl",
+    "out": "../../docs/liedquellen/lieder/bwv436.json",
+    "meta": {
+      "title": "Wie schön leuchtet der Morgenstern",
+      "subtitle": "Choral, vierstimmig",
+      "composer": "Text und Melodie: Philipp Nicolai, 1599 · Satz: Johann Sebastian Bach (BWV 436)",
+      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "source": {
+        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv436.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
+        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
+        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
+      },
+      "tempo": 72,
+      "copyLyrics": "s",
+      "clefs": {
+        "t": ["treble", 1]
+      }
+    }
+  },
+  {
+    "src": "corpus:bach/bwv375.mxl",
+    "out": "../../docs/liedquellen/lieder/bwv375.json",
+    "meta": {
+      "title": "Lobt Gott, ihr Christen, allzugleich",
+      "subtitle": "Choral, vierstimmig",
+      "composer": "Text und Melodie: Nikolaus Herman, 1560 · Satz: Johann Sebastian Bach (BWV 375)",
+      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "source": {
+        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv375.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
+        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
+        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
+      },
+      "tempo": 72,
+      "copyLyrics": "s",
+      "clefs": {
+        "t": ["treble", 1]
+      }
+    }
+  }
+]

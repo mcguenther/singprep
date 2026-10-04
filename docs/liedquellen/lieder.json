@@ -1,0 +1,58 @@
+[
+  {
+    "file": "es-toenen-die-lieder.json",
+    "kategorie": "Kanon",
+    "besetzung": "3 Stimmen (SATB ausgeschrieben)",
+    "quelle": "Melodie nach dem LilyPond-Satz in der deutschen Wikipedia, abgeglichen mit lieder-archiv.de; Kanon für Chorprobe ausgeschrieben.",
+    "status": "gruen",
+    "statusText": "Gemeinfrei (anonym, 19. Jh.), Note für Note geprüft. War früher schon in Chorprobe."
+  },
+  {
+    "file": "bwv386.json",
+    "kategorie": "Choral",
+    "besetzung": "SATB",
+    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
+    "status": "gelb",
+    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
+  },
+  {
+    "file": "bwv270.json",
+    "kategorie": "Choral",
+    "besetzung": "SATB",
+    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
+    "status": "gelb",
+    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
+  },
+  {
+    "file": "bwv302.json",
+    "kategorie": "Choral",
+    "besetzung": "SATB",
+    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
+    "status": "gelb",
+    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
+  },
+  {
+    "file": "bwv392.json",
+    "kategorie": "Choral",
+    "besetzung": "SATB",
+    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
+    "status": "gelb",
+    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
+  },
+  {
+    "file": "bwv436.json",
+    "kategorie": "Choral",
+    "besetzung": "SATB",
+    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
+    "status": "gelb",
+    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
+  },
+  {
+    "file": "bwv375.json",
+    "kategorie": "Choral",
+    "besetzung": "SATB",
+    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
+    "status": "gelb",
+    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
+  }
+]

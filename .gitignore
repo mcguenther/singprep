@@ -13,3 +13,6 @@ Thumbs.db
 *.log
 .vscode/
 .idea/
+
+# Zwischenspeicher für heruntergeladene Importquellen
+tools/liedquellen/.cache/
