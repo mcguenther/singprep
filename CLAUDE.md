@@ -56,7 +56,8 @@ als `.js`-Dateien statt `.json`. Das bitte nicht „modernisieren“, ohne dass 
   Seitenbilder sind data:-URIs oder relative Pfade (`scores/lied.webp`); der Build bettet Pfade ein.
 - `render.js` + `glyphs.js`: SVG-Notensatz. Glyphen sind Bravura-Umrisse (SIL OFL,
   `assets/Bravura-LICENSE.txt`).
-- `audio.js`: WebAudio-Synthese, Zeitachse mit Fermaten.
+- `audio.js`: WebAudio-Synthese, Zeitachse mit Fermaten. Klänge in `VOICE_SOUNDS`; „Ensemble“ färbt
+  jede Stimme nach ihrer Lage (Median der Töne, `REGISTERS`) und verteilt die Stimmen im Stereobild.
 - `practice.js`: kleine Helfer für Layout und Wiedergabe.
 
 Jedes Modul hat die Form `Chorprobe.<name> = (function () { … return {…}; })();` und hängt nur von

@@ -234,20 +234,23 @@ function renderSoundControls() {
     option.value = id;
     select.append(option);
   }
+  const summarize = () => {
+    const sound = VOICE_SOUNDS[select.value];
+    $("soundSummary").textContent =
+      `${sound.name.split(" · ")[0]} · ${sound.byRegister ? "je Stimmlage" : "alle Stimmen"}`;
+  };
   select.value = audio.soundFor();
   select.onchange = () => {
     audio.setSound(select.value);
     try {
       localStorage.setItem("chorprobe.sound.v1", select.value);
     } catch {}
-    $("soundSummary").textContent =
-      `${VOICE_SOUNDS[select.value].name.split(" · ")[0]} · alle Stimmen`;
+    summarize();
   };
-  $("soundSummary").textContent =
-    `${VOICE_SOUNDS[select.value].name.split(" · ")[0]} · alle Stimmen`;
+  summarize();
   $("previewSound").onclick = async () => {
     try {
-      await audio.preview({ voice: score.voices[0].id, midi: 60, start: 0, end: score.ppq });
+      await audio.preview(openingChord(compiled));
       $("soundStatus").textContent = `Klangprobe: ${VOICE_SOUNDS[audio.soundFor()].name}`;
     } catch (e) {
       toast(e.message);

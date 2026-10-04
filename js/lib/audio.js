@@ -20,6 +20,8 @@ Chorprobe.audio = (function () {
       vibrato: 0,
       depth: 0,
     },
+    // Each voice sounds like its register (see REGISTERS), so the voices stay apart.
+    ensemble: { name: "Ensemble · je Stimmlage", byRegister: true },
     flute: {
       name: "Flöte · luftig",
       harmonics: [1, 0.025, 0.1, 0.005, 0.012],
@@ -65,54 +67,194 @@ Chorprobe.audio = (function () {
       depth: 0,
     },
   };
+  // Registers of the ensemble sound, low to high; a voice takes the first one whose `upTo` its
+  // median pitch does not exceed. Harmonic h of a tone at f has the level h^-tilt, raised by
+  // bumps [Hz, width, boost] at fixed frequencies (vowel formants, singer's formant) and fading
+  // above `rolloff` Hz, so low voices do not buzz. Fixed frequencies keep the colour of a voice
+  // while its pitch moves, unlike a lowpass that follows the pitch. The bass gets a strong
+  // fundamental for depth and strong harmonics 2–5, so its pitch is still heard on phone and
+  // laptop speakers. The soprano is almost a pure tone with a little shine near 3 kHz. Tones
+  // start crisply; vibrato is slight and only on longer notes. Levels are balanced by loudness,
+  // the bass slightly ahead.
+  const REGISTERS = [
+    {
+      id: "bass",
+      upTo: 54,
+      tilt: 0.85,
+      rolloff: 2000,
+      formants: [
+        [90, 140, 0.4],
+        [450, 400, 1.9],
+        [950, 400, 0.5],
+        [2450, 600, 0.8],
+      ],
+      attack: 0.012,
+      peak: 0.198,
+      sustain: 0.139,
+      decay: 0.09,
+      vibrato: 4.6,
+      depth: 5,
+    },
+    {
+      id: "tenor",
+      upTo: 62,
+      tilt: 1.25,
+      rolloff: 3500,
+      formants: [
+        [600, 260, 1.4],
+        [1050, 280, 0.9],
+        [2750, 500, 1.6],
+      ],
+      attack: 0.015,
+      peak: 0.166,
+      sustain: 0.124,
+      decay: 0.1,
+      vibrato: 5.1,
+      depth: 8,
+    },
+    {
+      id: "alto",
+      upTo: 66,
+      tilt: 1.5,
+      rolloff: 4000,
+      formants: [
+        [500, 260, 1.2],
+        [900, 280, 0.8],
+        [2900, 600, 1],
+      ],
+      attack: 0.018,
+      peak: 0.165,
+      sustain: 0.128,
+      decay: 0.11,
+      vibrato: 5.3,
+      depth: 8,
+    },
+    {
+      id: "soprano",
+      upTo: Infinity,
+      tilt: 2.1,
+      rolloff: Infinity,
+      formants: [[3100, 700, 1.6]],
+      attack: 0.02,
+      peak: 0.161,
+      sustain: 0.129,
+      decay: 0.12,
+      vibrato: 5.6,
+      depth: 10,
+    },
+  ];
+  // Voices spread a little in stereo, in score order from left to right.
+  const PAN_SPREAD = 0.3;
+  function registerFor(midi) {
+    return REGISTERS.find((r) => midi <= r.upTo);
+  }
+  // Harmonic amplitudes (from the fundamental up), scaled to the RMS of a unit sine wave.
+  function harmonicLevels(register, frequency) {
+    const levels = [];
+    for (let h = 1; h <= 48 && h * frequency <= 6000; h++) {
+      const f = h * frequency,
+        boost = register.formants.reduce(
+          (sum, [at, width, gain]) => sum + gain / (1 + ((f - at) / (width / 2)) ** 2),
+          1,
+        );
+      levels.push(boost / h ** register.tilt / (1 + (f / register.rolloff) ** 2));
+    }
+    const rms = Math.sqrt(levels.reduce((sum, a) => sum + a * a, 0) / 2);
+    return levels.map((a) => (a / rms) * Math.SQRT1_2);
+  }
+  // Register (median pitch) and stereo position of every voice.
+  function voicePlaces(compiled) {
+    const voices = compiled.score.voices;
+    return new Map(
+      voices.map((v, i) => {
+        const pitches = compiled.events
+          .filter((n) => n.voice === v.id)
+          .map((n) => n.midi)
+          .sort((a, b) => a - b);
+        return [
+          v.id,
+          {
+            register: pitches.length ? pitches[pitches.length >> 1] : null,
+            pan: voices.length > 1 ? PAN_SPREAD * ((2 * i) / (voices.length - 1) - 1) : 0,
+          },
+        ];
+      }),
+    );
+  }
   const waveformCache = new WeakMap();
-  function voiceWave(ctx, id) {
+  function cachedWave(ctx, key, make) {
     let cache = waveformCache.get(ctx);
     if (!cache) {
       cache = new Map();
       waveformCache.set(ctx, cache);
     }
-    if (!cache.has(id)) {
-      const h = VOICE_SOUNDS[id].harmonics;
-      cache.set(
-        id,
-        ctx.createPeriodicWave(new Float32Array(h.length + 1), new Float32Array([0, ...h])),
-      );
-    }
-    return cache.get(id);
+    if (!cache.has(key)) cache.set(key, make());
+    return cache.get(key);
   }
-  function createVoiceTone(ctx, destination, note, id, at, until, dyn = null) {
-    const profile = VOICE_SOUNDS[id] || VOICE_SOUNDS.choir,
+  function voiceWave(ctx, id) {
+    return cachedWave(ctx, id, () => {
+      const h = VOICE_SOUNDS[id].harmonics;
+      return ctx.createPeriodicWave(new Float32Array(h.length + 1), new Float32Array([0, ...h]));
+    });
+  }
+  function registerWave(ctx, register, midi) {
+    return cachedWave(ctx, `${register.id}:${midi}`, () => {
+      const h = harmonicLevels(register, 440 * 2 ** ((midi - 69) / 12));
+      return ctx.createPeriodicWave(new Float32Array(h.length + 1), new Float32Array([0, ...h]), {
+        disableNormalization: true,
+      });
+    });
+  }
+  function createVoiceTone(ctx, destination, note, id, at, until, dyn = null, place = null) {
+    const byRegister = VOICE_SOUNDS[id]?.byRegister,
+      profile = byRegister
+        ? registerFor(place?.register ?? note.midi)
+        : VOICE_SOUNDS[id] || VOICE_SOUNDS.choir,
       osc = ctx.createOscillator(),
       gain = ctx.createGain(),
-      filter = ctx.createBiquadFilter(),
       sources = [osc],
-      graph = [osc, filter, gain];
+      graph = [osc, gain];
     const frequency = 440 * 2 ** ((note.midi - 69) / 12),
       length = Math.max(0.03, until - at),
       attack = Math.min(profile.attack, length * 0.3);
-    osc.setPeriodicWave(voiceWave(ctx, VOICE_SOUNDS[id] ? id : "choir"));
     osc.frequency.setValueAtTime(frequency, at);
-    filter.type = "lowpass";
-    filter.Q.value = id === "sax" ? 0.85 : 0.5;
-    const cutoff = Math.min(14000, frequency * profile.cutoff);
-    filter.frequency.setValueAtTime(cutoff, at);
-    if (id === "pluck")
-      filter.frequency.setTargetAtTime(Math.max(frequency * 1.3, 350), at + 0.012, 0.22);
+    // The ensemble needs no filter: its harmonics already carry the colour.
+    let filter = null;
+    if (byRegister) {
+      osc.setPeriodicWave(registerWave(ctx, profile, note.midi));
+      osc.connect(gain);
+    } else {
+      osc.setPeriodicWave(voiceWave(ctx, VOICE_SOUNDS[id] ? id : "choir"));
+      filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.Q.value = id === "sax" ? 0.85 : 0.5;
+      const cutoff = Math.min(14000, frequency * profile.cutoff);
+      filter.frequency.setValueAtTime(cutoff, at);
+      if (id === "pluck")
+        filter.frequency.setTargetAtTime(Math.max(frequency * 1.3, 350), at + 0.012, 0.22);
+      osc.connect(filter);
+      filter.connect(gain);
+      graph.push(filter);
+    }
     const level = dynamicGain(dyn);
     gain.gain.setValueAtTime(0, at);
     gain.gain.linearRampToValueAtTime(profile.peak * level.peak, at + attack);
     gain.gain.setTargetAtTime(profile.sustain * level.sustain, at + attack, profile.decay);
     gain.gain.setTargetAtTime(0.0001, Math.max(at + attack, until - 0.025), 0.012);
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(destination);
+    if (byRegister && place?.pan && ctx.createStereoPanner) {
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = place.pan;
+      gain.connect(panner);
+      panner.connect(destination);
+      graph.push(panner);
+    } else gain.connect(destination);
     if (profile.vibrato) {
+      // Ensemble vibrato sets in late, so short notes keep a steady pitch.
       const lfo = ctx.createOscillator(),
         depth = ctx.createGain();
       lfo.frequency.value = profile.vibrato;
       depth.gain.setValueAtTime(0, at);
-      depth.gain.setTargetAtTime(profile.depth, at + 0.1, 0.18);
+      depth.gain.setTargetAtTime(profile.depth, at + (byRegister ? 0.25 : 0.1), 0.18);
       lfo.connect(depth);
       depth.connect(osc.detune);
       lfo.start(at);
@@ -203,6 +345,7 @@ Chorprobe.audio = (function () {
       this.stop();
       this.compiled = c;
       this.timeline = performanceTimeline(c);
+      this.places = voicePlaces(c);
     }
     setMix(mix) {
       this.mix = mix;
@@ -304,20 +447,24 @@ Chorprobe.audio = (function () {
         at,
         until,
         dyn,
+        this.places?.get(note.voice),
       );
       this.nodes.set(key, n);
     }
-    async preview(note) {
+    // One note or a chord; chord notes enter one after another and are held together.
+    async preview(notes) {
       const token = (this.previewToken ?? 0) + 1;
       this.previewToken = token;
       await this.ready();
       if (token !== this.previewToken) return;
       for (const key of [...this.nodes.keys()])
         if (key.startsWith("preview:")) this.kill(key, 0.02);
-      const key = `preview:${token}`,
-        now = this.ctx.currentTime;
-      this.tone(note, now + 0.015, now + 1.05, key);
-      setTimeout(() => this.kill(key), 1150);
+      const chord = [notes].flat(),
+        now = this.ctx.currentTime,
+        until = now + 1.05 + (chord.length - 1) * 0.3,
+        keys = chord.map((_, i) => `preview:${token}:${i}`);
+      chord.forEach((note, i) => this.tone(note, now + 0.015 + i * 0.3, until, keys[i]));
+      setTimeout(() => keys.forEach((key) => this.kill(key)), (until - now) * 1000 + 100);
     }
     position() {
       if (!this.running) return this.cursor ?? 0;
@@ -454,5 +601,24 @@ Chorprobe.audio = (function () {
     }
   }
 
-  return { ChoirAudio, performanceTimeline, VOICE_SOUNDS, createVoiceTone, dynamicGain };
+  // First sounding note of every voice, lowest first (on equal pitch the lower voice in the score
+  // first): the sound preview plays the opening chord.
+  function openingChord(compiled) {
+    const first = new Map();
+    for (const n of compiled.events) if (!first.has(n.voice)) first.set(n.voice, n);
+    return [...first.values()].reverse().sort((a, b) => a.midi - b.midi);
+  }
+
+  return {
+    ChoirAudio,
+    performanceTimeline,
+    VOICE_SOUNDS,
+    REGISTERS,
+    createVoiceTone,
+    dynamicGain,
+    harmonicLevels,
+    registerFor,
+    voicePlaces,
+    openingChord,
+  };
 })();

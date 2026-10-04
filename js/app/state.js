@@ -23,7 +23,7 @@ const {
   lyricFor,
 } = Chorprobe.score;
 const { noteLevels, appliesTo } = Chorprobe.dynamics;
-const { ChoirAudio, VOICE_SOUNDS } = Chorprobe.audio;
+const { ChoirAudio, VOICE_SOUNDS, openingChord } = Chorprobe.audio;
 const {
   drawStaff,
   drawCombinedStaff,
