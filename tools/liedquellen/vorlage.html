@@ -201,6 +201,7 @@
         padding: 0.2rem 0 0.2rem 0.9rem;
         display: grid;
         gap: 0.15rem;
+        align-content: start;
       }
       .dates b {
         font-family: var(--display);
@@ -408,6 +409,12 @@
         gap: 0.15rem;
         min-width: 0;
       }
+      .cands .ct {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.2rem 0.5rem;
+      }
       .cands b {
         font-family: var(--display);
         font-size: 1.08rem;
@@ -520,7 +527,11 @@
         <p class="eyebrow">Recherche für Chorprobe · Stand Oktober 2026</p>
         <h1>Woher neue Lieder kommen</h1>
         <p class="lead">
-          <!--FAZIT-->
+          Freie Chorsätze ab drei Stimmen gibt es reichlich, maschinenlesbar ist davon nur ein Teil.
+          Am schnellsten lässt sich die CPDL umwandeln. Die besten Volksliedsätze stehen in den
+          Volksliederbüchern von 1906 und 1915 und in Erks Schulchorbüchern, meist nur als Scan.
+          Project Gutenberg hilft bei Noten kaum. Elf Lieder aus diesen Quellen sind unten schon im
+          Chorprobe-Format zum Anhören.
         </p>
         <nav class="toc" aria-label="Inhalt">
           <a href="#kurz">Kurz gesagt</a>
@@ -535,7 +546,40 @@
       <section id="kurz">
         <header><h2>Kurz gesagt</h2></header>
         <div class="verdict">
-          <!--KURZ-->
+          <div>
+            <span class="kicker">Sofort umwandelbar</span>
+            <strong>CPDL</strong>
+            <p>
+              3.598 deutschsprachige Ausgaben ab drei Stimmen mit MusicXML unter freier Lizenz,
+              davon 591 dreistimmig. Gemeinfrei markiert sind 93, die meisten stehen unter der
+              CPDL-Lizenz (Copyleft).
+            </p>
+          </div>
+          <div>
+            <span class="kicker">Beste Volksliedsätze</span>
+            <strong>Volksliederbücher 1906 und 1915</strong>
+            <p>
+              604 Sätze für gemischten Chor und 610 für Männerchor, fast alle Bearbeiter vor 1956
+              gestorben. Mutopia hat 56 deutsche Chorstücke als LilyPond, vor allem aus diesen
+              Büchern.
+            </p>
+          </div>
+          <div>
+            <span class="kicker">Dreistimmig</span>
+            <strong>Jugend-Volksliederbuch und Schulliederbücher</strong>
+            <p>
+              42 dreistimmige Sätze für gleiche Stimmen (1930, nur teilweise frei), dazu 70
+              Schulliederbücher von 1850 bis 1916 bei archive.org. Alles Scans.
+            </p>
+          </div>
+          <div>
+            <span class="kicker">Kaum Noten</span>
+            <strong>Project Gutenberg</strong>
+            <p>
+              In „Music, Sheet“ stehen etwa 40 Titel, alle instrumental. Deutsche Liederbücher mit
+              Noten gibt es dort nicht, nur Texte.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -549,7 +593,8 @@
             <span class="kicker">Heute frei</span><b>† bis 1955</b
             ><span
               >Alle Beteiligten 1955 oder früher gestorben: 70 Jahre nach Ablauf des Todesjahres
-              (§&nbsp;64, §&nbsp;69 UrhG).</span
+              (§&nbsp;64, §&nbsp;69 UrhG). Neu seit Januar 2026: Walter Rein († 1955) mit über 2.000
+              Schul- und Laienchorsätzen.</span
             >
           </div>
           <div>
@@ -598,6 +643,11 @@
               Mark oder CC0.
             </li>
             <li>
+              <strong>Weltweit verteilen:</strong> In den USA zählt das Erscheinungsjahr, heute ist
+              alles bis einschließlich 1930 Erschienene frei. Distlers „Jahrkreis“ (1933) ist in der
+              EU frei, in den USA nicht.
+            </li>
+            <li>
               <strong>Projekt Gutenberg ≠ Projekt Gutenberg-DE:</strong> gutenberg.org stellt
               gemeinfreie Texte frei bereit. projekt-gutenberg.org (Hille &amp; Partner) ist ein
               kommerzielles Angebot mit eigenen Nutzungsbedingungen und für Massenübernahmen
@@ -616,12 +666,15 @@
           <h2>Quellen im Vergleich</h2>
         </header>
         <div class="legend">
+          <span><span class="chip a">A</span> direkt: maschinenlesbar, Lizenz klar</span>
           <span
-            ><span class="chip a">A</span> maschinenlesbare Noten, freie Lizenz: direkt
-            konvertierbar</span
+            ><span class="chip b">B</span> mit Aufwand: Scans abschreiben oder Lizenz je Stück
+            prüfen</span
           >
-          <span><span class="chip b">B</span> gemeinfreie Scans: abschreiben oder OMR</span>
-          <span><span class="chip c">C</span> nur Texte oder Melodien, ergänzend</span>
+          <span
+            ><span class="chip c">C</span> ergänzend: kaum Chorsätze, kein Text oder Lizenz
+            unklar</span
+          >
           <span><span class="chip x">X</span> nicht verwenden</span>
         </div>
         <div class="table-wrap">
@@ -637,7 +690,362 @@
               </tr>
             </thead>
             <tbody>
-              <!--QUELLEN-->
+              <tr>
+                <td class="name">
+                  <strong><a href="https://www.cpdl.org/wiki/">CPDL / ChoralWiki</a></strong
+                  ><small
+                    >Abzug:
+                    <a href="https://archive.org/details/wiki-www.cpdl.org_wiki-20260420"
+                      >archive.org, Stand April 2026</a
+                    ></small
+                  >
+                </td>
+                <td><span class="chip a">A · direkt</span></td>
+                <td>
+                  56.373 Werke. Deutsch, frei lizenziert, MusicXML, ab drei Stimmen: 3.598 Ausgaben
+                  (2.630 Werke), davon 591 dreistimmig und 2.113 vierstimmig. Darunter 733 Choräle,
+                  402 Lieder, 41 Volkslieder, 27 Kanons.
+                </td>
+                <td>MusicXML bei 72 % der Ausgaben, dazu PDF und MIDI</td>
+                <td>
+                  Je Ausgabe: CPDL-Lizenz (Copyleft, Änderungsvermerk mit Datum), Public Domain, CC
+                  BY oder CC BY-SA. „Personal“, NC und ND nicht verwenden.
+                </td>
+                <td>
+                  Größte direkt umwandelbare Quelle. Die Qualität schwankt (zwei Stimmen pro System,
+                  Text nur in einer Stimme, leere Klaviersysteme). Die Live-Seite blockt
+                  automatische Abrufe, der Abzug im Internet Archive funktioniert.
+                </td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong><a href="https://www.mutopiaproject.org">Mutopia Project</a></strong
+                  ><small
+                    ><a href="https://github.com/MutopiaProject/MutopiaProject"
+                      >GitHub-Repository</a
+                    ></small
+                  >
+                </td>
+                <td><span class="chip a">A · direkt</span></td>
+                <td>
+                  2.124 Stücke, davon 221 für Chor und 56 mit deutschem Text, vor allem Sätze aus
+                  den Volksliederbüchern 1906/1915 (Klaus Rettinghaus), SATB und TTBB, alle
+                  Strophen.
+                </td>
+                <td>LilyPond, PDF, MIDI</td>
+                <td>Public Domain, CC BY oder CC BY-SA je Stück</td>
+                <td>
+                  Saubere Ausgaben bekannter Volkslieder. Braucht einen eigenen Import (hier gebaut
+                  und gegen MIDI geprüft).
+                </td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong><a href="https://zenodo.org/records/15571083">PDMX</a></strong
+                  ><small>MuseScore-Datensatz bei Zenodo</small>
+                </td>
+                <td><span class="chip b">B · mit Aufwand</span></td>
+                <td>
+                  254.077 Partituren mit Public Domain Mark oder CC0. 3.757 davon mit mindestens
+                  drei Gesangsstimmen, Text und ohne Lizenzkonflikt, geschätzt rund 240 deutsche
+                  Titel.
+                </td>
+                <td>MusicXML (1,9-GB-Archiv), Metadaten als CSV</td>
+                <td>Datensatz CC BY 4.0. Die Einzellizenzen sind Angaben der Hochladenden.</td>
+                <td>
+                  Groß, aber gemischt. Bearbeiter und Lizenz je Stück prüfen, darunter sind auch
+                  hochgeladene CPDL-Ausgaben.
+                </td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a href="https://archive.org/details/volksliederbuchf01unse"
+                      >Volksliederbuch für gemischten Chor</a
+                    ></strong
+                  ><small
+                    >Peters 1915, 2 Bände ·
+                    <a href="https://archive.org/details/volksliederbuchf02unse">Band 2</a></small
+                  >
+                </td>
+                <td><span class="chip b">B · mit Aufwand</span></td>
+                <td>604 Nummern für 4 bis 8 Stimmen, fast alles SATB a cappella, 49 Bearbeiter.</td>
+                <td>Scan</td>
+                <td>
+                  Gemeinfrei außer rund 20 Sätzen von Andreae († 1962), Blech († 1958), Rößler (†
+                  1962) und Lütge († 1967).
+                </td>
+                <td>
+                  Beste Einzelquelle für SATB. Die CPDL führt ein Inhaltsverzeichnis mit allen
+                  Bearbeitern.
+                </td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a
+                      href="https://imslp.org/wiki/Volksliederbuch_f%C3%BCr_M%C3%A4nnerchor_(Friedlaender,_Max)"
+                      >Volksliederbuch für Männerchor</a
+                    ></strong
+                  ><small
+                    >Peters 1906 ·
+                    <a href="https://archive.org/details/volksliederbuchf00komm"
+                      >Scan bei archive.org</a
+                    ></small
+                  >
+                </td>
+                <td><span class="chip b">B · mit Aufwand</span></td>
+                <td>
+                  610 Lieder, TTBB. Bearbeiter u. a. R. Strauss, Humperdinck, Bruch, Reinecke.
+                </td>
+                <td>Scan</td>
+                <td>Gemeinfrei außer den Sätzen von Carl Lütge († 1967).</td>
+                <td>Kernrepertoire für Männerchor.</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a href="https://archive.org/details/ybimslp00881"
+                      >Volksliederbuch für die Jugend</a
+                    ></strong
+                  ><small
+                    >Peters 1930, Bd. I Heft 1 ·
+                    <a href="https://archive.org/details/ybimslp02039">Bd. II Heft 5</a></small
+                  >
+                </td>
+                <td><span class="chip b">B · mit Aufwand</span></td>
+                <td>
+                  Bd. I/1: Nr. 1–42 dreistimmig für gleiche Stimmen a cappella. Heft 3 vierstimmig,
+                  Bd. II gemischter Chor.
+                </td>
+                <td>Scan</td>
+                <td>
+                  Frei: Kahn, Röntgen, Othegraven, Kaminski, Zilcher, Braunfels, G. Schumann, W.
+                  Rein u. a. Nicht frei: Blech, Raphael, Hindemith, Toch, K. Thomas u. a. sowie alle
+                  unsignierten Sätze (Karl Lütge, bis 2037).
+                </td>
+                <td>
+                  Wichtigste dreistimmige Quelle. Jede Nummer einzeln prüfen, auch die Texte
+                  (Umdichtungen von Lütge).
+                </td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a href="https://archive.org/details/ErkSangerhainChorbuchAusgB1899"
+                      >Erk und Greef: Sängerhain und weitere</a
+                    ></strong
+                  ><small>Chorbuch des Sängerhain II B, 1899</small>
+                </td>
+                <td><span class="chip b">B · mit Aufwand</span></td>
+                <td>
+                  235 vierstimmige Schulchorsätze. Außerdem Liederkranz 3. Heft (1882, 72 SATB) und
+                  Deutscher Liederschatz (1889, 250 TTBB), Sängerhain Heft 2 und 3 bei BSB und BLB.
+                </td>
+                <td>Scan</td>
+                <td>
+                  Gemeinfrei (Ludwig Erk † 1883, Wilhelm Greef † 1875). Scans bei archive.org mit
+                  Public Domain Mark.
+                </td>
+                <td>
+                  Viel Schulrepertoire: Volkslieder, Choräle, Bearbeitungen klassischer Lieder.
+                </td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a
+                      href="https://imslp.org/wiki/Volkslieder_gesammelt_und_f%C3%BCr_vier_M%C3%A4nnerstimmen_gesetzt_(Silcher,_Friedrich)"
+                      >Silcher: Volkslieder für vier Männerstimmen</a
+                    ></strong
+                  ><small
+                    >Laupp 1902 ·
+                    <a href="https://archive.org/details/SilcherVLMstNA1902">archive.org</a></small
+                  >
+                </td>
+                <td><span class="chip b">B · mit Aufwand</span></td>
+                <td>179 Volkslieder und 13 Trauergesänge, TTBB.</td>
+                <td>Scan</td>
+                <td>Gemeinfrei (Silcher † 1860). Scan mit Public Domain Mark.</td>
+                <td>TTBB-Klassiker, sauberer Druck.</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a
+                      href="https://imslp.org/wiki/14_Deutsche_Volkslieder,_WoO_34_(Brahms,_Johannes)"
+                      >Brahms: Deutsche Volkslieder WoO 34 und 35</a
+                    ></strong
+                  ><small>IMSLP</small>
+                </td>
+                <td><span class="chip b">B · mit Aufwand</span></td>
+                <td>26 Volksliedsätze für gemischten Chor (14 + 12).</td>
+                <td>Scan, einzelne auch bei Mutopia</td>
+                <td>Gemeinfrei</td>
+                <td>Anspruchsvoller, sehr schöne Sätze.</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a
+                      href="https://archive.org/search?query=%22Deutsche+Schulliederb%C3%BCcher+1850-1916%22"
+                      >Deutsche Schulliederbücher 1850–1916</a
+                    ></strong
+                  ><small>Sammlung bei archive.org</small>
+                </td>
+                <td><span class="chip b">B · mit Aufwand</span></td>
+                <td>
+                  70 Bände. Dreistimmig z. B. Seitz „Lieder-Perlen“ (1906), Tschirch (54 zwei- und
+                  dreistimmige Lieder, 1878), Manderscheid „Frauenchöre“ (1902); vierstimmig Neuert,
+                  Zander/Fischer, „Gute Geister“ (1909).
+                </td>
+                <td>Scan (Fraktur-OCR unbrauchbar)</td>
+                <td>
+                  Fast alle mit Public Domain Mark. Lebensdaten einzelner Herausgeber noch prüfen.
+                </td>
+                <td>Große Menge echter Schulsätze, aber nur durch Abschreiben nutzbar.</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a href="https://imslp.org/wiki/Der_Jahrkreis,_Op.5_(Distler,_Hugo)"
+                      >Distler: Der Jahrkreis op. 5</a
+                    ></strong
+                  ><small>Bärenreiter 1933</small>
+                </td>
+                <td><span class="chip b">B · mit Aufwand</span></td>
+                <td>52 Sätze für SSA oder SAB, meist geistlich.</td>
+                <td>Scan</td>
+                <td>In der EU frei (Distler † 1942), in den USA nicht (erschienen 1933).</td>
+                <td>Gute dreistimmige Sätze für gleiche oder gemischte Stimmen.</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a
+                      href="https://github.com/cuthbertLab/music21/tree/master/music21/corpus/bach"
+                      >music21-Korpus</a
+                    ></strong
+                  ><small>Python-Bibliothek</small>
+                </td>
+                <td><span class="chip c">C · ergänzend</span></td>
+                <td>
+                  Über 320 vierstimmige Bach-Choräle mit deutschem Text (nur im Sopran, eine
+                  Strophe).
+                </td>
+                <td>MusicXML</td>
+                <td>
+                  Musik gemeinfrei. Kodierung von M. Greentree „used by permission“, Weitergabe
+                  ungeklärt.
+                </td>
+                <td>
+                  Technisch bequem (hier anfangs getestet), aber nicht weitergeben. Bach-Choräle
+                  besser aus CPDL oder Mutopia.
+                </td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a href="https://github.com/craigsapp/bach-370-chorales"
+                      >Humdrum, KernScores, Chorale-Corpus</a
+                    ></strong
+                  ><small>z. B. Bach 370 Choräle</small>
+                </td>
+                <td><span class="chip c">C · ergänzend</span></td>
+                <td>Bach, Goudimel, Kittel und andere Choralbücher.</td>
+                <td>Humdrum (**kern)</td>
+                <td>CC BY-NC-SA 4.0, ohne Text</td>
+                <td>Für Chorprobe wenig ergiebig (kein Text, nicht kommerziell).</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong><a href="http://openhymnal.org/">Open Hymnal Project</a></strong
+                  ><small>ABC-Sammlung 2014</small>
+                </td>
+                <td><span class="chip c">C · ergänzend</span></td>
+                <td>294 Lieder, fast alle SATB, 150 davon auf deutsche Choräle zurückgehend.</td>
+                <td>ABC</td>
+                <td>Überwiegend gemeinfrei (US-Recht)</td>
+                <td>Nur englische Texte.</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a href="https://de.wikisource.org/wiki/Deutscher_Liederhort"
+                      >Wikipedia und Wikisource</a
+                    ></strong
+                  ><small>LilyPond im &lt;score&gt;-Tag</small>
+                </td>
+                <td><span class="chip c">C · ergänzend</span></td>
+                <td>
+                  718 Wikipedia-Seiten mit Notensatz, darunter viele Kanons als einstimmige Melodie
+                  mit Einsatzziffern. Erks „Deutscher Liederhort“ (1856) auf Wikisource vollständig,
+                  einstimmig.
+                </td>
+                <td>LilyPond, Text</td>
+                <td>CC BY-SA 4.0, Melodien gemeinfrei</td>
+                <td>Gute Grundlage für ausgeschriebene Kanons, sonst einstimmig.</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a href="https://archive.org/details/bub_gb_dePoAAAAIAAJ"
+                      >Erk/Böhme, Zupfgeigenhansl, Essener Sammlung</a
+                    ></strong
+                  ><small>Deutscher Liederhort 1893/94</small>
+                </td>
+                <td><span class="chip c">C · ergänzend</span></td>
+                <td>
+                  Volkslieder mit einstimmigen Weisen, beim Zupfgeigenhansl (Ausgabe 1915, IMSLP)
+                  mit Akkorden.
+                </td>
+                <td>Scan bzw. ABC (Essen)</td>
+                <td>Gemeinfrei, Essener Sammlung nur nicht kommerziell</td>
+                <td>Belege für Melodie- und Textfassungen, keine Chorsätze.</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a href="https://www.gutenberg.org/browse/categories/4"
+                      >Project Gutenberg</a
+                    ></strong
+                  ><small>gutenberg.org</small>
+                </td>
+                <td><span class="chip c">C · ergänzend</span></td>
+                <td>
+                  „Music, Sheet“ mit etwa 40 Titeln, alle instrumental. Englische Liederbücher mit
+                  Notendateien, z. B. „Songs of the West“ (#56625, 128 MusicXML, Gesang und Klavier)
+                  oder „The Baby’s Opera“ (#25418).
+                </td>
+                <td>MusicXML, MIDI, nur bei wenigen Büchern</td>
+                <td>In den USA gemeinfrei</td>
+                <td>
+                  Keine deutschen Liederbücher mit Noten. Nimmt keine neuen Notenbeiträge mehr an.
+                </td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong
+                    ><a href="https://www.projekt-gutenberg.org">Projekt Gutenberg-DE</a></strong
+                  ><small>projekt-gutenberg.org</small>
+                </td>
+                <td><span class="chip x">X · nicht nutzen</span></td>
+                <td>Texte, auch Liedtexte</td>
+                <td>HTML</td>
+                <td>Nur privater Gebrauch, Weitergabe und Bearbeitung untersagt</td>
+                <td>Für uns nicht nutzbar.</td>
+              </tr>
+              <tr>
+                <td class="name">
+                  <strong>volksliederarchiv.de, lieder-archiv.de, liederlexikon.de</strong
+                  ><small>Liedportale</small>
+                </td>
+                <td><span class="chip x">X · nicht nutzen</span></td>
+                <td>Texte, Melodien, Liedgeschichte</td>
+                <td>HTML, Notenblätter</td>
+                <td>Nur privat bzw. urheberrechtlich geschützt</td>
+                <td>Gute Recherchehilfe für Herkunft und Fassungen, Inhalte nicht übernehmen.</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -648,7 +1056,13 @@
           <p class="kicker">Schon im Chorprobe-Format</p>
           <h2>Hörproben</h2>
           <p class="prose">
-            <!--HOERPROBEN-TEXT-->
+            Elf Lieder aus drei Quellenarten, automatisch umgewandelt und mit der Validierung der
+            App geprüft: sieben Volksliedsätze von Mutopia (LilyPond), drei gemeinfreie Ausgaben der
+            CPDL (MusicXML) und ein Kanon. „Anhören &amp; üben“ öffnet die echte Chorprobe-App mit
+            dem gewohnten Chorklang, mit Stimmenmischung, Einsatztönen und Tippmodus. Die Grafik
+            zeigt alle Stimmen über die Zeit. Zur Gegenprobe: Regers „In einem kühlen Grunde“ von
+            Mutopia stimmt in allen Tönen, Dauern und Haltebögen mit der handgeprüften Fassung in
+            der App überein, und die Mutopia-Lieder decken sich mit der MIDI-Ausgabe von LilyPond.
           </p>
         </header>
         <div class="songs"><!--HOERPROBEN--></div>
@@ -660,7 +1074,134 @@
           <h2>Nächste Lieder</h2>
         </header>
         <ul class="cands">
-          <!--KANDIDATEN-->
+          <li>
+            <div class="ct"><b>Schön ist die Jugend</b> <span class="chip a">Hörprobe</span></div>
+            <span>Satz Engelbert Humperdinck († 1921) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 436 · Mutopia 855</small>
+          </li>
+          <li>
+            <div class="ct"><b>Ännchen von Tharau</b> <span class="chip a">Hörprobe</span></div>
+            <span>Satz Ernst Eduard Taubert († 1934) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 391 · Mutopia 629</small>
+          </li>
+          <li>
+            <div class="ct">
+              <b>In einem kühlen Grunde</b> <span class="chip a">schon in Chorprobe</span>
+            </div>
+            <span>Satz Max Reger († 1916) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 385 · Mutopia 621</small>
+          </li>
+          <li>
+            <div class="ct"><b>In stiller Nacht</b> <span class="chip a">Hörprobe</span></div>
+            <span>Johannes Brahms, WoO 34 Nr. 8 · SATB</span><small>IMSLP · Mutopia 1709</small>
+          </li>
+          <li>
+            <div class="ct">
+              <b>Ich hatt einen Kameraden</b> <span class="chip b">umwandelbar</span>
+            </div>
+            <span>Satz Hermann Suter († 1926) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 246 · Mutopia 730</small>
+          </li>
+          <li>
+            <div class="ct"><b>Muss i denn</b></div>
+            <span>Satz Philipp Wolfrum († 1919) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 223</small>
+          </li>
+          <li>
+            <div class="ct"><b>Ein Jäger aus Kurpfalz</b></div>
+            <span>Satz Theodor von Othegraven († 1946) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 255</small>
+          </li>
+          <li>
+            <div class="ct"><b>Auf einem Baum ein Kuckuck saß</b></div>
+            <span>Satz Theodor von Othegraven · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 585</small>
+          </li>
+          <li>
+            <div class="ct"><b>Wenn ich ein Vöglein wär</b></div>
+            <span>Satz Robert Kahn († 1951) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 376</small>
+          </li>
+          <li>
+            <div class="ct"><b>Kein Feuer, keine Kohle</b></div>
+            <span>Satz Ernst Rudorff († 1916) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 424</small>
+          </li>
+          <li>
+            <div class="ct"><b>Es waren zwei Königskinder</b></div>
+            <span>Satz Max Fiedler († 1939) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 519</small>
+          </li>
+          <li>
+            <div class="ct"><b>Der Mond ist aufgegangen</b></div>
+            <span>Satz Philipp Scharwenka († 1917) · SATB</span
+            ><small>Volksliederbuch 1915, Nr. 178</small>
+          </li>
+          <li>
+            <div class="ct"><b>Da unten im Tale</b></div>
+            <span>Johannes Brahms, WoO 35 · SATB</span><small>IMSLP</small>
+          </li>
+          <li>
+            <div class="ct"><b>Erlaube mir, feins Mädchen</b></div>
+            <span>Johannes Brahms, WoO 35 · SATB</span><small>IMSLP</small>
+          </li>
+          <li>
+            <div class="ct"><b>Am Brunnen vor dem Tore</b></div>
+            <span>Franz Schubert, Satz Ludwig Erk · SATB</span
+            ><small>Sängerhain 1899, Nr. 64</small>
+          </li>
+          <li>
+            <div class="ct"><b>Keine Rose, keine Nelke</b></div>
+            <span>Friedrich Silcher · TTBB</span><small>Silcher, Laupp 1902</small>
+          </li>
+          <li>
+            <div class="ct"><b>Morgen müssen wir verreisen</b></div>
+            <span>Friedrich Silcher · TTBB</span><small>Silcher, Laupp 1902</small>
+          </li>
+          <li>
+            <div class="ct"><b>Stirb, Lieb und Freud</b></div>
+            <span>Friedrich Silcher · TTBB</span><small>Silcher, Laupp 1902</small>
+          </li>
+          <li>
+            <div class="ct"><b>Es geht ein dunkle Wolk herein</b></div>
+            <span>Satz Robert Kahn · drei gleiche Stimmen</span
+            ><small>Volksliederbuch für die Jugend 1930, Bd. I/1</small>
+          </li>
+          <li>
+            <div class="ct"><b>Die Blümelein, sie schlafen</b></div>
+            <span>Satz Julius Röntgen († 1932) · drei gleiche Stimmen</span
+            ><small>Volksliederbuch für die Jugend 1930, Bd. I/1</small>
+          </li>
+          <li>
+            <div class="ct"><b>Wenn alle Brünnlein fließen</b></div>
+            <span>Satz Heinrich Kaspar Schmid († 1953) · drei gleiche Stimmen</span
+            ><small>Volksliederbuch für die Jugend 1930, Bd. I/1</small>
+          </li>
+          <li>
+            <div class="ct"><b>Geh aus, mein Herz, und suche Freud</b></div>
+            <span>Satz Theodor von Othegraven · drei gleiche Stimmen</span
+            ><small>Volksliederbuch für die Jugend 1930, Bd. I/1</small>
+          </li>
+          <li>
+            <div class="ct"><b>Maria durch ein Dornwald ging</b></div>
+            <span>Hugo Distler († 1942) · SSA/SAB</span
+            ><small>Der Jahrkreis op. 5 · in den USA nicht frei</small>
+          </li>
+          <li>
+            <div class="ct"><b>Christ ist erstanden</b></div>
+            <span>Michael Praetorius · SSB, dreistimmig</span
+            ><small
+              >CPDL, Ausgabe gemeinfrei (Datei teilt Stimmen ungewöhnlich auf, von Hand
+              nacharbeiten)</small
+            >
+          </li>
+          <li>
+            <div class="ct">
+              <b>Erhalt uns, Herr, bei deinem Wort</b> <span class="chip b">umwandelbar</span>
+            </div>
+            <span>Michael Praetorius · SAB, dreistimmig</span
+            ><small>CPDL, Ausgabe gemeinfrei</small>
+          </li>
         </ul>
       </section>
 

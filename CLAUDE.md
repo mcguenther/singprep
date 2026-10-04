@@ -22,6 +22,7 @@ npm run lint          # eslint (flat config, ohne Abhängigkeiten)
 npm run format        # prettier --write
 npm run format:check
 npm run build         # dist/chorprobe.html – alles in einer Offline-Datei
+node tools/liedquellen/build.mjs   # docs/liedquellen/index.html (Liedquellen-Recherche mit Hörproben)
 ```
 
 Prettier und ESLint werden global erwartet, es gibt keine `node_modules`. Nach Änderungen an der
@@ -40,6 +41,9 @@ scores/*.js         mitgelieferte Lieder
 docs/               Datenformat (datenformat.md), JSON-Schema, Beispiel-JSON
 tests/              node:test; tests/support/load.js lädt die Browser-Skripte per vm
 tools/              build-standalone.mjs
+tools/liedquellen/  Import (musicxml2chorprobe.py, lilypond2chorprobe.py; music21 nur dafür),
+                    rezepte.json, Seitenbau build.mjs + vorlage.html
+docs/liedquellen/   Recherche „Woher neue Lieder kommen“: index.html (erzeugt), lieder.json, lieder/
 ```
 
 ### Warum keine ES-Module

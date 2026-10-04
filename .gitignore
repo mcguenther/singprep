@@ -16,3 +16,4 @@ Thumbs.db
 
 # Zwischenspeicher für heruntergeladene Importquellen
 tools/liedquellen/.cache/
+__pycache__/

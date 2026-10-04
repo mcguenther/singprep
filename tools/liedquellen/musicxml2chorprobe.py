@@ -3,22 +3,25 @@
 
 Aufruf:
   python3 musicxml2chorprobe.py EINGABE AUSGABE.json [meta.json]
-  python3 musicxml2chorprobe.py --rezepte rezepte.json
+  python3 musicxml2chorprobe.py --rezepte rezepte.json   (Quellen auf .ly gehen an lilypond2chorprobe.py)
 
 Benötigt music21 (pip install music21). Nur für den Import; die App selbst bleibt ohne Abhängigkeiten.
 meta.json (alle Felder optional): title, subtitle, composer, comment, source, tempo, defaultTempo,
 copyLyrics (Stimmen-ID, deren Text auf textlose Stimmen übertragen wird), clefs ({"t": ["treble", 1]}),
-voiceNames ({"t": "Tenor"}), skipDirections (Textangaben ignorieren), sectionNames ({"a": "Stollen"}), opusIndex (Lied Nr. in einer Sammeldatei), verses (true/false erzwingt Strophen aus den Textzeilen).
+voiceNames ({"t": "Tenor"}), voices ([{"id": "s", "name": "Sopran"}, …] in Stimmenreihenfolge),
+skipDirections (Textangaben ignorieren), sectionNames ({"a": "Stollen"}), opusIndex (Lied Nr. in einer Sammeldatei), verses (true/false erzwingt Strophen aus den Textzeilen).
 Das Ergebnis immer gegen die Vorlage prüfen; validateScore prüft nur die Form.
 """
 import copy
 import json
+import re
 import sys
 from fractions import Fraction
 
-from music21 import converter, expressions, spanner, dynamics, tempo, clef, chord, note, stream, bar
+from music21 import converter, expressions, spanner, dynamics, tempo, clef, chord, note, stream
 
 PPQ = 480
+WHOLE = 4 * PPQ
 VOICE_IDS = {
     "soprano": ("s", "Sopran"), "sopran": ("s", "Sopran"), "s": ("s", "Sopran"),
     "alto": ("a", "Alt"), "alt": ("a", "Alt"), "a": ("a", "Alt"),
@@ -30,7 +33,11 @@ VOICE_IDS = {
 def ticks(ql):
     v = Fraction(ql) * PPQ
     if v.denominator != 1:
-        raise ValueError(f"Dauer {ql} ergibt keine ganzen Ticks")
+        # Ungenau gespeicherte Triolen (z. B. 0.33203125 statt 1/3) auf ein 4-Tick-Raster runden.
+        snapped = round(v / 4) * 4
+        if abs(v - snapped) > 2:
+            raise ValueError(f"Dauer {ql} ergibt keine ganzen Ticks")
+        return int(snapped)
     return int(v)
 
 
@@ -94,7 +101,8 @@ def voice_meta(part, index, used):
 
 
 def lyric_text(ly):
-    t = (ly.text or "").strip()
+    # Strophennummern, die manche Notenprogramme in die erste Silbe schreiben („1.^Er“, „2. Und“).
+    t = re.sub(r"^\d+\.[\s^\u00a0]*", "", (ly.text or "").strip())
     if not t:
         return None
     if ly.syllabic in ("begin", "middle"):
@@ -106,7 +114,8 @@ def convert(path, meta):
     sc = converter.parse(path)
     if isinstance(sc, stream.Opus):  # z. B. ABC-Datei mit mehreren Liedern
         sc = sc.scores[meta.get("opusIndex", 0)]
-    parts = list(sc.parts)
+    # Begleitsysteme (Klavierauszug, Orgel) gehören nicht zu den Singstimmen.
+    parts = [p for p in sc.parts if not re.match(r"(?i)(piano|klavier|organ|orgel|keyboard|accomp)", p.partName or "")]
     # Mehrstimmige Systeme (voices) und Akkorde trennen.
     split = []
     for p in parts:
@@ -137,6 +146,10 @@ def convert(path, meta):
     voices, vids = [], []
     for i, p in enumerate(parts):
         vid, label = voice_meta(p, i, used)
+        if meta.get("voices") and i < len(meta["voices"]):
+            used.discard(vid)
+            vid, label = meta["voices"][i]["id"], meta["voices"][i]["name"]
+            used.add(vid)
         c, octv = clef_of(p)
         # Schlüssel überschreibbar, z. B. Tenor im oktavierten Violinschlüssel: {"t": ["treble", 1]}
         c, octv = meta.get("clefs", {}).get(vid, [c, octv])
@@ -174,7 +187,9 @@ def convert(path, meta):
         if i == 0:
             sections.append({"id": "a", "name": "Teil A"})
         elif num < prev:
-            sections.append({"id": f"w{letter}", "name": f"Teil {'ABCDEFGH'[letter]} (Wiederholung)"})
+            again = sum(1 for x in sections if x["id"].startswith(f"w{letter}-")) + 1
+            label = "Wiederholung" if again == 1 else f"{again}. Wiederholung"
+            sections.append({"id": f"w{letter}-{again}", "name": f"Teil {'ABCDEFGH'[letter]} ({label})"})
             in_repeat = True
         elif in_repeat and (num == prev or num > top):
             letter += 1
@@ -293,6 +308,11 @@ def convert(path, meta):
                 if txt and k == 0 and not meta.get("skipDirections") and len(dirs) < 4:
                     dirs.append({"at": min(ticks(x.getOffsetInHierarchy(m)), full - 1), "text": txt[:80]})
         length = max(content, 1)
+        if length > full:
+            # Übervolle Takte (häufig in Ausgaben alter Musik): Taktart an die Länge anpassen.
+            unit = WHOLE // meter[1]
+            meter = [length // unit, meter[1]] if length % unit == 0 and length // unit <= 32 else [length // (PPQ // 2), 8]
+            full = length
         rec = {"id": f"m{i + 1}", "number": str(mm[0].number), "section": sec_of[i], "meter": meter, "keyFifths": ks[0]}
         if length < full:
             rec["lengthTicks"] = length
@@ -378,6 +398,32 @@ def convert(path, meta):
                     notes[j][1]["lyric"] = lyric
                     j += 1
 
+    # Leere Stimmen (z. B. aus nur stellenweise geteilten Systemen) entfernen; bleibt von
+    # „Alt I/Alt II“ nur eine übrig, heißt sie wieder „Alt“.
+    names = {v["id"]: v for v in voices}
+    empty = [v for v in vids if not any(e["pitch"] for rec in out_measures for e in rec["voices"].get(v, []))]
+    for v in empty:
+        voices.remove(names[v])
+        for rec in out_measures:
+            rec["voices"].pop(v, None)
+            for d in rec.get("dynamics", []):
+                if "voices" in d:
+                    d["voices"] = [x for x in d["voices"] if x != v]
+            rec["dynamics"] = [d for d in rec.get("dynamics", []) if d.get("voices", True)]
+            if not rec["dynamics"]:
+                rec.pop("dynamics")
+    for v in list(voices):
+        base = v["id"].rstrip("12")
+        if base != v["id"] and base not in names and sum(1 for w in voices if w["id"].rstrip("12") == base) == 1:
+            old_id = v["id"]
+            v["id"], v["name"], v["short"] = base, v["name"].rsplit(" ", 1)[0], base.upper()
+            for rec in out_measures:
+                if old_id in rec["voices"]:
+                    rec["voices"][base] = rec["voices"].pop(old_id)
+                for d in rec.get("dynamics", []):
+                    if "voices" in d:
+                        d["voices"] = [base if x == old_id else x for x in d["voices"]]
+
     # Pickup-Nummer 0 beibehalten, Schlussstrich setzen.
     last = out_measures[-1]
     last["barlines"] = [{"at": last.get("lengthTicks") or ticks(ts[0].barDuration.quarterLength), "kind": "final"}]
@@ -436,7 +482,15 @@ if __name__ == "__main__":
         base = os.path.dirname(os.path.abspath(recipes_path))
         cache = os.path.join(base, ".cache")
         for r in json.load(open(recipes_path, encoding="utf-8")):
-            write(convert(resolve(r["src"], cache), r.get("meta", {})), os.path.join(base, r["out"]))
+            path = resolve(r["src"], cache)
+            if path.endswith(".ly"):  # LilyPond-Teilmenge (Mutopia) über den zweiten Konverter
+                sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+                from lilypond2chorprobe import convert as convert_ly
+
+                data = convert_ly(path, r.get("meta", {}))
+            else:
+                data = convert(path, r.get("meta", {}))
+            write(data, os.path.join(base, r["out"]))
     else:
         src, dst = sys.argv[1], sys.argv[2]
         meta = json.load(open(sys.argv[3], encoding="utf-8")) if len(sys.argv) > 3 else {}

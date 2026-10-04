@@ -1,121 +1,177 @@
 [
   {
-    "src": "corpus:bach/bwv386.mxl",
-    "out": "../../docs/liedquellen/lieder/bwv386.json",
+    "src": "https://www.mutopiaproject.org/ftp/Traditional/Jugend/Jugend.ly",
+    "out": "../../docs/liedquellen/lieder/schoen-ist-die-jugend.json",
     "meta": {
-      "title": "Nun danket alle Gott",
-      "subtitle": "Choral, vierstimmig",
-      "composer": "Text: Martin Rinckart, 1636 · Melodie: Johann Crüger, 1647 · Satz: Johann Sebastian Bach (BWV 386)",
-      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "title": "Schön ist die Jugend",
+      "subtitle": "Volksliederbuch für gemischten Chor, Nr. 436",
+      "composer": "Volkslied · Satz: Engelbert Humperdinck (1854–1921)",
+      "comment": "Kehrreim mit Wiederholung ausgeschrieben (Teil B). Tenor und Bass haben im Kehrreim eigenen Text („Drum sag ichs noch einmal“, „die Jugend kommt nicht mehr“). Sonst ist der Text aus der Altstimme übernommen, unter der er in der Vorlage steht.",
       "source": {
-        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv386.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
-        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
-        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
-      },
-      "tempo": 72,
-      "copyLyrics": "s",
-      "clefs": {
-        "t": ["treble", 1]
+        "description": "Automatisch konvertiert aus der LilyPond-Datei des Mutopia Project (Stück 855, Notensatz Klaus Rettinghaus, 2014, https://www.mutopiaproject.org/ftp/Traditional/Jugend/Jugend.ly) mit tools/liedquellen/lilypond2chorprobe.py. Vorlage der Mutopia-Ausgabe: Volksliederbuch für gemischten Chor, Leipzig: C. F. Peters 1915, Nr. 436.",
+        "copyright": "Musik und Text gemeinfrei. Notensatz: Klaus Rettinghaus, Mutopia Project, lizenziert unter CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Für Chorprobe in das Format chorprobe/v1 umgewandelt; Wiederholungen ausgeschrieben, Text in die übrigen Stimmen übertragen.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert; Tonhöhen und Rhythmus wie in der Mutopia-Datei."
       }
     }
   },
   {
-    "src": "corpus:bach/bwv270.mxl",
-    "out": "../../docs/liedquellen/lieder/bwv270.json",
+    "src": "https://www.mutopiaproject.org/ftp/SilcherF/Tharau/Tharau.ly",
+    "out": "../../docs/liedquellen/lieder/aennchen-von-tharau.json",
     "meta": {
-      "title": "Befiehl du deine Wege",
-      "subtitle": "Choral, vierstimmig",
-      "composer": "Text: Paul Gerhardt, 1653 · Melodie: Hans Leo Haßler, 1601 · Satz: Johann Sebastian Bach (BWV 270)",
-      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "title": "Ännchen von Tharau",
+      "subtitle": "Volksliederbuch für gemischten Chor, Nr. 391",
+      "composer": "Text: Simon Dach, 1637 · Melodie: Friedrich Silcher, 1825 · Satz: Ernst Eduard Taubert (1838–1934)",
+      "comment": "Text in der Vorlage unter dem Sopran; für Alt, Tenor und Bass übernommen.",
       "source": {
-        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv270.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
-        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
-        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
-      },
-      "tempo": 72,
-      "copyLyrics": "s",
-      "clefs": {
-        "t": ["treble", 1]
+        "description": "Automatisch konvertiert aus der LilyPond-Datei des Mutopia Project (Stück 629, Notensatz Klaus Rettinghaus, 2014, https://www.mutopiaproject.org/ftp/SilcherF/Tharau/Tharau.ly) mit tools/liedquellen/lilypond2chorprobe.py. Vorlage der Mutopia-Ausgabe: Volksliederbuch für gemischten Chor, Leipzig: C. F. Peters 1915, Nr. 391.",
+        "copyright": "Musik und Text gemeinfrei. Notensatz: Klaus Rettinghaus, Mutopia Project, lizenziert unter CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Für Chorprobe in das Format chorprobe/v1 umgewandelt; Wiederholungen ausgeschrieben, Text in die übrigen Stimmen übertragen.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert; Tonhöhen und Rhythmus wie in der Mutopia-Datei."
       }
     }
   },
   {
-    "src": "corpus:bach/bwv302.mxl",
-    "out": "../../docs/liedquellen/lieder/bwv302.json",
+    "src": "https://www.mutopiaproject.org/ftp/MuellerW/Abschied/Abschied.ly",
+    "out": "../../docs/liedquellen/lieder/abschied-von-der-heimat.json",
     "meta": {
-      "title": "Ein feste Burg ist unser Gott",
-      "subtitle": "Choral, vierstimmig",
-      "composer": "Text und Melodie: Martin Luther, 1529 · Satz: Johann Sebastian Bach (BWV 302)",
-      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "title": "Abschied von der Heimat",
+      "subtitle": "So leb denn wohl, du stilles Haus · Volksliederbuch für gemischten Chor, Nr. 224",
+      "composer": "Text: nach Ferdinand Raimund, 1828 · Melodie: Wenzel Müller, 1828 · Satz: Robert Fuchs (1847–1927)",
       "source": {
-        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv302.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
-        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
-        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
-      },
-      "tempo": 72,
-      "copyLyrics": "s",
-      "clefs": {
-        "t": ["treble", 1]
+        "description": "Automatisch konvertiert aus der LilyPond-Datei des Mutopia Project (Stück 627, Notensatz Klaus Rettinghaus, 2014, https://www.mutopiaproject.org/ftp/MuellerW/Abschied/Abschied.ly) mit tools/liedquellen/lilypond2chorprobe.py. Vorlage der Mutopia-Ausgabe: Volksliederbuch für gemischten Chor, Leipzig: C. F. Peters 1915, Nr. 224.",
+        "copyright": "Musik und Text gemeinfrei. Notensatz: Klaus Rettinghaus, Mutopia Project, lizenziert unter CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Für Chorprobe in das Format chorprobe/v1 umgewandelt; Wiederholungen ausgeschrieben, Text in die übrigen Stimmen übertragen.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert; Tonhöhen und Rhythmus wie in der Mutopia-Datei."
       }
     }
   },
   {
-    "src": "corpus:bach/bwv392.mxl",
-    "out": "../../docs/liedquellen/lieder/bwv392.json",
+    "src": "https://www.mutopiaproject.org/ftp/HumperdinckE/Maedchenpreis/Maedchenpreis.ly",
+    "out": "../../docs/liedquellen/lieder/maedchenpreis.json",
     "meta": {
-      "title": "Nun ruhen alle Wälder",
-      "subtitle": "Choral, vierstimmig",
-      "composer": "Text: Paul Gerhardt, 1647 · Melodie: Heinrich Isaac, um 1495 · Satz: Johann Sebastian Bach (BWV 392)",
-      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "title": "Mädchenpreis",
+      "subtitle": "Ich spring an diesem Ringe · Volksliederbuch für gemischten Chor, Nr. 290",
+      "composer": "Volkslied · Melodie: Lochamer Liederbuch, um 1460 · Satz: Engelbert Humperdinck (1854–1921)",
       "source": {
-        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv392.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
-        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
-        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
-      },
-      "tempo": 72,
-      "copyLyrics": "s",
-      "clefs": {
-        "t": ["treble", 1]
+        "description": "Automatisch konvertiert aus der LilyPond-Datei des Mutopia Project (Stück 628, Notensatz Klaus Rettinghaus, 2014, https://www.mutopiaproject.org/ftp/HumperdinckE/Maedchenpreis/Maedchenpreis.ly) mit tools/liedquellen/lilypond2chorprobe.py. Vorlage der Mutopia-Ausgabe: Volksliederbuch für gemischten Chor, Leipzig: C. F. Peters 1915, Nr. 290.",
+        "copyright": "Musik und Text gemeinfrei. Notensatz: Klaus Rettinghaus, Mutopia Project, lizenziert unter CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Für Chorprobe in das Format chorprobe/v1 umgewandelt; Wiederholungen ausgeschrieben, Text in die übrigen Stimmen übertragen.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert; Tonhöhen und Rhythmus wie in der Mutopia-Datei."
       }
     }
   },
   {
-    "src": "corpus:bach/bwv436.mxl",
-    "out": "../../docs/liedquellen/lieder/bwv436.json",
+    "src": "https://www.mutopiaproject.org/ftp/BrahmsJ/InstillerNacht/InstillerNacht.ly",
+    "out": "../../docs/liedquellen/lieder/in-stiller-nacht.json",
     "meta": {
-      "title": "Wie schön leuchtet der Morgenstern",
-      "subtitle": "Choral, vierstimmig",
-      "composer": "Text und Melodie: Philipp Nicolai, 1599 · Satz: Johann Sebastian Bach (BWV 436)",
-      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "title": "In stiller Nacht",
+      "subtitle": "Volksliederbuch für gemischten Chor, Nr. 139",
+      "composer": "Text: nach Friedrich Spee · Weise und Satz: Johannes Brahms (1833–1897)",
       "source": {
-        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv436.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
-        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
-        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
-      },
-      "tempo": 72,
-      "copyLyrics": "s",
-      "clefs": {
-        "t": ["treble", 1]
+        "description": "Automatisch konvertiert aus der LilyPond-Datei des Mutopia Project (Stück 1709, Notensatz Klaus Rettinghaus, 2014, https://www.mutopiaproject.org/ftp/BrahmsJ/InstillerNacht/InstillerNacht.ly) mit tools/liedquellen/lilypond2chorprobe.py. Vorlage der Mutopia-Ausgabe: Volksliederbuch für gemischten Chor, Leipzig: C. F. Peters 1915, Nr. 139.",
+        "copyright": "Musik und Text gemeinfrei. Notensatz: Klaus Rettinghaus, Mutopia Project, lizenziert unter CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Für Chorprobe in das Format chorprobe/v1 umgewandelt; Wiederholungen ausgeschrieben, Text in die übrigen Stimmen übertragen.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert; Tonhöhen und Rhythmus wie in der Mutopia-Datei."
       }
     }
   },
   {
-    "src": "corpus:bach/bwv375.mxl",
-    "out": "../../docs/liedquellen/lieder/bwv375.json",
+    "src": "https://www.mutopiaproject.org/ftp/HumperdinckE/Abendlied/Abendlied.ly",
+    "out": "../../docs/liedquellen/lieder/ein-geistlich-abendlied.json",
     "meta": {
-      "title": "Lobt Gott, ihr Christen, allzugleich",
-      "subtitle": "Choral, vierstimmig",
-      "composer": "Text und Melodie: Nikolaus Herman, 1560 · Satz: Johann Sebastian Bach (BWV 375)",
-      "comment": "Text in der Vorlage nur im Sopran; für Alt, Tenor und Bass automatisch an gleichzeitig beginnende Noten übertragen. Wo eine Unterstimme rhythmisch abweicht, kann eine Silbe fehlen. Schreibweise der Vorlage beibehalten. Wiederholung des Stollens ausgeschrieben. Tenor im oktavierten Violinschlüssel (Vorlage: Bassschlüssel).",
+      "title": "Ein geistlich Abendlied",
+      "subtitle": "Es ist so still geworden · Volksliederbuch für gemischten Chor, Nr. 166",
+      "composer": "Text: Gottfried Kinkel, 1840 · Weise: 1532 aufgezeichnet · Satz: Engelbert Humperdinck (1854–1921)",
       "source": {
-        "description": "Automatisch konvertiert aus dem music21-Korpus (bach/bwv375.mxl, Kodierung: Margaret Greentree, jsbchorales.net, im Korpus „used by permission“) mit tools/liedquellen/musicxml2chorprobe.py. Musik und Text gemeinfrei. Gemeinfreie Druckvorlage zum Gegenlesen: Breitkopf-Ausgabe der 371 vierstimmigen Choralgesänge (1784–1787), IMSLP.",
-        "copyright": "Gemeinfrei (Musik und Text). Kodierung: M. Greentree via music21-Korpus.",
-        "edition": "Hörprobe für die Liedquellen-Recherche, nicht gegen eine Druckvorlage gegengelesen."
-      },
-      "tempo": 72,
-      "copyLyrics": "s",
-      "clefs": {
-        "t": ["treble", 1]
+        "description": "Automatisch konvertiert aus der LilyPond-Datei des Mutopia Project (Stück 854, Notensatz Klaus Rettinghaus, 2014, https://www.mutopiaproject.org/ftp/HumperdinckE/Abendlied/Abendlied.ly) mit tools/liedquellen/lilypond2chorprobe.py. Vorlage der Mutopia-Ausgabe: Volksliederbuch für gemischten Chor, Leipzig: C. F. Peters 1915, Nr. 166.",
+        "copyright": "Musik und Text gemeinfrei. Notensatz: Klaus Rettinghaus, Mutopia Project, lizenziert unter CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Für Chorprobe in das Format chorprobe/v1 umgewandelt; Wiederholungen ausgeschrieben, Text in die übrigen Stimmen übertragen.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert; Tonhöhen und Rhythmus wie in der Mutopia-Datei."
+      }
+    }
+  },
+  {
+    "src": "https://www.mutopiaproject.org/ftp/SilcherF/InderFerneM/InderFerneM.ly",
+    "out": "../../docs/liedquellen/lieder/in-der-ferne-maennerchor.json",
+    "meta": {
+      "title": "In der Ferne",
+      "subtitle": "Nun leb wohl, du kleine Gasse · Volksliederbuch für Männerchor, Nr. 222",
+      "composer": "Text: Albert Graf Schlippenbach, 1833 · Melodie: Friedrich Silcher (1789–1860)",
+      "comment": "Männerchor (TTBB). Text in der Vorlage zwischen den Systemen; für alle vier Stimmen übernommen.",
+      "source": {
+        "description": "Automatisch konvertiert aus der LilyPond-Datei des Mutopia Project (Stück 800, Notensatz Klaus Rettinghaus, 2014, https://www.mutopiaproject.org/ftp/SilcherF/InderFerneM/InderFerneM.ly) mit tools/liedquellen/lilypond2chorprobe.py. Vorlage der Mutopia-Ausgabe: Volksliederbuch für Männerchor, Leipzig: C. F. Peters 1907, Nr. 222.",
+        "copyright": "Musik und Text gemeinfrei. Notensatz: Klaus Rettinghaus, Mutopia Project, lizenziert unter CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Für Chorprobe in das Format chorprobe/v1 umgewandelt; Wiederholungen ausgeschrieben, Text in die übrigen Stimmen übertragen.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert; Tonhöhen und Rhythmus wie in der Mutopia-Datei."
+      }
+    }
+  },
+  {
+    "src": "https://archive.org/download/wiki-cpdlorg_wiki-with-files/cpdlorg_wiki-20201112-wikidump.7z/images%2FWalter%20-%20Vom%20Himmel%20hoch.mxl",
+    "out": "../../docs/liedquellen/lieder/vom-himmel-hoch-walter.json",
+    "meta": {
+      "title": "Vom Himmel hoch, da komm ich her",
+      "subtitle": "Dreistimmig (ATB), aus „Trium vocum cantiones“, 1541",
+      "composer": "Text: Martin Luther, 1535 · Satz: Johann Walter (1496–1570)",
+      "tempo": 120,
+      "voices": [
+        {
+          "id": "a",
+          "name": "Alt"
+        },
+        {
+          "id": "t",
+          "name": "Tenor"
+        },
+        {
+          "id": "b",
+          "name": "Bass"
+        }
+      ],
+      "comment": "Halbe-Takt (2/2) wie in der Ausgabe; Tempo 120 Viertel = 60 Halbe.",
+      "source": {
+        "description": "Automatisch konvertiert aus der MusicXML-Datei der Choral Public Domain Library (CPDL #25151, Ausgabe Ross Jallo, 2011, „Walter_-_Vom_Himmel_hoch.mxl“) mit tools/liedquellen/musicxml2chorprobe.py. Datei aus dem CPDL-Abzug im Internet Archive, SHA-1-gleich mit dem CPDL-Stand von April 2026.",
+        "copyright": "Gemeinfrei. Die CPDL-Ausgabe von Ross Jallo, 2011 ist als „Public Domain“ freigegeben.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert."
+      }
+    }
+  },
+  {
+    "src": "https://archive.org/download/wiki-cpdlorg_wiki-with-files/cpdlorg_wiki-20201112-wikidump.7z/images%2FPraetorius%20-%20Nun%20komm%20a%203.mxl",
+    "out": "../../docs/liedquellen/lieder/nun-komm-der-heiden-heiland-praetorius.json",
+    "meta": {
+      "title": "Nun komm, der Heiden Heiland",
+      "subtitle": "Dreistimmig (SAB), Musae Sioniae V, 1607, Nr. 51",
+      "composer": "Text: Martin Luther, 1524 · Satz: Michael Praetorius (1571–1621)",
+      "tempo": 100,
+      "voices": [
+        {
+          "id": "s",
+          "name": "Sopran"
+        },
+        {
+          "id": "a",
+          "name": "Alt"
+        },
+        {
+          "id": "b",
+          "name": "Bass (Choralmelodie)"
+        }
+      ],
+      "comment": "Die Choralmelodie liegt in langen Noten in der Unterstimme. Die Ausgabe setzt Taktstriche nur nach Abschnitten; die Takte sind deshalb unterschiedlich lang (8/4, 12/4).",
+      "source": {
+        "description": "Automatisch konvertiert aus der MusicXML-Datei der Choral Public Domain Library (CPDL #23579, Ausgabe Ross Jallo, 2011, „Praetorius_-_Nun_komm_a_3.mxl“) mit tools/liedquellen/musicxml2chorprobe.py. Datei aus dem CPDL-Abzug im Internet Archive, SHA-1-gleich mit dem CPDL-Stand von April 2026.",
+        "copyright": "Gemeinfrei. Die CPDL-Ausgabe von Ross Jallo, 2011 ist als „Public Domain“ freigegeben.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert."
+      }
+    }
+  },
+  {
+    "src": "https://archive.org/download/wiki-cpdlorg_wiki-with-files/cpdlorg_wiki-20201112-wikidump.7z/images%2FRheinberger-Abendfriede.mxl",
+    "out": "../../docs/liedquellen/lieder/abendfriede-rheinberger.json",
+    "meta": {
+      "title": "Abendfriede",
+      "subtitle": "Die Schwalbe schwingt zum Abendliede sich · Im neuen Frühling op. 52 Nr. 5",
+      "composer": "Text: Friedrich Rückert · Musik: Josef Rheinberger (1839–1901)",
+      "comment": "Klavierauszug der Ausgabe weggelassen; nur die vier Singstimmen.",
+      "source": {
+        "description": "Automatisch konvertiert aus der MusicXML-Datei der Choral Public Domain Library (CPDL #24229, Ausgabe Matthew D. Nielsen, 2011, „Rheinberger-Abendfriede.mxl“) mit tools/liedquellen/musicxml2chorprobe.py. Datei aus dem CPDL-Abzug im Internet Archive, SHA-1-gleich mit dem CPDL-Stand von April 2026.",
+        "copyright": "Gemeinfrei. Die CPDL-Ausgabe von Matthew D. Nielsen, 2011 ist als „Public Domain“ freigegeben.",
+        "edition": "Hörprobe aus der Liedquellen-Recherche, automatisch konvertiert."
       }
     }
   }

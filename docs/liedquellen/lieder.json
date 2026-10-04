@@ -1,58 +1,90 @@
 [
   {
+    "file": "schoen-ist-die-jugend.json",
+    "kategorie": "Volkslied",
+    "besetzung": "SATB, 5 Strophen",
+    "quelle": "Volksliederbuch für gemischten Chor (Peters 1915), Notensatz Mutopia Project (Klaus Rettinghaus), Nr. 436 · <a href=\"https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=855\">Mutopia 855</a>",
+    "status": "gruen",
+    "statusText": "Satz gemeinfrei. Kodierung CC BY 4.0: mit Namensnennung frei nutzbar."
+  },
+  {
+    "file": "aennchen-von-tharau.json",
+    "kategorie": "Volkslied",
+    "besetzung": "SATB, 4 Strophen",
+    "quelle": "Volksliederbuch für gemischten Chor (Peters 1915), Notensatz Mutopia Project (Klaus Rettinghaus), Nr. 391 · <a href=\"https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=629\">Mutopia 629</a>",
+    "status": "gruen",
+    "statusText": "Satz gemeinfrei. Kodierung CC BY 4.0: mit Namensnennung frei nutzbar."
+  },
+  {
+    "file": "abschied-von-der-heimat.json",
+    "kategorie": "Volkslied",
+    "besetzung": "SATB, 3 Strophen",
+    "quelle": "Volksliederbuch für gemischten Chor (Peters 1915), Notensatz Mutopia Project (Klaus Rettinghaus), Nr. 224 · <a href=\"https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=627\">Mutopia 627</a>",
+    "status": "gruen",
+    "statusText": "Satz gemeinfrei. Kodierung CC BY 4.0: mit Namensnennung frei nutzbar."
+  },
+  {
+    "file": "maedchenpreis.json",
+    "kategorie": "Volkslied",
+    "besetzung": "SATB, 5 Strophen",
+    "quelle": "Volksliederbuch für gemischten Chor (Peters 1915), Notensatz Mutopia Project (Klaus Rettinghaus), Nr. 290 · <a href=\"https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=628\">Mutopia 628</a>",
+    "status": "gruen",
+    "statusText": "Satz gemeinfrei. Kodierung CC BY 4.0: mit Namensnennung frei nutzbar."
+  },
+  {
+    "file": "in-stiller-nacht.json",
+    "kategorie": "Volkslied",
+    "besetzung": "SATB, 2 Strophen",
+    "quelle": "Volksliederbuch für gemischten Chor (Peters 1915), Notensatz Mutopia Project (Klaus Rettinghaus), Nr. 139 · <a href=\"https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1709\">Mutopia 1709</a>",
+    "status": "gruen",
+    "statusText": "Satz gemeinfrei. Kodierung CC BY 4.0: mit Namensnennung frei nutzbar."
+  },
+  {
+    "file": "ein-geistlich-abendlied.json",
+    "kategorie": "Geistliches Volkslied",
+    "besetzung": "SATB, 4 Strophen",
+    "quelle": "Volksliederbuch für gemischten Chor (Peters 1915), Notensatz Mutopia Project (Klaus Rettinghaus), Nr. 166 · <a href=\"https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=854\">Mutopia 854</a>",
+    "status": "gruen",
+    "statusText": "Satz gemeinfrei. Kodierung CC BY 4.0: mit Namensnennung frei nutzbar."
+  },
+  {
+    "file": "in-der-ferne-maennerchor.json",
+    "kategorie": "Volkslied",
+    "besetzung": "TTBB, 4 Strophen",
+    "quelle": "Volksliederbuch für Männerchor (Peters 1907), Nr. 222, Notensatz Mutopia Project (Klaus Rettinghaus) · <a href=\"https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=800\">Mutopia 800</a>",
+    "status": "gruen",
+    "statusText": "Satz gemeinfrei. Kodierung CC BY 4.0: mit Namensnennung frei nutzbar."
+  },
+  {
+    "file": "vom-himmel-hoch-walter.json",
+    "kategorie": "Choralsatz",
+    "besetzung": "ATB, dreistimmig",
+    "quelle": "Johann Walter, „Trium vocum cantiones“ 1541; MusicXML von Ross Jallo · <a href=\"https://www.cpdl.org/wiki/index.php/Vom_Himmel_hoch,_da_komm_ich_her_(Johann_Walter)\">CPDL #25151</a>",
+    "status": "gruen",
+    "statusText": "Gemeinfrei, auch die Ausgabe („Public Domain“ bei CPDL)."
+  },
+  {
+    "file": "nun-komm-der-heiden-heiland-praetorius.json",
+    "kategorie": "Choralsatz",
+    "besetzung": "SAB, dreistimmig",
+    "quelle": "Michael Praetorius, Musae Sioniae V (1607), Nr. 51; MusicXML von Ross Jallo · <a href=\"https://www.cpdl.org/wiki/index.php/Nun_komm_der_Heiden_Heiland_a_3_(Michael_Praetorius)\">CPDL #23579</a>",
+    "status": "gruen",
+    "statusText": "Gemeinfrei, auch die Ausgabe („Public Domain“ bei CPDL)."
+  },
+  {
     "file": "es-toenen-die-lieder.json",
     "kategorie": "Kanon",
-    "besetzung": "3 Stimmen (SATB ausgeschrieben)",
-    "quelle": "Melodie nach dem LilyPond-Satz in der deutschen Wikipedia, abgeglichen mit lieder-archiv.de; Kanon für Chorprobe ausgeschrieben.",
+    "besetzung": "3 Stimmen (für SATB ausgeschrieben)",
+    "quelle": "Melodie nach dem LilyPond-Satz der deutschen Wikipedia, abgeglichen mit lieder-archiv.de; Kanon für Chorprobe ausgeschrieben (früher schon in der App).",
     "status": "gruen",
-    "statusText": "Gemeinfrei (anonym, 19. Jh.), Note für Note geprüft. War früher schon in Chorprobe."
+    "statusText": "Gemeinfrei (anonym, 19. Jh.), von Hand geprüft."
   },
   {
-    "file": "bwv386.json",
-    "kategorie": "Choral",
+    "file": "abendfriede-rheinberger.json",
+    "kategorie": "Chorlied",
     "besetzung": "SATB",
-    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
-    "status": "gelb",
-    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
-  },
-  {
-    "file": "bwv270.json",
-    "kategorie": "Choral",
-    "besetzung": "SATB",
-    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
-    "status": "gelb",
-    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
-  },
-  {
-    "file": "bwv302.json",
-    "kategorie": "Choral",
-    "besetzung": "SATB",
-    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
-    "status": "gelb",
-    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
-  },
-  {
-    "file": "bwv392.json",
-    "kategorie": "Choral",
-    "besetzung": "SATB",
-    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
-    "status": "gelb",
-    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
-  },
-  {
-    "file": "bwv436.json",
-    "kategorie": "Choral",
-    "besetzung": "SATB",
-    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
-    "status": "gelb",
-    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
-  },
-  {
-    "file": "bwv375.json",
-    "kategorie": "Choral",
-    "besetzung": "SATB",
-    "quelle": "Automatisch aus dem music21-Korpus konvertiert (MusicXML, Kodierung M. Greentree).",
-    "status": "gelb",
-    "statusText": "Musik gemeinfrei. Kodierung „used by permission“: vor Aufnahme in die App gegen den Breitkopf-Druck (IMSLP) prüfen oder neu kodieren."
+    "quelle": "Josef Rheinberger, „Im neuen Frühling“ op. 52 Nr. 5, Text Friedrich Rückert; MusicXML von Matthew D. Nielsen · <a href=\"https://www.cpdl.org/wiki/index.php/Abendfriede_(Josef_Rheinberger)\">CPDL #24229</a>",
+    "status": "gruen",
+    "statusText": "Gemeinfrei, auch die Ausgabe („Public Domain“ bei CPDL)."
   }
 ]

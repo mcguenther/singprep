@@ -56,7 +56,7 @@ function buildApp() {
     html = html.replace(/([ \t]*)<script src="scores\/[^"]+"><\/script>\n/, (_, indent) =>
       tags.map((t) => `${indent}${t}\n`).join(""),
     );
-    // Kein Favicon im eingebetteten Build: die Seite soll kein data:image/ enthalten (siehe CLAUDE.md).
+    // Das Favicon braucht die eingebettete App nicht.
     html = html.replace(/[ \t]*<link\s+rel="icon"[^>]*>\n?/, "");
     // Private Lieder gehören nie in diese Datei.
     html = html.replace(/[ \t]*<script src="local\/scores\.js"[^>]*><\/script>\n/, "");
