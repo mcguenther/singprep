@@ -403,7 +403,8 @@ def align(syllables, events, beam_melisma=True):
 # ---------------------------------------------------------------- Partitur
 def convert(path, meta):
     text = strip_comments(open(path, encoding="utf-8").read())
-    lang = re.search(r'\\(?:include\s+"(\w+)\.ly"|language\s+"(\w+)")', text)
+    namen = "deutsch|nederlands|english|italiano|espanol|español|catalan|norsk|suomi|svenska|portugues|vlaams|espanol"
+    lang = re.search(r'\\(?:include\s+"(' + namen + r')\.ly"|language\s+"(' + namen + r')")', text)
     LANG["name"] = (lang.group(1) or lang.group(2)) if lang else "nederlands"
     if LANG["name"] not in ("deutsch", "nederlands"):
         raise ValueError(f"Notennamen-Sprache {LANG['name']} wird nicht unterstützt.")
@@ -433,6 +434,8 @@ def convert(path, meta):
         score,
         re.S,
     )
+    if not voice_vars:
+        raise ValueError("Partiturstruktur nicht erkannt (erwartet: \\context Voice = Name { … \\global \\Stimme })")
     lyric_links = re.findall(r'\\lyricsto\s+"?(\w+)"?\s*\\(\w+)', score)
     tempo_m = re.search(r"\\tempo\s+(\d+)(\.?)\s*=\s*(\d+)", score)
     tempo = meta.get("tempo")

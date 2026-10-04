@@ -7,12 +7,19 @@ Tempo selbst tippen, Übebereiche schleifen. Sie läuft ohne Server und ohne Bui
 ## Rechte – wichtigste Regel
 
 - **Niemals urheberrechtlich geschützte Noten, Liedtexte, Notenfotos oder Verlagsangaben committen**,
-  auch nicht als Testfixture, Beispiel, Kommentar oder Screenshot. Im Repo liegen nur gemeinfreie oder
-  selbst erstellte Lieder.
+  auch nicht als Testfixture, Beispiel, Kommentar oder Screenshot. Im Repo liegen nur Lieder, die
+  gemeinfrei oder selbst erstellt sind oder unter einer freien Lizenz stehen, die Weitergabe und
+  Bearbeitung erlaubt: CC0, CC BY, CC BY-SA oder CPDL-Lizenz. Nicht erlaubt: NC, ND, „Personal“ und
+  Ausgaben ohne Lizenzangabe.
+- **Lizenzierte Lieder tragen ihren Lizenzvermerk** in `source.copyright` (die App zeigt ihn unter der
+  Partitur): Urheber bzw. Herausgeber, Quelle mit Link, Lizenz und dass die Datei umgewandelt wurde,
+  mit Datum. Bei CC BY-SA und CPDL-Lizenz steht die Lieddatei weiter unter derselben Lizenz; das gilt
+  nur für diese Datei, nicht für die App.
 - Private Lieder gehören nach `local/` (gitignored). `index.html` lädt optional `local/scores.js`.
 - `npm run build` bettet `local/scores.js` mit ein, wenn es existiert. `dist/` ist deshalb gitignored
   und darf nicht veröffentlicht werden, solange private Lieder darin stecken.
-- Vor jedem Commit prüfen: `git diff --cached` enthält keine fremden Lieder und kein `data:image/`.
+- Vor jedem Commit prüfen: `git diff --cached` enthält keine Lieder ohne passende Lizenz und kein
+  `data:image/`.
 
 ## Befehle
 
@@ -43,7 +50,10 @@ tests/              node:test; tests/support/load.js lädt die Browser-Skripte p
 tools/              build-standalone.mjs
 tools/liedquellen/  Import (musicxml2chorprobe.py, lilypond2chorprobe.py; music21 nur dafür),
                     rezepte.json, Seitenbau build.mjs + vorlage.html
-docs/liedquellen/   Recherche „Woher neue Lieder kommen“: index.html (erzeugt), lieder.json, lieder/
+docs/liedquellen/   Recherche „Woher neue Lieder kommen“: index.html (erzeugt), lieder.json, lieder/,
+                    TODO.md (Plan und Importstand)
+bibliothek/         automatisch importierte Lieder (JSON, ungeprüft) und katalog-*.json mit Status,
+                    Quelle und Lizenz je Lied; erzeugt von tools/liedquellen/*_import.py
 ```
 
 ### Warum keine ES-Module

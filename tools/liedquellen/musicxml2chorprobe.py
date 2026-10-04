@@ -7,7 +7,7 @@ Aufruf:
 
 Benötigt music21 (pip install music21). Nur für den Import; die App selbst bleibt ohne Abhängigkeiten.
 meta.json (alle Felder optional): title, subtitle, composer, comment, source, tempo, defaultTempo,
-copyLyrics (Stimmen-ID, deren Text auf textlose Stimmen übertragen wird), clefs ({"t": ["treble", 1]}),
+copyLyrics (Stimmen-ID oder "auto", deren Text auf textlose Stimmen übertragen wird), clefs ({"t": ["treble", 1]}),
 voiceNames ({"t": "Tenor"}), voices ([{"id": "s", "name": "Sopran"}, …] in Stimmenreihenfolge),
 skipDirections (Textangaben ignorieren), sectionNames ({"a": "Stollen"}), opusIndex (Lied Nr. in einer Sammeldatei), verses (true/false erzwingt Strophen aus den Textzeilen).
 Das Ergebnis immer gegen die Vorlage prüfen; validateScore prüft nur die Form.
@@ -21,6 +21,12 @@ from fractions import Fraction
 from music21 import converter, expressions, spanner, dynamics, tempo, clef, chord, note, stream
 
 PPQ = 480
+INSTRUMENT = re.compile(
+    r"(?i)\b(piano|pianoforte|klavier|organ|orgel|org\.|keyboard|accomp|begleitung|harmonium|continuo|"
+    r"b\.\s?c\.|cembalo|harpsichord|violin|violino|viola|violoncello|cello|contrabass|kontrabass|flute|"
+    r"flöte|flauto|oboe|clarinet|klarinette|bassoon|fagott|trumpet|trompete|tromba|horn|corno|trombone|"
+    r"posaune|timpani|pauke|guitar|gitarre|lute|laute|harp|harfe|reduction|reduktion)"
+)
 WHOLE = 4 * PPQ
 VOICE_IDS = {
     "soprano": ("s", "Sopran"), "sopran": ("s", "Sopran"), "s": ("s", "Sopran"),
@@ -85,17 +91,36 @@ def split_chords(part):
     return result
 
 
+STIMMWORT = [
+    (r"sopran|soprano|cantus|superius|discantus|diskant|sopr\b|^s\b", "s", "Sopran"),
+    (r"\balt\b|alto|altus|contratenor|countertenor|contralto|^a\b", "a", "Alt"),
+    (r"tenor|tenore|^t\b", "t", "Tenor"),
+    (r"bariton|baritone", "bar", "Bariton"),
+    (r"\bbass\b|basso|bassus|^b\b", "b", "Bass"),
+]
+
+
 def voice_meta(part, index, used):
+    """Stimm-ID und -name aus dem Stimmnamen der Vorlage, auch historische Namen (Cantus, Bassus)."""
     name = (part.partName or "").strip()
-    key = name.lower().rstrip(".").split()[0] if name else ""
-    vid, label = VOICE_IDS.get(key, (None, None))
-    roman = name.split()[-1] if name else ""
-    if vid and roman in ("I", "II", "1", "2"):
-        vid = vid + ("1" if roman in ("I", "1") else "2")
-        label = f"{label} {'I' if roman in ('I', '1') else 'II'}"
-    if not vid or vid in used:
+    low = name.lower().replace(".", " ").strip()
+    vid = label = None
+    for muster, kurz, lang in STIMMWORT:
+        if re.search(muster, low):
+            vid, label = kurz, lang
+            break
+    nummer = re.search(r"(?:\b|\s)(I{1,3}|[123])\s*$", name)
+    if vid and nummer:
+        k = {"I": 1, "II": 2, "III": 3}.get(nummer.group(1), None) or int(nummer.group(1))
+        vid, label = f"{vid}{k}", f"{label} {'I' * k}"
+    if vid and vid in used:
+        k = 2
+        while f"{vid}{k}" in used:
+            k += 1
+        vid, label = f"{vid}{k}", f"{label} {'I' * k if k <= 3 else k}"
+    if not vid:
         vid = f"v{index + 1}"
-        label = name or f"Stimme {index + 1}"
+        label = name[:80] or f"Stimme {index + 1}"
     used.add(vid)
     return vid, label
 
@@ -114,8 +139,10 @@ def convert(path, meta):
     sc = converter.parse(path)
     if isinstance(sc, stream.Opus):  # z. B. ABC-Datei mit mehreren Liedern
         sc = sc.scores[meta.get("opusIndex", 0)]
-    # Begleitsysteme (Klavierauszug, Orgel) gehören nicht zu den Singstimmen.
-    parts = [p for p in sc.parts if not re.match(r"(?i)(piano|klavier|organ|orgel|keyboard|accomp)", p.partName or "")]
+    # Begleitsysteme und Instrumente gehören nicht zu den Singstimmen.
+    parts = [p for p in sc.parts if not INSTRUMENT.search(p.partName or "")]
+    if not parts:
+        raise ValueError("Keine Singstimmen gefunden (nur Instrumente).")
     # Mehrstimmige Systeme (voices) und Akkorde trennen.
     split = []
     for p in parts:
@@ -371,6 +398,10 @@ def convert(path, meta):
     # Jede Silbe geht an die erste neu angeschlagene Note der Zielstimme zwischen dieser und der
     # nächsten Silbe der Quellstimme (deckt leicht verschobene Rhythmen in Unterstimmen ab).
     src_vid = meta.get("copyLyrics")
+    if src_vid == "auto":
+        # Nur übertragen, wenn manche Stimmen gar keinen Text haben; Quelle ist die textreichste.
+        counts = {v: sum(1 for rec in out_measures for e in rec["voices"].get(v, []) if e.get("lyric") is not None) for v in vids}
+        src_vid = max(counts, key=counts.get) if counts and max(counts.values()) and min(counts.values()) == 0 else None
     if src_vid:
         def timeline(v):
             out, start, tied = [], 0, False
@@ -397,6 +428,35 @@ def convert(path, meta):
                 if j < len(notes) and notes[j][0] < end and not notes[j][2]:
                     notes[j][1]["lyric"] = lyric
                     j += 1
+
+    # Haltebögen und Bögen reparieren, die in der Vorlage nicht schließen oder ins Leere gehen.
+    for v in vids:
+        seq, start = [], 0
+        for rec in out_measures:
+            for e in rec["voices"].get(v, []):
+                seq.append((start + e["at"], e))
+            start += rec.get("lengthTicks") or ticks(Fraction(rec["meter"][0] * 4, rec["meter"][1]))
+        offen = None
+        for k, (t, e) in enumerate(seq):
+            nxt = seq[k + 1] if k + 1 < len(seq) else None
+            if e.get("tie") and not (
+                nxt and e["pitch"] and nxt[1]["pitch"] == e["pitch"] and nxt[0] == t + e["duration"]
+            ):
+                del e["tie"]
+            if e["pitch"] is None:
+                e.pop("slur", None)
+            elif e.get("slur") == "start":
+                if offen is not None:
+                    del e["slur"]  # keine verschachtelten Bögen
+                else:
+                    offen = e
+            elif e.get("slur") == "end":
+                if offen is None:
+                    del e["slur"]
+                else:
+                    offen = None
+        if offen is not None:
+            del offen["slur"]
 
     # Leere Stimmen (z. B. aus nur stellenweise geteilten Systemen) entfernen; bleibt von
     # „Alt I/Alt II“ nur eine übrig, heißt sie wieder „Alt“.

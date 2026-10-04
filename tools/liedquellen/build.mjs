@@ -7,6 +7,8 @@
 import { execFileSync } from "node:child_process";
 import {
   copyFileSync,
+  existsSync,
+  readdirSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -150,7 +152,48 @@ function card(s, index) {
 const appHtml = buildApp();
 // Als JS-Zeichenkette einbetten; "<" maskieren, damit kein </script> die Seite beendet.
 const appLiteral = JSON.stringify(appHtml).replace(/</g, "\\u003c");
+// Importstand der Bibliothek (bibliothek/katalog-*.json) als kleine Übersicht.
+function bibliothek() {
+  const dir = join(root, "bibliothek");
+  if (!existsSync(dir)) return "<p>Noch nichts importiert.</p>";
+  const alle = readdirSync(dir)
+    .filter((f) => /^katalog-.*\.json$/.test(f))
+    .flatMap((f) => JSON.parse(readFileSync(join(dir, f), "utf8")));
+  const da = alle.filter((e) => e.datei);
+  const zaehl = (liste, key) =>
+    Object.entries(liste.reduce((m, e) => ((m[key(e)] = (m[key(e)] || 0) + 1), m), {})).sort(
+      (a, b) => b[1] - a[1],
+    );
+  const zeile = (titel, paare) =>
+    `<div><dt>${esc(titel)}</dt><dd>${paare.map(([k, n]) => `<span>${esc(k)} <b>${n.toLocaleString("de-DE")}</b></span>`).join("")}</dd></div>`;
+  const stimmen = (e) => (e.stimmen >= 5 ? "5 und mehr" : `${e.stimmen}-stimmig`);
+  const lizenz = {
+    pd: "gemeinfrei",
+    cc0: "CC0",
+    "cc-by": "CC BY",
+    "cc-by-sa": "CC BY-SA",
+    cpdl: "CPDL-Lizenz",
+  };
+  return `<p class="prose">${da.length.toLocaleString("de-DE")} Lieder automatisch importiert, ${(alle.length - da.length).toLocaleString("de-DE")} Fehlschläge mit Grund im Katalog. Die Lieder liegen ungeprüft in <code>bibliothek/</code>; Filter und Suche folgen.</p>
+        <dl class="stats">
+          ${zeile(
+            "Quelle",
+            zaehl(da, (e) => e.quelle),
+          )}
+          ${zeile("Stimmen", zaehl(da, stimmen))}
+          ${zeile(
+            "Lizenz",
+            zaehl(da, (e) => lizenz[e.lizenz] || e.lizenz),
+          )}
+          ${zeile(
+            "Status",
+            zaehl(alle, (e) => e.status),
+          )}
+        </dl>`;
+}
+
 let page = read("tools/liedquellen/vorlage.html");
+page = page.replace("<!--BIBLIOTHEK-->", () => bibliothek());
 page = page.replace("<!--HOERPROBEN-->", () => songs.map(card).join("\n"));
 page = page.replace('"__APP_HTML__"', () => appLiteral);
 page = page.replace("__ANZAHL__", String(songs.length));

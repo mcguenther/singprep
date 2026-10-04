@@ -429,6 +429,38 @@
         gap: 0.7rem;
         max-width: 68ch;
       }
+      .stats {
+        margin: 0;
+        display: grid;
+        gap: 0.6rem;
+      }
+      .stats div {
+        display: grid;
+        grid-template-columns: 7rem 1fr;
+        gap: 0.8rem;
+        align-items: baseline;
+      }
+      .stats dt {
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .stats dd {
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.5rem;
+        min-width: 0;
+      }
+      .stats span {
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        font-size: 0.88rem;
+        font-variant-numeric: tabular-nums;
+      }
       .muted {
         color: var(--muted);
       }
@@ -538,6 +570,7 @@
           <a href="#recht">Rechtsrahmen</a>
           <a href="#quellen">Quellen im Vergleich</a>
           <a href="#hoerproben">Hörproben</a>
+          <a href="#bibliothek">Bibliothek</a>
           <a href="#kandidaten">Nächste Lieder</a>
           <a href="#weg">Importweg</a>
         </nav>
@@ -1259,6 +1292,20 @@
   <p class="status status-gruen">Gemeinfrei, auch die Ausgabe („Public Domain“ bei CPDL).</p>
   <button class="play" type="button" data-song="11">Anhören &amp; üben</button>
 </article></div>
+      </section>
+
+      <section id="bibliothek">
+        <header>
+          <p class="kicker">Automatisch importiert, deutschsprachig</p>
+          <h2>Bibliothek</h2>
+        </header>
+        <p class="prose">27 Lieder automatisch importiert, 10 Fehlschläge mit Grund im Katalog. Die Lieder liegen ungeprüft in <code>bibliothek/</code>; Filter und Suche folgen.</p>
+        <dl class="stats">
+          <div><dt>Quelle</dt><dd><span>Mutopia <b>27</b></span></dd></div>
+          <div><dt>Stimmen</dt><dd><span>4-stimmig <b>27</b></span></dd></div>
+          <div><dt>Lizenz</dt><dd><span>CC BY <b>26</b></span><span>gemeinfrei <b>1</b></span></dd></div>
+          <div><dt>Status</dt><dd><span>ok <b>26</b></span><span>fehler <b>10</b></span><span>warnung <b>1</b></span></dd></div>
+        </dl>
       </section>
 
       <section id="kandidaten">

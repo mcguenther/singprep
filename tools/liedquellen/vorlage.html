@@ -429,6 +429,38 @@
         gap: 0.7rem;
         max-width: 68ch;
       }
+      .stats {
+        margin: 0;
+        display: grid;
+        gap: 0.6rem;
+      }
+      .stats div {
+        display: grid;
+        grid-template-columns: 7rem 1fr;
+        gap: 0.8rem;
+        align-items: baseline;
+      }
+      .stats dt {
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .stats dd {
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.5rem;
+        min-width: 0;
+      }
+      .stats span {
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        font-size: 0.88rem;
+        font-variant-numeric: tabular-nums;
+      }
       .muted {
         color: var(--muted);
       }
@@ -538,6 +570,7 @@
           <a href="#recht">Rechtsrahmen</a>
           <a href="#quellen">Quellen im Vergleich</a>
           <a href="#hoerproben">Hörproben</a>
+          <a href="#bibliothek">Bibliothek</a>
           <a href="#kandidaten">Nächste Lieder</a>
           <a href="#weg">Importweg</a>
         </nav>
@@ -1068,6 +1101,14 @@
           </p>
         </header>
         <div class="songs"><!--HOERPROBEN--></div>
+      </section>
+
+      <section id="bibliothek">
+        <header>
+          <p class="kicker">Automatisch importiert, deutschsprachig</p>
+          <h2>Bibliothek</h2>
+        </header>
+        <!--BIBLIOTHEK-->
       </section>
 
       <section id="kandidaten">
