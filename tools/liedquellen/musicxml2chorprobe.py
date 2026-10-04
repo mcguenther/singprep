@@ -276,6 +276,10 @@ def convert(path, meta):
                 for mmk in m.recurse().getElementsByClass(tempo.MetronomeMark):
                     if mmk.number:
                         tempo_bpm = round(mmk.getQuarterBPM())
+        if ts[0] is None:  # Vorlage ohne Taktangabe: 4/4 annehmen, Überlängen passen sich unten an
+            from music21 import meter as m21meter
+
+            ts[0] = m21meter.TimeSignature("4/4")
         t0 = ts[0]
         meter = [t0.numerator, t0.denominator]
         full = ticks(t0.barDuration.quarterLength)
@@ -393,6 +397,13 @@ def convert(path, meta):
     out_measures = merged_measures
     for i, rec in enumerate(out_measures):
         rec["id"] = f"m{i + 1}"
+
+    # Angaben dürfen nicht hinter dem (ggf. verkürzten) Taktende stehen.
+    for rec in out_measures:
+        laenge = rec.get("lengthTicks") or ticks(Fraction(rec["meter"][0] * 4, rec["meter"][1]))
+        for key in ("directions", "dynamics"):
+            for d in rec.get(key, []):
+                d["at"] = min(d["at"], laenge - 1)
 
     # Text der Quellstimme auf textlose Stimmen übertragen (homophone Sätze, Text nur im Sopran):
     # Jede Silbe geht an die erste neu angeschlagene Note der Zielstimme zwischen dieser und der

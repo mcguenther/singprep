@@ -14,16 +14,15 @@ wird später (Besetzung, Sprache, Qualität). Übersicht und Hörproben: `docs/l
    Prüfstatus. Muss über `file://` laufen, also Katalog als `.js` und Lieder per `<script>` nachladen
    (kein `fetch`).
 
-## Offene Entscheidungen
+## Entscheidungen (4. Oktober 2026)
 
-- [ ] **Rechte-Regel** in `CLAUDE.md`: Bisher „nur gemeinfreie oder selbst erstellte Lieder“. Die
-      Werke sind gemeinfrei, viele Kodierungen aber lizenziert: CC BY (Namensnennung), CC BY-SA und
-      CPDL-Lizenz (Copyleft, Änderungsvermerk mit Datum, Lizenz weitergeben). Vorschlag: Kodierungen
-      gemeinfreier Werke unter CC BY, CC BY-SA und CPDL-Lizenz zulassen, mit Lizenzvermerk in
-      `source.copyright`. NC, ND, „Personal“ und „Religious“ bleiben ausgeschlossen.
-- [ ] **Ablage**: Massenimport nach `bibliothek/<quelle>/` im Repo (deutsch: einige MB) oder in ein
-      eigenes Daten-Repo (alle Sprachen: grob 150 MB und mehr).
-- [ ] **Sprachen**: erst Deutsch, dann alle?
+- [x] **Rechte-Regel** (`CLAUDE.md`): erlaubt sind gemeinfreie und selbst erstellte Lieder sowie
+      Lieder unter CC0, CC BY, CC BY-SA und CPDL-Lizenz, jeweils mit Lizenzvermerk in
+      `source.copyright` (Urheber/Herausgeber, Quelle mit Link, Lizenz, Änderungsvermerk mit Datum).
+      NC, ND, „Personal“, „Religious“ und Ausgaben ohne Lizenz bleiben ausgeschlossen.
+- [x] **Ablage**: vorerst im selben Repo unter `bibliothek/<quelle>/`, je Quelle ein Katalog
+      `bibliothek/katalog-<quelle>.json` mit Status, Grund, Quelle, Lizenz und Kennzahlen.
+- [x] **Sprachen**: erst nur Deutsch.
 
 ## Quellen und Stand
 
