@@ -75,7 +75,7 @@ Chorprobe.audio = (function () {
   // fundamental for depth and strong harmonics 2–4, so its pitch is still heard on phone and
   // laptop speakers. The soprano is an almost pure, soft tone with a hint of shine near 3 kHz.
   // Tones start crisply; vibrato is slight and only on longer notes. Levels are balanced by
-  // loudness, the bass slightly ahead.
+  // loudness; the bass sits a little below, since its strong fundamental makes it sound fuller.
   const REGISTERS = [
     {
       id: "bass",
@@ -83,14 +83,14 @@ Chorprobe.audio = (function () {
       tilt: 0.8,
       rolloff: 1700,
       formants: [
-        [90, 180, 0.9],
+        [90, 180, 0.6],
         [420, 450, 2],
         [900, 400, 0.4],
         [2450, 600, 0.6],
       ],
       attack: 0.012,
-      peak: 0.21,
-      sustain: 0.147,
+      peak: 0.161,
+      sustain: 0.112,
       decay: 0.09,
       vibrato: 4.6,
       depth: 5,
@@ -106,8 +106,8 @@ Chorprobe.audio = (function () {
         [2750, 500, 1.6],
       ],
       attack: 0.015,
-      peak: 0.166,
-      sustain: 0.124,
+      peak: 0.178,
+      sustain: 0.133,
       decay: 0.1,
       vibrato: 5.1,
       depth: 8,
@@ -123,8 +123,8 @@ Chorprobe.audio = (function () {
         [2900, 600, 1],
       ],
       attack: 0.018,
-      peak: 0.165,
-      sustain: 0.128,
+      peak: 0.177,
+      sustain: 0.137,
       decay: 0.11,
       vibrato: 5.3,
       depth: 8,
@@ -136,8 +136,8 @@ Chorprobe.audio = (function () {
       rolloff: Infinity,
       formants: [[3100, 700, 0.9]],
       attack: 0.035,
-      peak: 0.145,
-      sustain: 0.129,
+      peak: 0.163,
+      sustain: 0.145,
       decay: 0.12,
       vibrato: 5.6,
       depth: 8,
