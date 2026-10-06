@@ -48,10 +48,11 @@ function fakeContext() {
 }
 
 describe("Ensemble-Klang", () => {
-  test("ist zusätzlich wählbar, Chor bleibt Standard", () => {
+  test("ist Standard, Chor bleibt wählbar", () => {
     assert.ok(audio.VOICE_SOUNDS.ensemble.byRegister);
-    assert.equal(Object.keys(audio.VOICE_SOUNDS)[0], "choir");
-    assert.equal(new audio.ChoirAudio().sound, "choir");
+    assert.equal(Object.keys(audio.VOICE_SOUNDS)[0], "ensemble");
+    assert.ok(audio.VOICE_SOUNDS.choir);
+    assert.equal(new audio.ChoirAudio().sound, "ensemble");
   });
   test("Stimmlage nach Tonhöhe", () => {
     const ids = [45, 54, 55, 60, 62, 63, 66, 67, 79].map((m) => audio.registerFor(m).id);
@@ -77,11 +78,11 @@ describe("Ensemble-Klang", () => {
         assert.ok(levels.length * hz(midi) <= 6000);
       }
   });
-  test("Bass: kräftiger Grundton, Obertöne 2–5 hörbar auf kleinen Lautsprechern", () => {
+  test("Bass: kräftiger Grundton, Obertöne 2–4 hörbar auf kleinen Lautsprechern", () => {
     for (const midi of [40, 45, 50]) {
       const levels = audio.harmonicLevels(register("bass"), hz(midi));
       assert.equal(Math.max(...levels), levels[0], `Grundton am stärksten (${midi})`);
-      for (let i = 1; i < 5; i++) assert.ok(db(levels, i) > -14, `Oberton ${i + 1} (${midi})`);
+      for (let i = 1; i < 4; i++) assert.ok(db(levels, i) > -12, `Oberton ${i + 1} (${midi})`);
     }
   });
   test("Sopran: fast reiner Ton", () => {

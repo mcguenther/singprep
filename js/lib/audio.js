@@ -9,6 +9,8 @@ Chorprobe.audio = (function () {
       : { sustain: 1, peak: 1 };
   }
   const VOICE_SOUNDS = {
+    // Each voice sounds like its register (see REGISTERS), so the voices stay apart.
+    ensemble: { name: "Ensemble · je Stimmlage", byRegister: true },
     choir: {
       name: "Chor · weich",
       harmonics: [1, 0.5, 0.26, 0.15, 0.08, 0.03],
@@ -20,8 +22,6 @@ Chorprobe.audio = (function () {
       vibrato: 0,
       depth: 0,
     },
-    // Each voice sounds like its register (see REGISTERS), so the voices stay apart.
-    ensemble: { name: "Ensemble · je Stimmlage", byRegister: true },
     flute: {
       name: "Flöte · luftig",
       harmonics: [1, 0.025, 0.1, 0.005, 0.012],
@@ -72,25 +72,25 @@ Chorprobe.audio = (function () {
   // bumps [Hz, width, boost] at fixed frequencies (vowel formants, singer's formant) and fading
   // above `rolloff` Hz, so low voices do not buzz. Fixed frequencies keep the colour of a voice
   // while its pitch moves, unlike a lowpass that follows the pitch. The bass gets a strong
-  // fundamental for depth and strong harmonics 2–5, so its pitch is still heard on phone and
-  // laptop speakers. The soprano is almost a pure tone with a little shine near 3 kHz. Tones
-  // start crisply; vibrato is slight and only on longer notes. Levels are balanced by loudness,
-  // the bass slightly ahead.
+  // fundamental for depth and strong harmonics 2–4, so its pitch is still heard on phone and
+  // laptop speakers. The soprano is an almost pure, soft tone with a hint of shine near 3 kHz.
+  // Tones start crisply; vibrato is slight and only on longer notes. Levels are balanced by
+  // loudness, the bass slightly ahead.
   const REGISTERS = [
     {
       id: "bass",
       upTo: 54,
-      tilt: 0.85,
-      rolloff: 2000,
+      tilt: 0.8,
+      rolloff: 1700,
       formants: [
-        [90, 140, 0.4],
-        [450, 400, 1.9],
-        [950, 400, 0.5],
-        [2450, 600, 0.8],
+        [90, 180, 0.9],
+        [420, 450, 2],
+        [900, 400, 0.4],
+        [2450, 600, 0.6],
       ],
       attack: 0.012,
-      peak: 0.198,
-      sustain: 0.139,
+      peak: 0.21,
+      sustain: 0.147,
       decay: 0.09,
       vibrato: 4.6,
       depth: 5,
@@ -132,19 +132,19 @@ Chorprobe.audio = (function () {
     {
       id: "soprano",
       upTo: Infinity,
-      tilt: 2.1,
+      tilt: 2.4,
       rolloff: Infinity,
-      formants: [[3100, 700, 1.6]],
-      attack: 0.02,
-      peak: 0.161,
+      formants: [[3100, 700, 0.9]],
+      attack: 0.035,
+      peak: 0.145,
       sustain: 0.129,
       decay: 0.12,
       vibrato: 5.6,
-      depth: 10,
+      depth: 8,
     },
   ];
   // Voices spread a little in stereo, in score order from left to right.
-  const PAN_SPREAD = 0.3;
+  const PAN_SPREAD = 0.4;
   function registerFor(midi) {
     return REGISTERS.find((r) => midi <= r.upTo);
   }
@@ -319,7 +319,7 @@ Chorprobe.audio = (function () {
       this.master = 0.7;
       this.frame = 0;
       this.timer = 0;
-      this.sound = "choir";
+      this.sound = "ensemble";
     }
     async ready() {
       if (!this.ctx) {
@@ -392,7 +392,7 @@ Chorprobe.audio = (function () {
       return this.gains.get(id);
     }
     soundFor() {
-      return Object.hasOwn(VOICE_SOUNDS, this.sound) ? this.sound : "choir";
+      return Object.hasOwn(VOICE_SOUNDS, this.sound) ? this.sound : "ensemble";
     }
     setSound(sound) {
       if (!Object.hasOwn(VOICE_SOUNDS, sound)) return;
